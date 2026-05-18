@@ -1,31 +1,16 @@
-// Import React
-import { useSearchParams } from 'react-router-dom';
 // Import Components
 import { Locations } from '../components/locations/locations';
 import { Cities } from '../components/cities/cities';
-// Import Constants
-import { DEFAULT_CITY } from '../const';
 // Import Utils
 import { filterOffersByCity } from '../utils';
-// Import Types
-import { OffersElementType } from '../mocks/offers-mocks';
 // Import Hooks
 import { useAppSelector } from '../hooks/hooks';
 
-// Get City
-const getCity = (searchParams: URLSearchParams): string => searchParams.get('city') || DEFAULT_CITY;
-
-// Create Types
-type MainPageProps = {
-  offers: OffersElementType[];
-};
-
 // Create MainPage
-function MainPage({ offers }: MainPageProps): JSX.Element {
-  const [searchParams] = useSearchParams();
-  const filteredOffers = filterOffersByCity(offers, getCity(searchParams));
-
+function MainPage(): JSX.Element {
   const city = useAppSelector((state) => state.city);
+  const offers = useAppSelector((state) => state.offers);
+  const filteredOffers = filterOffersByCity(offers, city);
 
   return (
     <main className="page__main page__main--index">

@@ -1,4 +1,4 @@
-import { OffersElementType } from './mocks/offers-mocks';
+import { OffersElementType } from './types/offers';
 import { OfferType } from './mocks/offer-mock';
 import { CommentElementType } from './mocks/comments-mocks';
 import { FavoriteType } from './mocks/favorite-mocks';

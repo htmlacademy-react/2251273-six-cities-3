@@ -11,7 +11,7 @@ import { AuthorizationStatus } from '../const';
 // Import Utils
 import { checkOfferId, getLocation, getNearestOffers } from '../utils';
 // Import Types
-import { OffersElementType } from '../mocks/offers-mocks';
+import { OffersElementType } from '../types/offers';
 import { OFFER, OfferType } from '../mocks/offer-mock';
 import { CommentElementType } from '../mocks/comments-mocks';
 

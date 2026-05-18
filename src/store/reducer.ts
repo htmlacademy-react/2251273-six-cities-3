@@ -4,9 +4,12 @@ import { createReducer } from '@reduxjs/toolkit';
 import { changeCity, resetCity } from './action';
 // Import Constants
 import { DEFAULT_CITY } from '../const';
+// Import Mocks
+import { OFFERS } from '../mocks/offers-mocks';
 
 const initialState = {
   city: DEFAULT_CITY,
+  offers: OFFERS,
 };
 
 export const reducer = createReducer(initialState, (builder) => {
@@ -17,6 +20,5 @@ export const reducer = createReducer(initialState, (builder) => {
     .addCase(resetCity, (state) => {
       state.city = initialState.city;
     });
-
 });
 
