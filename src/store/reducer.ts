@@ -1,7 +1,7 @@
 // Import Create Reducer
 import { createReducer } from '@reduxjs/toolkit';
 // Import Actions
-import { changeCity, resetCity } from './action';
+import { changeCity, resetCity, clearOffers } from './action';
 // Import Constants
 import { DEFAULT_CITY } from '../const';
 // Import Mocks
@@ -19,6 +19,9 @@ export const reducer = createReducer(initialState, (builder) => {
     })
     .addCase(resetCity, (state) => {
       state.city = initialState.city;
+    })
+    .addCase(clearOffers, (state) => {
+      state.offers = [];
     });
 });
 
