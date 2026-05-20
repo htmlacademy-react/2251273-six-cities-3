@@ -17,13 +17,14 @@ import { AppRoute, PAGE_NOT_FOUND_MESSAGE } from '../../const';
 // Import Utils
 import { getStatusAuth, getFavoriteOffers } from '../../utils';
 // Import Types
-import { OffersElementType, OFFERS } from '../../mocks/offers-mocks';
 import { COMMENTS } from '../../mocks/comments-mocks';
 import { FAVORITES } from '../../mocks/favorite-mocks';
+// Import Hooks
+import { useAppSelector } from '../../hooks/hooks';
 
 // Create App
 function App(): JSX.Element {
-  const offers: OffersElementType[] = OFFERS;
+  const offers = useAppSelector((state) => state.offers);
   const statusAuthorization = getStatusAuth();
   return (
     <HelmetProvider>
@@ -33,15 +34,13 @@ function App(): JSX.Element {
           <Route
             path={AppRoute.Main}
             element={
-              <Layout offers={offers} />
+              <Layout />
             }
           >
             <Route
               index
               element={
-                <MainPage
-                  offers={offers}
-                />
+                <MainPage/>
               }
             />
             <Route

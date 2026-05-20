@@ -3,22 +3,20 @@ import { LocationsItem } from './locations-item';
 // Import Utils
 import { getArrayAllCities } from '../../utils';
 // Import Types
-import { OffersElementType } from '../../mocks/offers-mocks';
-
-
-// Create Types
-type LocationsProps = {
-  offers: OffersElementType[];
-  city: string;
-};
+import { useAppSelector } from '../../hooks/hooks';
 
 // Create Locations
-function Locations({offers, city}: LocationsProps): JSX.Element {
+function Locations(): JSX.Element {
+  const offers = useAppSelector((state) => state.offers);
+
   return (
     <section className="locations container">
       <ul className="locations__list tabs__list">
         {getArrayAllCities(offers).map((location, index) => (
-          <LocationsItem key={`${location + index}`} location={location} city={city}/>
+          <LocationsItem
+            key={`${location + index}`}
+            location={location}
+          />
         ))}
       </ul>
     </section>

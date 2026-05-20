@@ -7,8 +7,8 @@ import { Navigation } from '../navigation/navigation';
 import { Footer } from '../footer/footer';
 // Import Constants
 import { AppRoute } from '../../const';
-// Import Types
-import { OffersElementType } from '../../mocks/offers-mocks';
+// Import Hooks
+import { useAppSelector } from '../../hooks/hooks';
 
 // Create Types
 type LayoutState = {
@@ -68,15 +68,11 @@ const getLayoutState = (pathname: AppRoute): LayoutState => {
   }
 };
 
-// Create Types
-type LayoutProps = {
-  offers: OffersElementType[];
-}
-
 // Create Layout
-function Layout({ offers }: LayoutProps): JSX.Element {
+function Layout(): JSX.Element {
   const { pathname } = useLocation();
   const { classNamePage, navigationState, logoState, footerState, titlePage } = getLayoutState(pathname as AppRoute);
+  const offers = useAppSelector((state) => state.offers);
 
   return (
     <div className={classNamePage}>
