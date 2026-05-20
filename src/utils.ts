@@ -107,6 +107,11 @@ function getLocation(offer: OffersElementType): OffersElementType['location'] {
   return location;
 }
 
+function getSortedOffersByType(offers: OffersElementType[], type: string): OffersElementType[] {
+  console.log(type);
+  return offers.reverse();
+}
+
 export {
   countFavoritesOffers,
   getArrayAllCities,
@@ -122,5 +127,6 @@ export {
   checkOfferId,
   filterOffersByCity,
   getCounterOffers,
-  getLocation
+  getLocation,
+  getSortedOffersByType
 };

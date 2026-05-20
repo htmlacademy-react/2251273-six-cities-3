@@ -13,6 +13,14 @@ const NEAREST_OFFERS_COUNT = 3;
 
 const DEFAULT_CITY = 'Amsterdam';
 
+const CITIES = [
+  'Paris',
+  'Cologne',
+  'Brussels',
+  'Amsterdam',
+  'Hamburg',
+  'Dusseldorf',
+];
 
 const RATING_OFFER = [
   { value: 5, label: 'perfect' },
@@ -66,6 +74,7 @@ export {
   PLACES_OPTIONS,
   DEFAULT_SORTING,
   NEAREST_OFFERS_COUNT,
+  CITIES,
   RATING_OFFER,
   REVIEW_OFFER,
   PAGE_NOT_FOUND_MESSAGE,

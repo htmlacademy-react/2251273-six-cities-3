@@ -29,6 +29,7 @@ export const reducer = createReducer(initialState, (builder) => {
     })
     .addCase(resetSorting, (state) => {
       state.sortingOffers = initialState.sortingOffers;
+      state.offers = initialState.offers;
     });
 });
 
