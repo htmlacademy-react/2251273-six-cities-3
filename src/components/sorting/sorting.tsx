@@ -27,9 +27,9 @@ function Sorting(): JSX.Element {
     dispatch(changeSorting(sorting));
     if (sorting === PLACES_OPTIONS[0]) {
       dispatch(resetOffers());
-    } else {
-      dispatch(sortOffers());
+      return;
     }
+    dispatch(sortOffers());
   }
 
   function handleMouseLeave(): void {
