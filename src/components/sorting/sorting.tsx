@@ -4,6 +4,8 @@ import { PLACES_OPTIONS } from '../../const';
 import { clsx } from 'clsx';
 // Import React
 import { useRef } from 'react';
+// Import Utils
+import { getPlacesOptionsLabel } from '../../utils';
 // Import Hooks
 import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
 // Import Actions
@@ -24,8 +26,8 @@ function Sorting(): JSX.Element {
     const sorting: string = event.currentTarget.dataset.sorting || '';
     event.preventDefault();
     placesOption.current?.classList.remove('places__options--opened');
-    dispatch(changeSorting(sorting));
-    if (sorting === PLACES_OPTIONS[0]) {
+    dispatch(changeSorting(getPlacesOptionsLabel(sorting)));
+    if (sorting === PLACES_OPTIONS[0].value) {
       dispatch(resetOffers());
       return;
     }
@@ -59,13 +61,13 @@ function Sorting(): JSX.Element {
           <li
             className={
               clsx('places__option',
-                {'places__option--active': option === sortingOffers})
+                {'places__option--active': option.label === sortingOffers})
             }
-            data-sorting={option}
-            key={option}
+            data-sorting={option.value}
+            key={option.value}
             tabIndex={0}
             onClick={handleClickOption}
-          >{option}
+          >{option.label}
           </li>
         ))}
       </ul>

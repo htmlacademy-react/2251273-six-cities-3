@@ -1,10 +1,22 @@
 import leaflet from 'leaflet';
 
 const PLACES_OPTIONS = [
-  'Popular',
-  'Price: low to high',
-  'Price: high to low',
-  'Top rated first',
+  {
+    value: 'popular',
+    label: 'Popular',
+  },
+  {
+    value: 'inexpensive',
+    label: 'Price: low to high',
+  },
+  {
+    value: 'expensive',
+    label: 'Price: high to low',
+  },
+  {
+    value: 'top',
+    label: 'Top rated first',
+  },
 ];
 
 const DEFAULT_SORTING = 'Popular';
