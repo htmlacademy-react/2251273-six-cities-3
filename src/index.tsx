@@ -7,6 +7,10 @@ import { store } from './store/store';
 // Import Components
 import { App } from './components/app/app';
 
+import { fetchOffersAction } from './store/api-actions';
+
+store.dispatch(fetchOffersAction());
+
 // Create Root
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

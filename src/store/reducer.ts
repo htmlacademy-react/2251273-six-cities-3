@@ -4,7 +4,7 @@ import {
   changeCity, resetCity,
   loadOffers, clearOffers, sortOffers, resetOffers,
   changeSorting, resetSorting,
-  requireAuthorization
+  requireAuthorization,
 } from './action';
 
 import { DEFAULT_CITY, DEFAULT_SORTING, AuthorizationStatus } from '../const';
@@ -18,6 +18,7 @@ type InitialStateType = {
   offers: OffersElementType[];
   sortingOffers: string;
   AuthorizationStatus: AuthorizationStatus;
+  isLoadingDataOffers: boolean;
 };
 
 const initialState: InitialStateType = {
@@ -25,6 +26,7 @@ const initialState: InitialStateType = {
   offers: [],
   sortingOffers: DEFAULT_SORTING,
   AuthorizationStatus: AuthorizationStatus.Unknown,
+  isLoadingDataOffers: false
 };
 
 export const reducer = createReducer(initialState, (builder) => {
@@ -35,8 +37,8 @@ export const reducer = createReducer(initialState, (builder) => {
     .addCase(resetCity, (state) => {
       state.city = initialState.city;
     })
-    .addCase(loadOffers, (state) => {
-      state.offers = initialState.offers;
+    .addCase(loadOffers, (state, action) => {
+      state.offers = action.payload;
     })
     .addCase(clearOffers, (state) => {
       state.offers = [];
@@ -52,7 +54,7 @@ export const reducer = createReducer(initialState, (builder) => {
     })
     .addCase(resetSorting, (state) => {
       state.sortingOffers = initialState.sortingOffers;
-      state.offers = initialState.offers;
+      // state.offers = initialState.offers;
     })
     .addCase(requireAuthorization, (state, action) => {
       state.AuthorizationStatus = action.payload;

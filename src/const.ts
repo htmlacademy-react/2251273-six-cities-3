@@ -86,6 +86,12 @@ export enum AuthorizationStatus {
   Unknown = 'UNKNOWN',
 }
 
+export enum APIRoute {
+  Offers = '/offers',
+  Login = '/login',
+  Logout = '/logout',
+}
+
 export {
   DEFAULT_CITY,
   PLACES_OPTIONS,
