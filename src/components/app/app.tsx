@@ -15,7 +15,7 @@ import { PageNotFound } from '../page-not-found/page-not-found';
 // Import Constants
 import { AppRoute, PAGE_NOT_FOUND_MESSAGE } from '../../const';
 // Import Utils
-import { getStatusAuth, getFavoriteOffers } from '../../utils';
+import { getFavoriteOffers } from '../../utils';
 // Import Types
 import { COMMENTS } from '../../mocks/comments-mocks';
 import { FAVORITES } from '../../mocks/favorite-mocks';
@@ -25,7 +25,7 @@ import { useAppSelector } from '../../hooks/hooks';
 // Create App
 function App(): JSX.Element {
   const offers = useAppSelector((state) => state.offers);
-  const statusAuthorization = getStatusAuth();
+  const statusAuthorization = useAppSelector((state) => state.AuthorizationStatus);
   return (
     <HelmetProvider>
       <GlobalStyle />

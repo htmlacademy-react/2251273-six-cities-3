@@ -23,7 +23,6 @@ function Logo({logoState}: LogoProps): JSX.Element {
   function handleClick(): void {
     dispatch(resetCity());
     dispatch(resetSorting());
-    // dispatch(resetOffers());
   }
 
   return (
