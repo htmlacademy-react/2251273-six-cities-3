@@ -1,15 +1,9 @@
-// Import constants
 import { PLACES_OPTIONS } from '../../const';
-// Import Utils
 import { clsx } from 'clsx';
-// Import React
 import { useRef } from 'react';
-// Import Utils
 import { getPlacesOptionsLabel } from '../../utils';
-// Import Hooks
 import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
-// Import Actions
-import { changeSorting, sortOffers, resetOffers } from '../../store/action';
+import { changeSorting } from '../../store/action';
 
 // Create Sorting
 function Sorting(): JSX.Element {
@@ -26,12 +20,7 @@ function Sorting(): JSX.Element {
     const sorting: string = event.currentTarget.dataset.sorting || '';
     event.preventDefault();
     placesOption.current?.classList.remove('places__options--opened');
-    dispatch(changeSorting(getPlacesOptionsLabel(sorting)));
-    if (sorting === PLACES_OPTIONS[0].value) {
-      dispatch(resetOffers());
-      return;
-    }
-    dispatch(sortOffers());
+    dispatch(changeSorting(sorting));
   }
 
   function handleMouseLeave(): void {
@@ -51,7 +40,7 @@ function Sorting(): JSX.Element {
         tabIndex={0}
         onClick={handleClickSorting}
       >
-        {sortingOffers}
+        {getPlacesOptionsLabel(sortingOffers)}
         <svg className="places__sorting-arrow" width="7" height="4">
           <use xlinkHref="#icon-arrow-select"></use>
         </svg>
@@ -61,7 +50,7 @@ function Sorting(): JSX.Element {
           <li
             className={
               clsx('places__option',
-                {'places__option--active': option.label === sortingOffers})
+                {'places__option--active': option.value === sortingOffers})
             }
             data-sorting={option.value}
             key={option.value}

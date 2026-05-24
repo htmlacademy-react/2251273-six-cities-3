@@ -19,7 +19,7 @@ const PLACES_OPTIONS = [
   },
 ];
 
-const DEFAULT_SORTING = 'Popular';
+const DEFAULT_SORTING = 'popular';
 
 const NEAREST_OFFERS_COUNT = 3;
 

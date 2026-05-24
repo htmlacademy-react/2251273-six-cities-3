@@ -11,8 +11,6 @@ import { DEFAULT_CITY, DEFAULT_SORTING, AuthorizationStatus } from '../const';
 
 import { OffersElementType } from '../types/offers';
 
-import { getSortedOffersByType } from '../utils';
-
 type InitialStateType = {
   city: string;
   offers: OffersElementType[];
@@ -43,8 +41,8 @@ export const reducer = createReducer(initialState, (builder) => {
     .addCase(clearOffers, (state) => {
       state.offers = [];
     })
-    .addCase(sortOffers, (state) => {
-      state.offers = getSortedOffersByType(state.offers, state.sortingOffers) ;
+    .addCase(sortOffers, (state, action) => {
+      state.offers = action.payload;
     })
     .addCase(resetOffers, (state) => {
       state.offers = initialState.offers;

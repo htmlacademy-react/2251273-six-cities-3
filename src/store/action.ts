@@ -8,7 +8,7 @@ export const resetCity = createAction<void>('city/resetCity');
 
 export const loadOffers = createAction<OffersElementType[]>('offers/loadOffers');
 export const clearOffers = createAction<void>('offers/clearOffers');
-export const sortOffers = createAction<void>('offers/sortOffers');
+export const sortOffers = createAction<OffersElementType[]>('offers/sortOffers');
 export const resetOffers = createAction<void>('offers/resetOffers');
 
 export const changeSorting = createAction<string>('sorting/changeSorting');
