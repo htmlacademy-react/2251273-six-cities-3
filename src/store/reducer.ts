@@ -1,7 +1,10 @@
 // Import Create Reducer
 import { createReducer } from '@reduxjs/toolkit';
 // Import Actions
-import { changeCity, resetCity, clearOffers, sortOffers, resetOffers, changeSorting, resetSorting } from './action';
+import {
+  changeCity, resetCity,
+  loadOffers, clearOffers, sortOffers, resetOffers,
+  changeSorting, resetSorting } from './action';
 // Import Constants
 import { DEFAULT_CITY, DEFAULT_SORTING } from '../const';
 // Import Mocks
@@ -22,6 +25,9 @@ export const reducer = createReducer(initialState, (builder) => {
     })
     .addCase(resetCity, (state) => {
       state.city = initialState.city;
+    })
+    .addCase(loadOffers, (state) => {
+      state.offers = initialState.offers;
     })
     .addCase(clearOffers, (state) => {
       state.offers = [];
