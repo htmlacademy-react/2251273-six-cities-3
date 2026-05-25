@@ -13,13 +13,16 @@ import { getFavoriteOffers } from '../../utils';
 import { COMMENTS } from '../../mocks/comments-mocks';
 import { FAVORITES } from '../../mocks/favorite-mocks';
 import { useAppSelector } from '../../hooks/hooks';
-import { fetchOffersAction, checkAuthAction } from './../../store/api-actions';
+import { checkAuthAction } from './../../store/api-actions';
 import { store } from '../../store/store';
-
-store.dispatch(fetchOffersAction());
-store.dispatch(checkAuthAction());
+import { useEffect } from 'react';
 
 function App(): JSX.Element {
+
+  useEffect(() => {
+    store.dispatch(checkAuthAction());
+  }, []);
+
   const offers = useAppSelector((state) => state.offers);
   const statusAuthorization = useAppSelector((state) => state.AuthorizationStatus);
   return (

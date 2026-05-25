@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CitiesPlaces } from './cities-places';
 import { Map } from '../map/map';
 import { getLocation } from '../../utils';
 import { OffersElementType } from '../../types/offers';
+import { store } from '../../store/store';
+import { fetchOffersAction } from '../../store/api-actions';
 
 type CitiesProps = {
   offers: OffersElementType[];
@@ -11,6 +13,10 @@ type CitiesProps = {
 
 function Cities({offers, city}: CitiesProps): JSX.Element {
   const [currentOffer, setCurrentOffer] = useState<string>('');
+
+  useEffect(() => {
+    store.dispatch(fetchOffersAction());
+  }, [offers]);
 
   const handleOfferHover = (offerId: string) => {
     setCurrentOffer(offerId);
