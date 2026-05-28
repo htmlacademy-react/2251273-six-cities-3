@@ -7,6 +7,7 @@ import { AuthorizationStatus } from '../../const';
 import { useNavigate } from 'react-router-dom';
 import { logoutAction } from '../../store/api-actions';
 import { useAppDispatch } from '../../hooks/hooks';
+import { getUserEmail } from '../../services/user-email';
 
 
 // Create Types
@@ -17,7 +18,7 @@ type NavigationProps = {
 // Create Navigation
 function Navigation({offers}: NavigationProps): JSX.Element {
   const statusAuthorization = useAppSelector((state) => state.AuthorizationStatus);
-  const userEmail = useAppSelector((state) => state.userEmail);
+  const userEmail = getUserEmail();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 

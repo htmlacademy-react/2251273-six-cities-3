@@ -11,7 +11,3 @@ export const changeSorting = createAction<string>('sorting/changeSorting');
 export const resetSorting = createAction<void>('sorting/resetSorting');
 
 export const requireAuthorization = createAction<AuthorizationStatus>('user/requireAuthorization');
-
-export const addUserEmail = createAction<string>('user/saveUserEmail');
-export const resetUserEmail = createAction<void>('user/resetUserEmail');
-

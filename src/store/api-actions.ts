@@ -3,9 +3,9 @@ import { AxiosInstance } from 'axios';
 import { AppDispatch, State } from '../types/state';
 import { APIRoute, AuthorizationStatus } from '../const';
 import { OffersElementType } from '../types/offers';
-import { loadOffers, requireAuthorization, addUserEmail, resetUserEmail } from './action';
+import { loadOffers, requireAuthorization } from './action';
 import { saveToken, dropToken } from '../services/token';
-import { getUserEmail, saveUserEmail, dropUserEmail } from '../services/user-email';
+import { saveUserEmail, dropUserEmail } from '../services/user-email';
 
 type AuthData = {
   login: string;
@@ -42,9 +42,10 @@ export const checkAuthAction = createAsyncThunk<void, undefined, {
   async (_arg, {dispatch, extra: api}) => {
     try {
       await api.get(APIRoute.Login);
-      dispatch(addUserEmail(getUserEmail()));
       dispatch(requireAuthorization(AuthorizationStatus.Auth));
     } catch {
+      dropToken();
+      dropUserEmail();
       dispatch(requireAuthorization(AuthorizationStatus.NoAuth));
     }
   },
@@ -60,7 +61,6 @@ export const loginAction = createAsyncThunk<void, AuthData, {
     const {data: {token}} = await api.post<{token: string}>(APIRoute.Login, {email, password});
     saveToken(token);
     saveUserEmail(email);
-    dispatch(addUserEmail(email));
     dispatch(requireAuthorization(AuthorizationStatus.Auth));
   },
 );
@@ -75,7 +75,6 @@ export const logoutAction = createAsyncThunk<void, undefined, {
     await api.delete(APIRoute.Logout);
     dropToken();
     dropUserEmail();
-    dispatch(resetUserEmail());
     dispatch(requireAuthorization(AuthorizationStatus.NoAuth));
   },
 );
