@@ -14,14 +14,15 @@ import { COMMENTS } from '../../mocks/comments-mocks';
 import { FAVORITES } from '../../mocks/favorite-mocks';
 import { useAppSelector } from '../../hooks/hooks';
 import { checkAuthAction } from './../../store/api-actions';
-import { store } from '../../store/store';
 import { useEffect } from 'react';
+import { useAppDispatch } from '../../hooks/hooks';
 
 function App(): JSX.Element {
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    store.dispatch(checkAuthAction());
-  }, []);
+    dispatch(checkAuthAction());
+  }, [dispatch]);
 
   const offers = useAppSelector((state) => state.offers);
   const statusAuthorization = useAppSelector((state) => state.AuthorizationStatus);
