@@ -4,6 +4,7 @@ import { postReviewAction } from '../../store/api-actions';
 import { useAppDispatch } from '../../hooks/hooks';
 import { useParams } from 'react-router-dom';
 
+
 // Create ReviewsForm
 function ReviewsForm(): JSX.Element {
   const dispatch = useAppDispatch();
@@ -24,15 +25,24 @@ function ReviewsForm(): JSX.Element {
   // Create handleFormSubmit
   function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    dispatch(postReviewAction({
-      offerId: offerId,
-      comment: reviewsOffer.comment,
-      rating: reviewsOffer.rating,
-    }));
-    setReviewsOffer({
-      rating: 0,
-      comment: '',
-    });
+    try {
+      dispatch(postReviewAction({
+        offerId: offerId,
+        comment: reviewsOffer.comment,
+        rating: reviewsOffer.rating,
+      }));
+
+      setReviewsOffer({
+        rating: 0,
+        comment: '',
+      });
+    } catch {
+      setReviewsOffer({
+        rating: 0,
+        comment: '',
+      });
+      throw new Error('Error postReviewAction');
+    }
   }
 
   return (
@@ -44,7 +54,9 @@ function ReviewsForm(): JSX.Element {
             <Fragment key={value}>
               <input
                 className='form__rating-input visually-hidden'
-                name='rating' value={value} id={`star-${value}`}
+                name='rating'
+                value={value}
+                id={`star-${value}`}
                 type='radio'
                 onChange={(event) => handleReviewsOfferChange('rating', Number(event.target.value))}
               />
@@ -68,11 +80,15 @@ function ReviewsForm(): JSX.Element {
         name='review'
         placeholder='Tell how was your stay, what you like and what can be improved'
         onChange={(event) => handleReviewsOfferChange('comment', event.target.value)}
+        value={reviewsOffer.comment}
       >
       </textarea>
       <div className='reviews__button-wrapper'>
         <p className='reviews__help'>
-          To submit review please make sure to set <span className='reviews__star'>rating</span> and describe your stay with at least <b className='reviews__text-amount'>{REVIEW_OFFER.MIN_COMMENT_LENGTH} characters</b>.
+          To submit review please make sure to set
+          <span className='reviews__star'>rating</span>
+          and describe your stay with at least
+          <b className='reviews__text-amount'>{REVIEW_OFFER.MIN_COMMENT_LENGTH} characters</b>.
         </p>
         <button
           className='reviews__submit form__submit button'
