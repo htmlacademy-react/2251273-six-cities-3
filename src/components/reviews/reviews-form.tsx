@@ -2,6 +2,7 @@
 import { useState, Fragment } from 'react';
 // Import Constants
 import { REVIEW_OFFER, RATING_OFFER } from '../../const';
+import { postReviewAction } from '../../store/api-actions';
 
 // Create ReviewsForm
 function ReviewsForm(): JSX.Element {
@@ -22,7 +23,11 @@ function ReviewsForm(): JSX.Element {
   // Create handleFormSubmit
   function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    // TODO: Доработать!
+    const comment = {
+      rating: reviewsOffer.rating,
+      comment: reviewsOffer.comment,
+    };
+    postReviewAction(comment);
   }
 
   return (

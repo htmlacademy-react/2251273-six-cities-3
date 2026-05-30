@@ -4,10 +4,13 @@ import { AppDispatch, State } from '../types/state';
 import { APIRoute, AuthorizationStatus } from '../const';
 import { OffersElementType } from '../types/offers';
 import { OfferType } from '../types/offer';
-import { loadOffers, loadNearOffers, requireAuthorization, selectOffer, unselectOffer} from './action';
+import { CommentElementType } from '../types/comments';
+import { ReviewType } from '../types/review';
+import { loadOffers, loadNearOffers, requireAuthorization, selectOffer, unselectOffer, loadCommentsOffer } from './action';
 import { getToken, saveToken, dropToken } from '../services/token';
 import { getUserEmail, saveUserEmail, dropUserEmail } from '../services/user-email';
 import { getRandomNearsOffers } from '../utils';
+
 
 type AuthData = {
   login: string;
@@ -114,5 +117,36 @@ export const logoutAction = createAsyncThunk<void, undefined, {
     dropToken();
     dropUserEmail();
     dispatch(requireAuthorization(AuthorizationStatus.NoAuth));
+  },
+);
+
+export const fetchCommentsOfferAction = createAsyncThunk<void, string, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'data/fetchCommentsOffer',
+  async (id, {dispatch, extra: api}) => {
+    try {
+      const {data} = await api.get<CommentElementType[]>(`${APIRoute.Comments}/${id}`);
+      dispatch(loadCommentsOffer(data));
+    } catch {
+      dispatch(loadCommentsOffer([]));
+    }
+  },
+);
+
+export const postReviewAction = createAsyncThunk<void, ReviewType, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'data/postComment',
+  async (review, {dispatch, extra: api}) => {
+    try {
+      await api.post<ReviewType>(APIRoute.Comments, review);
+    } catch {
+      throw new Error();
+    }
   },
 );

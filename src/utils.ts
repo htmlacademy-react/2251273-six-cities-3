@@ -1,9 +1,7 @@
 import { OffersElementType } from './types/offers';
 import { OfferType } from './types/offer';
-
-import { CommentElementType } from './mocks/comments-mocks';
+import { CommentElementType } from './types/comments';
 import { FavoriteType } from './mocks/favorite-mocks';
-
 import { REVIEW_OFFER, NEAREST_OFFERS_COUNT, PLACES_OPTIONS } from './const';
 import { AuthorizationStatus } from './const';
 

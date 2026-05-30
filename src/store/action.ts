@@ -2,6 +2,7 @@ import { createAction } from '@reduxjs/toolkit';
 import { AuthorizationStatus } from '../const';
 import { OffersElementType } from '../types/offers';
 import { OfferType } from '../types/offer';
+import { CommentElementType } from '../types/comments';
 
 export const changeCity = createAction<string>('city/changeCity');
 export const resetCity = createAction<void>('city/resetCity');
@@ -17,3 +18,6 @@ export const requireAuthorization = createAction<AuthorizationStatus>('user/requ
 
 export const selectOffer = createAction<OfferType>('data/saveOffer');
 export const unselectOffer = createAction<void>('data/resetOffer');
+
+export const loadCommentsOffer = createAction<CommentElementType[]>('data/loadCommentsOffer');
+// export const postCommentOffer = createAction<PostCommentElementType>('data/postComment');

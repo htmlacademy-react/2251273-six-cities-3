@@ -5,11 +5,13 @@ import {
   loadNearOffers,
   changeSorting, resetSorting,
   requireAuthorization,
-  selectOffer, unselectOffer
+  selectOffer, unselectOffer,
+  loadCommentsOffer
 } from './action';
 import { DEFAULT_CITY, DEFAULT_SORTING, AuthorizationStatus } from '../const';
 import { OffersElementType } from '../types/offers';
 import { OfferType } from '../types/offer';
+import { CommentElementType } from '../types/comments';
 
 type InitialStateType = {
   city: string;
@@ -18,6 +20,7 @@ type InitialStateType = {
   AuthorizationStatus: AuthorizationStatus;
   selectedOffer: OfferType | null;
   nearOffers: OffersElementType[];
+  comments: CommentElementType[];
 };
 
 const initialState: InitialStateType = {
@@ -27,6 +30,7 @@ const initialState: InitialStateType = {
   AuthorizationStatus: AuthorizationStatus.Unknown,
   selectedOffer: null,
   nearOffers: [],
+  comments: [],
 };
 
 export const reducer = createReducer(initialState, (builder) => {
@@ -57,6 +61,9 @@ export const reducer = createReducer(initialState, (builder) => {
     })
     .addCase(unselectOffer, (state) => {
       state.selectedOffer = null;
+    })
+    .addCase(loadCommentsOffer, (state, action) => {
+      state.comments = action.payload;
     });
 });
 
