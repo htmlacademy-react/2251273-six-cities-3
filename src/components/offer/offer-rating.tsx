@@ -1,7 +1,7 @@
 // Import Utils
 import {convertRatingToStars} from '../../utils';
 // Import Types
-import {OfferType} from '../../mocks/offer-mock';
+import {OfferType} from '../../types/offer';
 
 // Create Types
 type OfferRatingProps = {
