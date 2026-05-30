@@ -1,7 +1,7 @@
 // Import Utils
 import { convertRatingToStars } from '../../utils';
 // Import Types
-import { CommentElementType } from '../../mocks/comments-mocks';
+import { CommentElementType } from '../../types/comments';
 
 // Create Types
 type ReviewsListProps = {

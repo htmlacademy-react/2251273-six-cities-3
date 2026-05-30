@@ -6,6 +6,7 @@ import { useAppSelector, useAppDispatch } from '../../hooks/hooks';
 import { useEffect } from 'react';
 import { fetchCommentsOfferAction } from '../../store/api-actions';
 import { useParams } from 'react-router-dom';
+import { AuthorizationStatus } from '../../const';
 
 // Export Reviews
 function Reviews(): JSX.Element {
@@ -25,8 +26,8 @@ function Reviews(): JSX.Element {
       <h2 className='reviews__title'>Reviews &middot;
         <span className='reviews__amount'>{getCommentLength(comments)}</span>
       </h2>
-      <ReviewsList comments={comments} />
-      {statusAuthorization && <ReviewsForm />}
+      <ReviewsList comments={comments}/>
+      {statusAuthorization === AuthorizationStatus.Auth && <ReviewsForm />}
     </section>
   );
 }

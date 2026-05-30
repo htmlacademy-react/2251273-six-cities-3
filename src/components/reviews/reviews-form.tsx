@@ -36,6 +36,7 @@ function ReviewsForm(): JSX.Element {
         rating: 0,
         comment: '',
       });
+
     } catch {
       setReviewsOffer({
         rating: 0,
@@ -59,6 +60,7 @@ function ReviewsForm(): JSX.Element {
                 id={`star-${value}`}
                 type='radio'
                 onChange={(event) => handleReviewsOfferChange('rating', Number(event.target.value))}
+                checked={value === reviewsOffer.rating}
               />
               <label
                 className='reviews__rating-label form__rating-label'

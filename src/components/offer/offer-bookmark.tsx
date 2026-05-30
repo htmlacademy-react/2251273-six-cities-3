@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { clsx } from 'clsx';
 // Import Types
-import { OfferType } from '../../mocks/offer-mock';
+import { OfferType } from '../../types/offer';
 
 // Create Types
 type OfferBookmarkProps = {
