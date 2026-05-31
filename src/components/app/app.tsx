@@ -44,9 +44,7 @@ function App(): JSX.Element {
             <Route
               path={`${AppRoute.Offer}/:offerId`}
               element={
-                <OfferPage>
-                  <PageNotFound message={PAGE_NOT_FOUND_MESSAGE.OFFER} />
-                </OfferPage>
+                <OfferPage></OfferPage>
               }
             />
             <Route
@@ -65,14 +63,14 @@ function App(): JSX.Element {
                 </Private>
               }
             />
+            <Route
+              path={AppRoute.NotFound}
+              element={
+                <PageNotFound message={PAGE_NOT_FOUND_MESSAGE.PAGE} />
+              }
+            />
           </Route>
           {/* TODO: Add 404! */}
-          <Route
-            path={AppRoute.NotFound}
-            element={
-              <PageNotFound message={PAGE_NOT_FOUND_MESSAGE.PAGE} />
-            }
-          />
         </Routes>
       </BrowserRouter >
     </HelmetProvider>

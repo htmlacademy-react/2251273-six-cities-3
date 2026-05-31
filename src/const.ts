@@ -52,7 +52,14 @@ const REVIEW_OFFER = {
 
 const PAGE_NOT_FOUND_MESSAGE = {
   PAGE: 'Page not found',
-  OFFER: 'Offer not found',
+};
+
+const SYSTEM_MESSAGE = {
+  UPLOADING_OFFERS: 'Loading offers, please wait...',
+  ERROR_LOADING_OFFERS: 'Error loading offers',
+  UPLOADING_OFFER: 'Loading offer, please wait...',
+  ERROR_LOADING_OFFER: 'Error loading offer',
+  DEFAULT: 'Default'
 };
 
 const MAP_MARKER_DEFAULT: leaflet.IconOptions = {
@@ -103,6 +110,7 @@ export {
   RATING_OFFER,
   REVIEW_OFFER,
   PAGE_NOT_FOUND_MESSAGE,
+  SYSTEM_MESSAGE,
   MAP_MARKER_DEFAULT,
   MAP_MARKER_ACTIVE,
   CONFIGURATION_API,

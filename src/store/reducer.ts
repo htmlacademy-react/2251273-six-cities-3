@@ -2,10 +2,11 @@ import { createReducer } from '@reduxjs/toolkit';
 import {
   changeCity, resetCity,
   loadOffers,
+  setOffersLoadingStatus,
   loadNearOffers,
   changeSorting, resetSorting,
   requireAuthorization,
-  selectOffer,
+  loadSelectedOffer, setSelectedOfferLoadingStatus,
   loadCommentsOffer
 } from './action';
 import { DEFAULT_CITY, DEFAULT_SORTING, AuthorizationStatus } from '../const';
@@ -16,9 +17,11 @@ import { CommentElementType } from '../types/comments';
 type InitialStateType = {
   city: string;
   offers: OffersElementType[];
+  offersLoadingStatus: boolean | null;
+  selectedOffer: OfferType | null;
+  selectedOfferLoadingStatus: boolean | null;
   typeSorting: string;
   AuthorizationStatus: AuthorizationStatus;
-  selectedOffer: OfferType | null;
   nearOffers: OffersElementType[];
   comments: CommentElementType[];
 };
@@ -26,9 +29,11 @@ type InitialStateType = {
 const initialState: InitialStateType = {
   city: DEFAULT_CITY,
   offers: [],
+  offersLoadingStatus: null,
+  selectedOffer: null,
+  selectedOfferLoadingStatus: null,
   typeSorting: DEFAULT_SORTING,
   AuthorizationStatus: AuthorizationStatus.Unknown,
-  selectedOffer: null,
   nearOffers: [],
   comments: [],
 };
@@ -44,6 +49,9 @@ export const reducer = createReducer(initialState, (builder) => {
     .addCase(loadOffers, (state, action) => {
       state.offers = action.payload;
     })
+    .addCase(setOffersLoadingStatus, (state, action) => {
+      state.offersLoadingStatus = action.payload;
+    })
     .addCase(loadNearOffers, (state, action) => {
       state.nearOffers = action.payload;
     })
@@ -56,8 +64,11 @@ export const reducer = createReducer(initialState, (builder) => {
     .addCase(requireAuthorization, (state, action) => {
       state.AuthorizationStatus = action.payload;
     })
-    .addCase(selectOffer, (state, action) => {
+    .addCase(loadSelectedOffer, (state, action) => {
       state.selectedOffer = action.payload;
+    })
+    .addCase(setSelectedOfferLoadingStatus, (state, action) => {
+      state.selectedOfferLoadingStatus = action.payload;
     })
     .addCase(loadCommentsOffer, (state, action) => {
       state.comments = action.payload;

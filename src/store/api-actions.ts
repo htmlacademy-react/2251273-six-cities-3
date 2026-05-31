@@ -6,7 +6,15 @@ import { OffersElementType } from '../types/offers';
 import { OfferType } from '../types/offer';
 import { CommentElementType } from '../types/comments';
 import { ReviewType } from '../types/review';
-import { loadOffers, loadNearOffers, requireAuthorization, selectOffer, loadCommentsOffer } from './action';
+import {
+  loadOffers,
+  setOffersLoadingStatus,
+  loadNearOffers,
+  requireAuthorization,
+  loadSelectedOffer,
+  setSelectedOfferLoadingStatus,
+  loadCommentsOffer
+} from './action';
 import { getToken, saveToken, dropToken } from '../services/token';
 import { getUserEmail, saveUserEmail, dropUserEmail } from '../services/user-email';
 import { getRandomNearsOffers } from '../utils';
@@ -24,21 +32,19 @@ export const fetchOffersAction = createAsyncThunk<void, undefined, {
 }>(
   'data/fetchOffers',
   async (_arg, {dispatch, extra: api}) => {
+    setOffersLoadingStatus(null);
     try {
       const {data} = await api.get<OffersElementType[]>(APIRoute.Offers);
-      // TODO: Fix simulation of delay
-      setTimeout(() => {
-        dispatch(loadOffers(data));
-      }, 1000);
-
+      dispatch(setOffersLoadingStatus(true));
+      dispatch(loadOffers(data));
     } catch {
+      dispatch(setOffersLoadingStatus(false));
       dispatch(loadOffers([]));
     }
-
   },
 );
 
-export const fetchNearOffersAction = createAsyncThunk<void, string, {
+export const fetchNearOffersAction = createAsyncThunk<void, string | undefined, {
   dispatch: AppDispatch;
   state: State;
   extra: AxiosInstance;
@@ -54,18 +60,21 @@ export const fetchNearOffersAction = createAsyncThunk<void, string, {
   },
 );
 
-export const fetchOfferAction = createAsyncThunk<void, string, {
+export const fetchOfferAction = createAsyncThunk<void, string | undefined, {
   dispatch: AppDispatch;
   state: State;
   extra: AxiosInstance;
 }>(
   'data/fetchOffer',
   async (id, {dispatch, extra: api}) => {
+    dispatch(loadSelectedOffer(null));
     try {
-      const {data} = await api.get<OfferType>(`${APIRoute.Offer}/${id}`);
-      dispatch(selectOffer(data));
+      const {data} = await api.get<OfferType>(`${APIRoute.Offer}/0${id}`);
+      dispatch(setSelectedOfferLoadingStatus(true));
+      dispatch(loadSelectedOffer(data));
     } catch {
-      dispatch(selectOffer(null));
+      dispatch(setSelectedOfferLoadingStatus(false));
+      dispatch(loadSelectedOffer(null));
     }
   },
 );
