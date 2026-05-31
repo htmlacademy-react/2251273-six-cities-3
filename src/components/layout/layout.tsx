@@ -1,16 +1,15 @@
-// Import React
 import { Outlet, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-// Import Components
 import { Logo } from '../logo/logo';
 import { Navigation } from '../navigation/navigation';
 import { Footer } from '../footer/footer';
-// Import Constants
 import { AppRoute } from '../../const';
-// Import Hooks
 import { useAppSelector } from '../../hooks/hooks';
+import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useAppDispatch } from '../../hooks/hooks';
+import { loadSelectedOffer, setSelectedOfferLoadingStatus } from '../../store/action';
 
-// Create Types
 type LayoutState = {
   classNamePage: string;
   navigationState: boolean;
@@ -19,7 +18,6 @@ type LayoutState = {
   titlePage: string;
 }
 
-// Get Layout State
 const getLayoutState = (pathname: AppRoute): LayoutState => {
 
   const pathPage = pathname.match(/\/[wa-z]+/i)?.[0] || pathname;
@@ -71,8 +69,15 @@ const getLayoutState = (pathname: AppRoute): LayoutState => {
 // Create Layout
 function Layout(): JSX.Element {
   const { pathname } = useLocation();
+  const { offerId } = useParams<{ offerId: string }>();
   const { classNamePage, navigationState, logoState, footerState, titlePage } = getLayoutState(pathname as AppRoute);
   const offers = useAppSelector((state) => state.offers);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setSelectedOfferLoadingStatus(null));
+    dispatch(loadSelectedOffer(null));
+  }, [offerId, dispatch]);
 
   return (
     <div className={classNamePage}>

@@ -67,6 +67,7 @@ export const fetchOfferAction = createAsyncThunk<void, string | undefined, {
 }>(
   'data/fetchOffer',
   async (id, {dispatch, extra: api}) => {
+    dispatch(setSelectedOfferLoadingStatus(null));
     dispatch(loadSelectedOffer(null));
     try {
       const {data} = await api.get<OfferType>(`${APIRoute.Offer}/${id}`);
