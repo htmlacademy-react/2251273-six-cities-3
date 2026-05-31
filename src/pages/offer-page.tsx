@@ -40,7 +40,7 @@ function OfferPage(): JSX.Element {
             }
           />}
         {/* TODO: Как правильно сделать? */}
-        <OfferGallery offer={selectedOffer}/>
+        {/* <OfferGallery offer={selectedOffer}/> */}
         {selectedOffer && <OfferGallery offer={selectedOffer}/>}
         {selectedOffer && <Offer offer={selectedOffer}/>}
         {selectedOffer &&
