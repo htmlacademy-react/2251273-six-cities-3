@@ -6,7 +6,7 @@ import { OffersElementType } from '../types/offers';
 import { OfferType } from '../types/offer';
 import { CommentElementType } from '../types/comments';
 import { ReviewType } from '../types/review';
-import { loadOffers, loadNearOffers, requireAuthorization, selectOffer, unselectOffer, loadCommentsOffer } from './action';
+import { loadOffers, loadNearOffers, requireAuthorization, selectOffer, loadCommentsOffer } from './action';
 import { getToken, saveToken, dropToken } from '../services/token';
 import { getUserEmail, saveUserEmail, dropUserEmail } from '../services/user-email';
 import { getRandomNearsOffers } from '../utils';
@@ -65,7 +65,7 @@ export const fetchOfferAction = createAsyncThunk<void, string, {
       const {data} = await api.get<OfferType>(`${APIRoute.Offer}/${id}`);
       dispatch(selectOffer(data));
     } catch {
-      dispatch(unselectOffer());
+      dispatch(selectOffer(null));
     }
   },
 );

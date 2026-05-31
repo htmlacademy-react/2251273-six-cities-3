@@ -1,4 +1,3 @@
-// Import React
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { OfferGallery } from '../components/offer/offer-gallery';
@@ -15,13 +14,13 @@ type OfferPageProps = {
   children: JSX.Element;
 }
 
-// Create OfferPage
 function OfferPage({
   children,
 }: OfferPageProps): JSX.Element {
 
   const dispatch = useAppDispatch();
-  const offerId: string = useParams().offerId || '';
+  // TODO: Как оптимизировать offerId
+  const { offerId } = useParams() as { offerId: string };
   const selectedOffer = useAppSelector((state) => state.selectedOffer);
   const nearOffers = useAppSelector((state) => state.nearOffers);
   const [currentOffer, setCurrentOffer] = useState<string>('');
@@ -31,13 +30,13 @@ function OfferPage({
     dispatch(fetchNearOffersAction(offerId));
   }, [dispatch, offerId]);
 
-  if (!selectedOffer) {
-    return children;
-  }
-
   const handleOfferHover = (idOffer: string) => {
     setCurrentOffer(idOffer);
   };
+
+  if (!selectedOffer) {
+    return children;
+  }
 
   return (
     <main className='page__main page__main--offer'>

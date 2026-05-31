@@ -27,7 +27,7 @@ function ReviewsForm(): JSX.Element {
     event.preventDefault();
     try {
       dispatch(postReviewAction({
-        offerId: offerId,
+        offerId,
         comment: reviewsOffer.comment,
         rating: reviewsOffer.rating,
       }));

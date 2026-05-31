@@ -5,7 +5,7 @@ import {
   loadNearOffers,
   changeSorting, resetSorting,
   requireAuthorization,
-  selectOffer, unselectOffer,
+  selectOffer,
   loadCommentsOffer
 } from './action';
 import { DEFAULT_CITY, DEFAULT_SORTING, AuthorizationStatus } from '../const';
@@ -58,9 +58,6 @@ export const reducer = createReducer(initialState, (builder) => {
     })
     .addCase(selectOffer, (state, action) => {
       state.selectedOffer = action.payload;
-    })
-    .addCase(unselectOffer, (state) => {
-      state.selectedOffer = null;
     })
     .addCase(loadCommentsOffer, (state, action) => {
       state.comments = action.payload;

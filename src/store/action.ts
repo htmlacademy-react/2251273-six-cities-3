@@ -16,8 +16,8 @@ export const resetSorting = createAction<void>('sorting/resetSorting');
 
 export const requireAuthorization = createAction<AuthorizationStatus>('user/requireAuthorization');
 
-export const selectOffer = createAction<OfferType>('data/saveOffer');
-export const unselectOffer = createAction<void>('data/resetOffer');
+export const selectOffer = createAction<OfferType | null>('data/saveOffer');
+
 
 export const loadCommentsOffer = createAction<CommentElementType[]>('data/loadCommentsOffer');
 // export const postCommentOffer = createAction<PostCommentElementType>('data/postComment');
