@@ -3,6 +3,7 @@ import { AuthorizationStatus } from '../const';
 import { OffersElementType } from '../types/offers';
 import { OfferType } from '../types/offer';
 import { CommentElementType } from '../types/comments';
+import { AppRoute } from '../const';
 
 export const changeCity = createAction<string>('city/changeCity');
 export const resetCity = createAction<void>('city/resetCity');
@@ -20,6 +21,6 @@ export const requireAuthorization = createAction<AuthorizationStatus>('user/requ
 export const loadSelectedOffer = createAction<OfferType | null>('data/saveOffer');
 export const setSelectedOfferLoadingStatus = createAction<boolean | null>('data/saveOfferLoadingStatus');
 
-
 export const loadCommentsOffer = createAction<CommentElementType[]>('data/loadCommentsOffer');
-// export const postCommentOffer = createAction<PostCommentElementType>('data/postComment');
+
+export const redirectToRoute = createAction<AppRoute>('game/redirectToRoute');

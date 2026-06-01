@@ -1,15 +1,12 @@
 import { loginAction } from '../../store/api-actions';
 import { useAppDispatch } from '../../hooks/hooks';
 import { useRef } from 'react';
-import { AppRoute } from '../../const';
-import { useNavigate } from 'react-router-dom';
 
 function LoginForm(): JSX.Element {
   const loginRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
 
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   function handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
     event.preventDefault();
@@ -19,7 +16,6 @@ function LoginForm(): JSX.Element {
           login: loginRef.current.value,
           password: passwordRef.current.value
         }));
-        navigate(AppRoute.Main);
       } catch {
         throw new Error('Error login');
       }
