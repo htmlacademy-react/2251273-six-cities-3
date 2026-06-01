@@ -4,8 +4,6 @@ import { postReviewAction } from '../../store/api-actions';
 import { useAppDispatch } from '../../hooks/hooks';
 import { useParams } from 'react-router-dom';
 
-
-// Create ReviewsForm
 function ReviewsForm(): JSX.Element {
   const dispatch = useAppDispatch();
   const offerId: string = useParams().offerId || '';
@@ -14,7 +12,6 @@ function ReviewsForm(): JSX.Element {
     comment: '',
   });
 
-  // Create handleReviewsOfferChange
   function handleReviewsOfferChange(key: keyof typeof reviewsOffer, value: number | string) {
     setReviewsOffer({
       ...reviewsOffer,
@@ -22,11 +19,9 @@ function ReviewsForm(): JSX.Element {
     });
   }
 
-  // Create handleFormSubmit
-  function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function onFormSubmit(): Promise<void> {
     try {
-      dispatch(postReviewAction({
+      await dispatch(postReviewAction({
         offerId,
         comment: reviewsOffer.comment,
         rating: reviewsOffer.rating,
@@ -44,6 +39,11 @@ function ReviewsForm(): JSX.Element {
       });
       throw new Error('Error postReviewAction');
     }
+  }
+
+  function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    onFormSubmit();
   }
 
   return (
@@ -104,5 +104,4 @@ function ReviewsForm(): JSX.Element {
   );
 }
 
-// Export ReviewsForm
 export { ReviewsForm };

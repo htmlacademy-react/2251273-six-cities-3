@@ -5,21 +5,24 @@ import { useRef } from 'react';
 function LoginForm(): JSX.Element {
   const loginRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
-
   const dispatch = useAppDispatch();
 
-  function handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
-    event.preventDefault();
+  async function onSubmit(): Promise<void> {
     if (loginRef.current !== null && passwordRef.current !== null) {
       try {
-        dispatch(loginAction({
+        await dispatch(loginAction({
           login: loginRef.current.value,
           password: passwordRef.current.value
-        }));
+        })).unwrap();
       } catch {
         throw new Error('Error login');
       }
     }
+  }
+
+  function handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+    event.preventDefault();
+    onSubmit();
   }
 
   return (
