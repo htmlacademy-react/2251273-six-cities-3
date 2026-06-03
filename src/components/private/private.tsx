@@ -1,23 +1,18 @@
-// Import React
 import { Navigate } from 'react-router-dom';
-// Import Constants
 import { AuthorizationStatus, AppRoute } from '../../const';
+import { useAppSelector } from '../../hooks/hooks';
 
-// Create Types
 type PrivateProps = {
-  statusAuthorization: AuthorizationStatus;
   children: JSX.Element;
 }
 
-// Check Auth
-const checkAuth = (statusAuthorization: AuthorizationStatus): boolean => statusAuthorization === AuthorizationStatus.Auth;
+const checkAuth = (statusAuthorization: AuthorizationStatus): boolean => statusAuthorization === AuthorizationStatus.NoAuth;
 
-// Create Private
-function Private({statusAuthorization, children}: PrivateProps): JSX.Element {
+function Private({children}: PrivateProps): JSX.Element {
+  const statusAuthorization = useAppSelector((state) => state.AuthorizationStatus);
   return (
-    checkAuth(statusAuthorization) ? children : <Navigate to={AppRoute.Login} />
+    checkAuth(statusAuthorization) ? <Navigate to={AppRoute.Login}/> : children
   );
 }
 
-// Export Private
 export { Private };

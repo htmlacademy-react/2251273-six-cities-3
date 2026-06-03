@@ -13,7 +13,7 @@ export const createAPI = (): AxiosInstance => {
     (config) => {
       const token = getToken();
       const email = getUserEmail();
-      if (token && email) {
+      if (token && email && config.headers) {
         config.headers['x-token'] = token;
         config.headers['x-email'] = email;
       }

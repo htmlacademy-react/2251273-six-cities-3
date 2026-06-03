@@ -1,17 +1,17 @@
-// Import React
 import { useState, Fragment } from 'react';
-// Import Constants
 import { REVIEW_OFFER, RATING_OFFER } from '../../const';
+import { postReviewAction } from '../../store/api-actions';
+import { useAppDispatch } from '../../hooks/hooks';
+import { useParams } from 'react-router-dom';
 
-// Create ReviewsForm
 function ReviewsForm(): JSX.Element {
-  // Create state
+  const dispatch = useAppDispatch();
+  const offerId: string = useParams().offerId || '';
   const [reviewsOffer, setReviewsOffer] = useState({
     rating: 0,
     comment: '',
   });
 
-  // Create handleReviewsOfferChange
   function handleReviewsOfferChange(key: keyof typeof reviewsOffer, value: number | string) {
     setReviewsOffer({
       ...reviewsOffer,
@@ -19,10 +19,31 @@ function ReviewsForm(): JSX.Element {
     });
   }
 
-  // Create handleFormSubmit
+  async function onFormSubmit(): Promise<void> {
+    try {
+      await dispatch(postReviewAction({
+        offerId,
+        comment: reviewsOffer.comment,
+        rating: reviewsOffer.rating,
+      }));
+
+      setReviewsOffer({
+        rating: 0,
+        comment: '',
+      });
+
+    } catch {
+      setReviewsOffer({
+        rating: 0,
+        comment: '',
+      });
+      throw new Error('Error postReviewAction');
+    }
+  }
+
   function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    // TODO: Доработать!
+    onFormSubmit();
   }
 
   return (
@@ -34,9 +55,12 @@ function ReviewsForm(): JSX.Element {
             <Fragment key={value}>
               <input
                 className='form__rating-input visually-hidden'
-                name='rating' value={value} id={`star-${value}`}
+                name='rating'
+                value={value}
+                id={`star-${value}`}
                 type='radio'
                 onChange={(event) => handleReviewsOfferChange('rating', Number(event.target.value))}
+                checked={value === reviewsOffer.rating}
               />
               <label
                 className='reviews__rating-label form__rating-label'
@@ -58,11 +82,15 @@ function ReviewsForm(): JSX.Element {
         name='review'
         placeholder='Tell how was your stay, what you like and what can be improved'
         onChange={(event) => handleReviewsOfferChange('comment', event.target.value)}
+        value={reviewsOffer.comment}
       >
       </textarea>
       <div className='reviews__button-wrapper'>
         <p className='reviews__help'>
-          To submit review please make sure to set <span className='reviews__star'>rating</span> and describe your stay with at least <b className='reviews__text-amount'>{REVIEW_OFFER.MIN_COMMENT_LENGTH} characters</b>.
+          To submit review please make sure to set
+          <span className='reviews__star'>rating</span>
+          and describe your stay with at least
+          <b className='reviews__text-amount'>{REVIEW_OFFER.MIN_COMMENT_LENGTH} characters</b>.
         </p>
         <button
           className='reviews__submit form__submit button'
@@ -76,5 +104,4 @@ function ReviewsForm(): JSX.Element {
   );
 }
 
-// Export ReviewsForm
 export { ReviewsForm };

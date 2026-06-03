@@ -1,19 +1,13 @@
-// Import React
 import { Link } from 'react-router-dom';
-// Import Components
 import { FavoriteCard } from './favorites-card';
-// Import Constants
 import { AppRoute } from '../../const';
-// Import Types
-import { FavoriteType } from '../../mocks/favorite-mocks';
+import { FavoriteType } from '../../types/favorite';
 
-// Create Types
 type FavoriteItemProps = {
   city: string;
   favoriteOffers: FavoriteType[];
 };
 
-// Create FavoriteItem
 function FavoriteItem({ city, favoriteOffers }: FavoriteItemProps): JSX.Element {
   return (
     <li className="favorites__locations-items">
@@ -33,5 +27,4 @@ function FavoriteItem({ city, favoriteOffers }: FavoriteItemProps): JSX.Element 
   );
 }
 
-// Export FavoriteItem
 export { FavoriteItem };

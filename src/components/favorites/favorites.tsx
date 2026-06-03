@@ -1,17 +1,9 @@
-// Import Components
 import { FavoriteItem } from './favorite-item';
-// Import Types
-import { FavoriteType } from '../../mocks/favorite-mocks';
-// Import Utils
 import { getFavoriteOffersCities } from '../../utils';
+import { useAppSelector } from '../../hooks/hooks';
 
-// Create Types
-type FavoritesProps = {
-  favoritesOffers: FavoriteType[];
-};
-
-// Create Favorites
-function Favorites({favoritesOffers}: FavoritesProps): JSX.Element {
+function Favorites(): JSX.Element {
+  const favoritesOffers = useAppSelector((state) => state.favoriteOffers);
   const favoriteOffersCities = getFavoriteOffersCities(favoritesOffers);
   const favoriteCities = Object.keys(favoriteOffersCities);
 
@@ -31,5 +23,4 @@ function Favorites({favoritesOffers}: FavoritesProps): JSX.Element {
   );
 }
 
-// Export Favorites
 export {Favorites};

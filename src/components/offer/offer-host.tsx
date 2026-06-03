@@ -1,7 +1,7 @@
 // Import Utils
 import { getFirstName } from '../../utils';
 // Import Types
-import { OfferType } from '../../mocks/offer-mock';
+import { OfferType } from '../../types/offer';
 
 // Create Types
 type OfferHostProps = {
@@ -23,7 +23,6 @@ function OfferHost({offer}: OfferHostProps): JSX.Element {
         {offer.host.isPro && <span className='offer__user-status'>Pro</span>}
       </div>
       <div className='offer__description'>
-        {/* TODO: Доработать описание!*/}
         {offer.description}
       </div>
     </div>

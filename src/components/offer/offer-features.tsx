@@ -1,5 +1,5 @@
 // Import Types
-import { OfferType } from '../../mocks/offer-mock';
+import { OfferType } from '../../types/offer';
 
 // Create Types
 type OfferFeaturesProps = {

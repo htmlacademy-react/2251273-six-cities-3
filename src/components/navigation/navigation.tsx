@@ -1,26 +1,26 @@
 import { Link } from 'react-router-dom';
 import { AppRoute } from '../../const';
-import { countFavoritesOffers } from '../../utils';
-import { OffersElementType } from '../../types/offers';
 import { useAppSelector } from '../../hooks/hooks';
 import { AuthorizationStatus } from '../../const';
 import { useNavigate } from 'react-router-dom';
 import { logoutAction } from '../../store/api-actions';
 import { useAppDispatch } from '../../hooks/hooks';
 import { getUserEmail } from '../../services/user-email';
+import { fetchFavoriteOffersAction } from '../../store/api-actions';
+import { useEffect } from 'react';
 
-
-// Create Types
-type NavigationProps = {
-  offers: OffersElementType[];
-}
-
-// Create Navigation
-function Navigation({offers}: NavigationProps): JSX.Element {
+function Navigation(): JSX.Element {
   const statusAuthorization = useAppSelector((state) => state.AuthorizationStatus);
   const userEmail = getUserEmail();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
+  const favoritesOffers = useAppSelector((state) => state.favoriteOffers);
+  useEffect(() => {
+    if (statusAuthorization === AuthorizationStatus.Auth) {
+      dispatch(fetchFavoriteOffersAction());
+    }
+  }, [statusAuthorization, dispatch]);
 
   function handleLinkClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>): void {
     event.preventDefault();
@@ -50,7 +50,7 @@ function Navigation({offers}: NavigationProps): JSX.Element {
             { statusAuthorization === AuthorizationStatus.Auth &&
               <span className="header__user-name user__name">{userEmail}</span>}
             {statusAuthorization === AuthorizationStatus.Auth &&
-              <span className="header__favorite-count">{countFavoritesOffers(offers)}</span>}
+              <span className="header__favorite-count">{favoritesOffers.length}</span>}
           </Link>
         </li>
         <li className="header__nav-item">
@@ -66,5 +66,4 @@ function Navigation({offers}: NavigationProps): JSX.Element {
   );
 }
 
-// Export Navigation
 export {Navigation};

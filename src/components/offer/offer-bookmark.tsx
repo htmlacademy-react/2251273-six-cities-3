@@ -1,21 +1,20 @@
-// Import React
 import { useState } from 'react';
 import { clsx } from 'clsx';
-// Import Types
-import { OfferType } from '../../mocks/offer-mock';
+import { OfferType } from '../../types/offer';
+import { postFavoriteOfferAction } from '../../store/api-actions';
+import { useAppDispatch } from '../../hooks/hooks';
 
-// Create Types
 type OfferBookmarkProps = {
   offer: OfferType;
 }
 
-// Create OfferBookmark
 function OfferBookmark({ offer }: OfferBookmarkProps): JSX.Element {
   const [isFavoriteState, setIsFavoriteState] = useState(offer.isFavorite);
+  const dispatch = useAppDispatch();
 
   function handleClick(): void {
     setIsFavoriteState(!isFavoriteState);
-    // TODO: Доработать добавление в избранное!
+    dispatch(postFavoriteOfferAction({ id: offer.id, status: !isFavoriteState }));
   }
 
   return (
@@ -34,5 +33,4 @@ function OfferBookmark({ offer }: OfferBookmarkProps): JSX.Element {
   );
 }
 
-// Export OfferBookmark
 export { OfferBookmark };

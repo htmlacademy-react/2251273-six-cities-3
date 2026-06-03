@@ -1,47 +1,29 @@
-// Import React
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
-// Import Components
+import { useEffect, useState } from 'react';
 import { OfferGallery } from '../components/offer/offer-gallery';
 import { Offer } from '../components/offer/offer';
 import { NearPlaces } from '../components/offer/offer-places';
 import { Map } from '../components/map/map';
-// Import Constants
-import { AuthorizationStatus } from '../const';
-// Import Utils
-import { checkOfferId, getLocation, getNearestOffers } from '../utils';
-// Import Types
-import { OffersElementType } from '../types/offers';
-import { OFFER, OfferType } from '../mocks/offer-mock';
-import { CommentElementType } from '../mocks/comments-mocks';
+import { Message } from '../components/message/message';
+import { getLocation } from '../utils';
+import { useAppSelector } from '../hooks/hooks';
+import { useAppDispatch } from '../hooks/hooks';
+import { fetchOfferAction, fetchNearOffersAction } from '../store/api-actions';
+import { SYSTEM_MESSAGE } from '../const';
 
-// Create Types
-type OfferPageProps = {
-  offers: OffersElementType[];
-  comments: CommentElementType[];
-  statusAuthorization: AuthorizationStatus;
-  children: JSX.Element;
-}
+function OfferPage(): JSX.Element {
 
-// Create OfferPage
-function OfferPage({
-  offers,
-  comments,
-  statusAuthorization,
-  children,
-}: OfferPageProps): JSX.Element {
-  // TODO: Доработать!
-  const offer: OfferType = OFFER;
-  const offerId: string = useParams().offerId || '';
+  const dispatch = useAppDispatch();
+  const { offerId } = useParams<{ offerId: string }>();
+  const selectedOffer = useAppSelector((state) => state.selectedOffer);
+  const nearOffers = useAppSelector((state) => state.nearOffers);
+  const selectedOfferLoadingStatus = useAppSelector((state) => state.selectedOfferLoadingStatus);
   const [currentOffer, setCurrentOffer] = useState<string>('');
 
-
-  if (!checkOfferId(offers, offerId)) {
-    return children;
-  }
-
-  const activeOffer: OffersElementType = offers.find((item) => item.id === offerId)!;
-  const NEAREST_OFFERS: OffersElementType[] = getNearestOffers(offers, activeOffer);
+  useEffect(() => {
+    dispatch(fetchOfferAction(offerId));
+    dispatch(fetchNearOffersAction(offerId));
+  }, [dispatch, offerId]);
 
   const handleOfferHover = (idOffer: string) => {
     setCurrentOffer(idOffer);
@@ -50,20 +32,29 @@ function OfferPage({
   return (
     <main className='page__main page__main--offer'>
       <section className='offer'>
-        <OfferGallery offer={offer} />
-        <Offer offer={offer} comments={comments} statusAuthorization={statusAuthorization} />
+        {!selectedOfferLoadingStatus &&
+          <Message
+            message={
+              selectedOfferLoadingStatus === false ?
+                SYSTEM_MESSAGE.ERROR_LOADING_OFFER : SYSTEM_MESSAGE.UPLOADING_OFFER
+            }
+          />}
+        {selectedOffer && <OfferGallery offer={selectedOffer}/>}
+        {selectedOffer && <Offer offer={selectedOffer}/>}
+        {selectedOffer &&
         <Map
           className="offer__map"
-          offers={NEAREST_OFFERS}
-          location={getLocation(activeOffer)}
+          offers={nearOffers}
+          location={getLocation(selectedOffer)}
           currentOffer={currentOffer}
-        />
+        />}
       </section>
       <div className='container'>
+        {selectedOffer &&
         <NearPlaces
-          offers={NEAREST_OFFERS}
+          offers={nearOffers}
           onOfferHover={handleOfferHover}
-        />
+        />}
       </div>
     </main>
   );

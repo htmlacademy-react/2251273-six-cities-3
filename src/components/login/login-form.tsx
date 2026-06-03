@@ -1,29 +1,33 @@
 import { loginAction } from '../../store/api-actions';
 import { useAppDispatch } from '../../hooks/hooks';
 import { useRef } from 'react';
-import { AppRoute } from '../../const';
 import { useNavigate } from 'react-router-dom';
+import { AppRoute } from '../../const';
 
 function LoginForm(): JSX.Element {
   const loginRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
-
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  function handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
-    event.preventDefault();
+  async function onSubmit(): Promise<void> {
     if (loginRef.current !== null && passwordRef.current !== null) {
       try {
-        dispatch(loginAction({
+        await dispatch(loginAction({
           login: loginRef.current.value,
           password: passwordRef.current.value
-        }));
-        navigate(AppRoute.Main);
+        })).unwrap();
+        navigate(AppRoute.Favorites);
       } catch {
+        navigate(AppRoute.Main);
         throw new Error('Error login');
       }
     }
+  }
+
+  function handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+    event.preventDefault();
+    onSubmit();
   }
 
   return (

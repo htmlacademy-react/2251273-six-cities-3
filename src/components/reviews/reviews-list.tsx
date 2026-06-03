@@ -1,14 +1,11 @@
-// Import Utils
 import { convertRatingToStars } from '../../utils';
-// Import Types
-import { CommentElementType } from '../../mocks/comments-mocks';
+import { CommentElementType } from '../../types/comments';
+import dayjs from 'dayjs';
 
-// Create Types
 type ReviewsListProps = {
   comments: CommentElementType[];
 };
 
-// Create ReviewsList
 function ReviewsList({ comments }: ReviewsListProps): JSX.Element {
   return (
     <ul className='reviews__list'>
@@ -33,8 +30,12 @@ function ReviewsList({ comments }: ReviewsListProps): JSX.Element {
             <p className='reviews__text'>
               {comment.comment}
             </p>
-            {/* TODO: Доработать дату!*/}
-            <time className='reviews__time' dateTime='2019-04-24'>April 2019</time>
+            <time
+              className='reviews__time'
+              dateTime={dayjs(comment.date).format('YYYY-MM-DD')}
+            >
+              {dayjs(comment.date).format('MMMM YYYY')}
+            </time>
           </div>
         </li>
       ))}
@@ -42,5 +43,4 @@ function ReviewsList({ comments }: ReviewsListProps): JSX.Element {
   );
 }
 
-// Export ReviewsList
 export {ReviewsList};

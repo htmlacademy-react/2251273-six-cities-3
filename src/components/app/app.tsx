@@ -9,10 +9,6 @@ import { Layout } from '../layout/layout';
 import { Private } from '../private/private';
 import { PageNotFound } from '../page-not-found/page-not-found';
 import { AppRoute, PAGE_NOT_FOUND_MESSAGE } from '../../const';
-import { getFavoriteOffers } from '../../utils';
-import { COMMENTS } from '../../mocks/comments-mocks';
-import { FAVORITES } from '../../mocks/favorite-mocks';
-import { useAppSelector } from '../../hooks/hooks';
 import { checkAuthAction } from './../../store/api-actions';
 import { useEffect } from 'react';
 import { useAppDispatch } from '../../hooks/hooks';
@@ -24,12 +20,10 @@ function App(): JSX.Element {
     dispatch(checkAuthAction());
   }, [dispatch]);
 
-  const offers = useAppSelector((state) => state.offers);
-  const statusAuthorization = useAppSelector((state) => state.AuthorizationStatus);
   return (
     <HelmetProvider>
       <GlobalStyle />
-      <BrowserRouter>
+      < BrowserRouter>
         <Routes>
           <Route
             path={AppRoute.Main}
@@ -46,13 +40,7 @@ function App(): JSX.Element {
             <Route
               path={`${AppRoute.Offer}/:offerId`}
               element={
-                <OfferPage
-                  offers={offers}
-                  comments={COMMENTS}
-                  statusAuthorization={statusAuthorization}
-                >
-                  <PageNotFound message={PAGE_NOT_FOUND_MESSAGE.OFFER} />
-                </OfferPage>
+                <OfferPage/>
               }
             />
             <Route
@@ -64,27 +52,23 @@ function App(): JSX.Element {
             <Route
               path={AppRoute.Favorites}
               element={
-                <Private
-                  statusAuthorization={statusAuthorization}
-                >
-                  <FavoritesPage favoritesOffers={getFavoriteOffers(FAVORITES)} />
+                <Private>
+                  <FavoritesPage />
                 </Private>
               }
             />
+            <Route
+              path={AppRoute.NotFound}
+              element={
+                <PageNotFound message={PAGE_NOT_FOUND_MESSAGE.PAGE} />
+              }
+            />
           </Route>
-          {/* TODO: Add 404! */}
-          <Route
-            path={AppRoute.NotFound}
-            element={
-              <PageNotFound message={PAGE_NOT_FOUND_MESSAGE.PAGE} />
-            }
-          />
         </Routes>
-      </BrowserRouter >
+      </ BrowserRouter>
     </HelmetProvider>
 
   );
 }
 
-// Export App
 export { App };

@@ -1,24 +1,30 @@
-// Import Components
 import { ReviewsList } from './reviews-list';
 import { ReviewsForm } from './reviews-form';
-// Import Constants
+import { useAppSelector, useAppDispatch } from '../../hooks/hooks';
+import { useEffect } from 'react';
+import { fetchCommentsOfferAction } from '../../store/api-actions';
+import { useParams } from 'react-router-dom';
 import { AuthorizationStatus } from '../../const';
-//Import Utils
-import { getCommentLength } from '../../utils';
-//Import Types
-import { CommentElementType } from '../../mocks/comments-mocks';
 
-// Create Types
-type ReviewsProps = {
-  comments: CommentElementType[];
-  statusAuthorization: AuthorizationStatus;
-}
 // Export Reviews
-function Reviews({comments, statusAuthorization}: ReviewsProps): JSX.Element {
+function Reviews(): JSX.Element {
+  const dispatch = useAppDispatch();
+  const statusAuthorization = useAppSelector((state) => state.AuthorizationStatus);
+  const comments = useAppSelector((state) => state.comments);
+  const offerId: string = useParams().offerId || '';
+
+
+  useEffect(() => {
+    dispatch(fetchCommentsOfferAction(offerId));
+  }, [dispatch, offerId]);
+
+
   return (
     <section className='offer__reviews reviews'>
-      <h2 className='reviews__title'>Reviews &middot; <span className='reviews__amount'>{getCommentLength(comments)}</span></h2>
-      <ReviewsList comments={comments} />
+      <h2 className='reviews__title'>Reviews &middot;
+        <span className='reviews__amount'>{comments.length}</span>
+      </h2>
+      <ReviewsList comments={comments}/>
       {statusAuthorization === AuthorizationStatus.Auth && <ReviewsForm />}
     </section>
   );
