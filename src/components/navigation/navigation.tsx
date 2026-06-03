@@ -17,8 +17,10 @@ function Navigation(): JSX.Element {
 
   const favoritesOffers = useAppSelector((state) => state.favoriteOffers);
   useEffect(() => {
-    dispatch(fetchFavoriteOffersAction());
-  }, [dispatch]);
+    if (statusAuthorization === AuthorizationStatus.Auth) {
+      dispatch(fetchFavoriteOffersAction());
+    }
+  }, [statusAuthorization, dispatch]);
 
   function handleLinkClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>): void {
     event.preventDefault();
