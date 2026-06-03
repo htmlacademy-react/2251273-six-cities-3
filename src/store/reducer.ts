@@ -4,6 +4,8 @@ import {
   loadOffers,
   setOffersLoadingStatus,
   loadNearOffers,
+  loadFavoriteOffers,
+  setFavoriteOffersLoadingStatus,
   changeSorting, resetSorting,
   requireAuthorization,
   loadSelectedOffer, setSelectedOfferLoadingStatus,
@@ -24,6 +26,8 @@ type InitialStateType = {
   AuthorizationStatus: AuthorizationStatus;
   nearOffers: OffersElementType[];
   comments: CommentElementType[];
+  favoriteOffers: OffersElementType[];
+  favoriteOffersLoadingStatus: boolean | null;
 };
 
 const initialState: InitialStateType = {
@@ -36,6 +40,8 @@ const initialState: InitialStateType = {
   AuthorizationStatus: AuthorizationStatus.Unknown,
   nearOffers: [],
   comments: [],
+  favoriteOffers: [],
+  favoriteOffersLoadingStatus: null
 };
 
 export const reducer = createReducer(initialState, (builder) => {
@@ -72,6 +78,12 @@ export const reducer = createReducer(initialState, (builder) => {
     })
     .addCase(loadCommentsOffer, (state, action) => {
       state.comments = action.payload;
+    })
+    .addCase(loadFavoriteOffers, (state, action) => {
+      state.favoriteOffers = action.payload;
+    })
+    .addCase(setFavoriteOffersLoadingStatus, (state, action) => {
+      state.favoriteOffersLoadingStatus = action.payload;
     });
 });
 

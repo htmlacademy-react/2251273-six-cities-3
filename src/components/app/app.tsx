@@ -9,9 +9,6 @@ import { Layout } from '../layout/layout';
 import { Private } from '../private/private';
 import { PageNotFound } from '../page-not-found/page-not-found';
 import { AppRoute, PAGE_NOT_FOUND_MESSAGE } from '../../const';
-import { getFavoriteOffers } from '../../utils';
-import { FAVORITES } from '../../mocks/favorite-mocks';
-import { useAppSelector } from '../../hooks/hooks';
 import { checkAuthAction } from './../../store/api-actions';
 import { useEffect } from 'react';
 import { useAppDispatch } from '../../hooks/hooks';
@@ -23,7 +20,6 @@ function App(): JSX.Element {
     dispatch(checkAuthAction());
   }, [dispatch]);
 
-  const statusAuthorization = useAppSelector((state) => state.AuthorizationStatus);
   return (
     <HelmetProvider>
       <GlobalStyle />
@@ -56,10 +52,8 @@ function App(): JSX.Element {
             <Route
               path={AppRoute.Favorites}
               element={
-                <Private
-                  statusAuthorization={statusAuthorization}
-                >
-                  <FavoritesPage favoritesOffers={getFavoriteOffers(FAVORITES)} />
+                <Private>
+                  <FavoritesPage />
                 </Private>
               }
             />
@@ -70,7 +64,6 @@ function App(): JSX.Element {
               }
             />
           </Route>
-          {/* TODO: Add 404! */}
         </Routes>
       </ BrowserRouter>
     </HelmetProvider>
@@ -78,5 +71,4 @@ function App(): JSX.Element {
   );
 }
 
-// Export App
 export { App };

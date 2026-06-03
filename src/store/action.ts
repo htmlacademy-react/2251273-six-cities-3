@@ -12,6 +12,9 @@ export const setOffersLoadingStatus = createAction<boolean | null>('offers/setOf
 
 export const loadNearOffers = createAction<OffersElementType[]>('offers/loadNearOffers');
 
+export const loadFavoriteOffers = createAction<OffersElementType[]>('offers/loadFavoriteOffers');
+export const setFavoriteOffersLoadingStatus = createAction<boolean | null>('offers/setFavoriteOffersLoadingStatus');
+
 export const changeSorting = createAction<string>('sorting/changeSorting');
 export const resetSorting = createAction<void>('sorting/resetSorting');
 

@@ -9,13 +9,10 @@ import { logoutAction } from '../../store/api-actions';
 import { useAppDispatch } from '../../hooks/hooks';
 import { getUserEmail } from '../../services/user-email';
 
-
-// Create Types
 type NavigationProps = {
   offers: OffersElementType[];
 }
 
-// Create Navigation
 function Navigation({offers}: NavigationProps): JSX.Element {
   const statusAuthorization = useAppSelector((state) => state.AuthorizationStatus);
   const userEmail = getUserEmail();
@@ -66,5 +63,4 @@ function Navigation({offers}: NavigationProps): JSX.Element {
   );
 }
 
-// Export Navigation
 export {Navigation};

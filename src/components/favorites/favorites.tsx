@@ -1,19 +1,18 @@
-// Import Components
 import { FavoriteItem } from './favorite-item';
-// Import Types
-import { FavoriteType } from '../../mocks/favorite-mocks';
-// Import Utils
 import { getFavoriteOffersCities } from '../../utils';
+import { useEffect } from 'react';
+import { useAppSelector, useAppDispatch } from '../../hooks/hooks';
+import { fetchFavoriteOffersAction } from '../../store/api-actions';
 
-// Create Types
-type FavoritesProps = {
-  favoritesOffers: FavoriteType[];
-};
-
-// Create Favorites
-function Favorites({favoritesOffers}: FavoritesProps): JSX.Element {
+function Favorites(): JSX.Element {
+  const dispatch = useAppDispatch();
+  const favoritesOffers = useAppSelector((state) => state.favoriteOffers);
   const favoriteOffersCities = getFavoriteOffersCities(favoritesOffers);
   const favoriteCities = Object.keys(favoriteOffersCities);
+
+  useEffect(() => {
+    dispatch(fetchFavoriteOffersAction());
+  }, [dispatch]);
 
   return (
     <section className="favorites">
@@ -31,5 +30,4 @@ function Favorites({favoritesOffers}: FavoritesProps): JSX.Element {
   );
 }
 
-// Export Favorites
 export {Favorites};

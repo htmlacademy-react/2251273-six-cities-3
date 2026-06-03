@@ -1,22 +1,16 @@
-// Import React
 import { Link } from 'react-router-dom';
-// Import Components
 import { CardPrice } from '../card/card-price';
 import { CardMark } from '../card/card-mark';
 import { CardRating } from '../card/card-rating';
 import { CardName } from '../card/card-name';
 import { CardType } from '../card/card-type';
-// Import Constants
 import { AppRoute } from '../../const';
-// Import Types
-import { FavoriteType } from '../../mocks/favorite-mocks';
+import { FavoriteType } from '../../types/favorite';
 
-// Create Types
 type FavoriteCardProps = {
   offer: FavoriteType;
 };
 
-// Create FavoriteCard
 function FavoriteCard({ offer }: FavoriteCardProps): JSX.Element {
   return (
     <article className="favorites__card place-card">
@@ -37,5 +31,4 @@ function FavoriteCard({ offer }: FavoriteCardProps): JSX.Element {
 
 }
 
-// Export FavoriteCard
 export {FavoriteCard};
