@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { clsx } from 'clsx';
 // Import Types
 import { OffersElementType } from '../../types/offers';
+import { postFavoriteOfferAction } from '../../store/api-actions';
+import { useAppDispatch } from '../../hooks/hooks';
 
 // Create Types
 type CardBookmarkProps = {
@@ -13,8 +15,11 @@ type CardBookmarkProps = {
 function CardBookmark({ offer }: CardBookmarkProps): JSX.Element {
   const [isFavoriteState, setIsFavoriteState] = useState(offer.isFavorite);
 
+  const dispatch = useAppDispatch();
+
   function handleClick(): void {
     setIsFavoriteState(!isFavoriteState);
+    dispatch(postFavoriteOfferAction({ id: offer.id, status: !isFavoriteState }));
     // TODO: Доработать добавление в избранное!
   }
 

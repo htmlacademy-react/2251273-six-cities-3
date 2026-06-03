@@ -39,8 +39,6 @@ function OfferPage(): JSX.Element {
                 SYSTEM_MESSAGE.ERROR_LOADING_OFFER : SYSTEM_MESSAGE.UPLOADING_OFFER
             }
           />}
-        {/* TODO: Как правильно сделать? */}
-        {/* <OfferGallery offer={selectedOffer}/> */}
         {selectedOffer && <OfferGallery offer={selectedOffer}/>}
         {selectedOffer && <Offer offer={selectedOffer}/>}
         {selectedOffer &&

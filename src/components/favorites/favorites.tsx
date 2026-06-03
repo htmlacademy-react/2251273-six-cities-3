@@ -1,18 +1,11 @@
 import { FavoriteItem } from './favorite-item';
 import { getFavoriteOffersCities } from '../../utils';
-import { useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '../../hooks/hooks';
-import { fetchFavoriteOffersAction } from '../../store/api-actions';
+import { useAppSelector } from '../../hooks/hooks';
 
 function Favorites(): JSX.Element {
-  const dispatch = useAppDispatch();
   const favoritesOffers = useAppSelector((state) => state.favoriteOffers);
   const favoriteOffersCities = getFavoriteOffersCities(favoritesOffers);
   const favoriteCities = Object.keys(favoriteOffersCities);
-
-  useEffect(() => {
-    dispatch(fetchFavoriteOffersAction());
-  }, [dispatch]);
 
   return (
     <section className="favorites">
