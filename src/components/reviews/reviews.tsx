@@ -1,6 +1,5 @@
 import { ReviewsList } from './reviews-list';
 import { ReviewsForm } from './reviews-form';
-import { getCommentLength } from '../../utils';
 import { useAppSelector, useAppDispatch } from '../../hooks/hooks';
 import { useEffect } from 'react';
 import { fetchCommentsOfferAction } from '../../store/api-actions';
@@ -23,7 +22,7 @@ function Reviews(): JSX.Element {
   return (
     <section className='offer__reviews reviews'>
       <h2 className='reviews__title'>Reviews &middot;
-        <span className='reviews__amount'>{getCommentLength(comments)}</span>
+        <span className='reviews__amount'>{comments.length}</span>
       </h2>
       <ReviewsList comments={comments}/>
       {statusAuthorization === AuthorizationStatus.Auth && <ReviewsForm />}
