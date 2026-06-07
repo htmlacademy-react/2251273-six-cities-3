@@ -3,15 +3,18 @@ import { useAppDispatch } from '../../hooks/hooks';
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppRoute } from '../../const';
+import { switchButton } from '../../utils';
 
 function LoginForm(): JSX.Element {
   const loginRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
+  const formButtonSubmit = useRef<HTMLButtonElement | null>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   async function onSubmit(): Promise<void> {
     if (loginRef.current !== null && passwordRef.current !== null) {
+      switchButton(formButtonSubmit.current, true);
       try {
         await dispatch(loginAction({
           login: loginRef.current.value,
@@ -21,6 +24,8 @@ function LoginForm(): JSX.Element {
       } catch {
         navigate(AppRoute.Login);
         throw new Error('Error login');
+      } finally {
+        switchButton(formButtonSubmit.current, false);
       }
     }
   }
@@ -52,6 +57,7 @@ function LoginForm(): JSX.Element {
         />
       </div>
       <button
+        ref={formButtonSubmit}
         className="login__submit form__submit button"
         type="submit"
         onClick={handleSubmit}

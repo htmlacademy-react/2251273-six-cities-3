@@ -8,6 +8,9 @@ import { useAppSelector } from '../../hooks/hooks';
 import { SYSTEM_MESSAGE } from '../../const';
 import { useCallback } from 'react';
 
+import { MainEmpty } from '../main-empty/main-empty';
+import { clsx } from 'clsx';
+
 type CitiesProps = {
   offers: OffersElementType[];
   city: string;
@@ -16,28 +19,31 @@ type CitiesProps = {
 function Cities({ offers, city }: CitiesProps): JSX.Element {
   const [currentOffer, setCurrentOffer] = useState<string>('');
   const offersLoadingStatus = useAppSelector((state) => state.OFFERS.offersLoadingStatus);
-
+  const checkedEmptyOffers = offers.length === 0;
   const handleOfferHover = useCallback((offerId: string) => {
     setCurrentOffer(offerId);
   }, []);
 
   return (
     <div className="cities">
-      <div className="cities__places-container container">
+      <div
+        className={clsx('cities__places-container container', {'cities__places-container--empty': checkedEmptyOffers})}
+      >
         {!offersLoadingStatus &&
           <Message
             message={
               offersLoadingStatus === false ? SYSTEM_MESSAGE.ERROR_LOADING_OFFERS : SYSTEM_MESSAGE.UPLOADING_OFFERS
             }
           />}
-        {offersLoadingStatus &&
+        {checkedEmptyOffers && <MainEmpty />}
+        {offersLoadingStatus && !checkedEmptyOffers &&
           <CitiesPlaces
             offers={offers}
             city={city}
             onOfferHover={handleOfferHover}
           />}
         <div className="cities__right-section">
-          {offersLoadingStatus &&
+          {offersLoadingStatus && !checkedEmptyOffers &&
           <Map
             className="cities__map"
             offers={offers}
