@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { NameSpace, DEFAULT_CITY } from '../../const';
-import { CitySlice } from '../../types/slice/city-slice';
+import { CitySliceType } from '../../types/slice/city-slice';
 import { changeCity } from '../action';
 
-const initialState: CitySlice = {
+const initialState: CitySliceType = {
   selectedCity: DEFAULT_CITY,
 };
 

@@ -1,3 +1,4 @@
-export type CitySlice = {
+
+export type CitySliceType = {
   selectedCity: string;
 };

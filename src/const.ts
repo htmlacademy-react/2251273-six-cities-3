@@ -79,6 +79,19 @@ const CONFIGURATION_API = {
   TIME_OUT: 5000,
 };
 
+const APIRoute = {
+  'Offers': '/offers',
+  'Login': '/login',
+  'Logout': '/logout',
+  'Offer': '/offers/',
+  'Comments': '/comments/',
+  'Favorite': '/favorite',
+};
+
+const TYPE_OF_ERROR = {
+  EMPTY_OFFERS: 'EMPTY_OFFERS',
+};
+
 export enum AppRoute {
   Main = '/',
   Offer = '/offer',
@@ -93,21 +106,13 @@ export enum AuthorizationStatus {
   Unknown = 'UNKNOWN',
 }
 
-export const APIRoute = {
-  'Offers': '/offers',
-  'Login': '/login',
-  'Logout': '/logout',
-  'Offer': '/offers/',
-  'Comments': '/comments/',
-  'Favorite': '/favorite',
-};
-
 export enum NameSpace {
   Offers = 'OFFERS',
   City = 'CITY',
   Sorting = 'SORTING',
   User = 'USER',
   Offer = 'OFFER',
+  Error = 'ERROR',
 }
 
 export {
@@ -123,4 +128,7 @@ export {
   MAP_MARKER_DEFAULT,
   MAP_MARKER_ACTIVE,
   CONFIGURATION_API,
+  APIRoute,
+  TYPE_OF_ERROR,
 };
+
