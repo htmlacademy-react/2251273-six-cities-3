@@ -1,4 +1,6 @@
+import { ErrorType } from '../../types/error';
+
 export type ErrorSliceType = {
-  errorType: null | string;
+  errorType: null | ErrorType;
   errorMessage: null | string;
 };

@@ -35,7 +35,6 @@ function Cities({ offers, city }: CitiesProps): JSX.Element {
     } else {
       dispatch(setErrorType(null));
     }
-
   }, [offers, dispatch]);
 
   return (
