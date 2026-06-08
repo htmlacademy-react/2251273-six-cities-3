@@ -10,14 +10,17 @@ import { useAppSelector } from '../hooks/hooks';
 import { useAppDispatch } from '../hooks/hooks';
 import { fetchOfferAction, fetchNearOffersAction } from '../store/api-actions';
 import { SYSTEM_MESSAGE } from '../const';
+import { getSelectedOfferLoadingStatus } from '../store/selectors/offer-slice';
+import { getSelectedOffer } from '../store/selectors/offer-slice';
+import { getNearOffers } from '../store/selectors/offers-slice';
 
 function OfferPage(): JSX.Element {
 
   const dispatch = useAppDispatch();
   const { offerId } = useParams<{ offerId: string }>();
-  const selectedOffer = useAppSelector((state) => state.OFFER.selectedOffer);
-  const nearOffers = useAppSelector((state) => state.OFFERS.nearOffers);
-  const selectedOfferLoadingStatus = useAppSelector((state) => state.OFFER.selectedOfferLoadingStatus);
+  const selectedOffer = useAppSelector(getSelectedOffer);
+  const nearOffers = useAppSelector(getNearOffers);
+  const selectedOfferLoadingStatus = useAppSelector(getSelectedOfferLoadingStatus);
   const [currentOffer, setCurrentOffer] = useState<string>('');
 
   useEffect(() => {

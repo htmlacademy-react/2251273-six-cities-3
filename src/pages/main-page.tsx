@@ -5,16 +5,16 @@ import { useAppSelector, useAppDispatch } from '../hooks/hooks';
 import { useEffect } from 'react';
 import { fetchOffersAction } from '../store/api-actions';
 import { clsx } from 'clsx';
-import { getCheckedEmptyOffers } from '../store/selectors/offers-slice';
 import { getSelectedCity } from '../store/selectors/city-slice';
+import { getOffers } from '../store/selectors/offers-slice';
+import { getSelectedSorting } from '../store/selectors/sorting-slice';
 
 function MainPage(): JSX.Element {
   const dispatch = useAppDispatch();
   const city = useAppSelector(getSelectedCity);
-  const offers = useAppSelector((state) => state.OFFERS.offers);
-  const sortingOffers = useAppSelector((state) => state.SORTING.SelectedSorting);
+  const offers = useAppSelector(getOffers);
+  const sortingOffers = useAppSelector(getSelectedSorting);
   const filteredOffers = filterOffersByCity(offers, city);
-  const checkedEmptyOffers = useAppSelector(getCheckedEmptyOffers);
 
   useEffect(() => {
     dispatch(fetchOffersAction());
@@ -22,7 +22,8 @@ function MainPage(): JSX.Element {
 
   return (
     <main
-      className={clsx('page__main', 'page__main--index', {'page__main--index-empty': checkedEmptyOffers})}
+      // TODO: Add empty state!!!
+      className={clsx('page__main', 'page__main--index', {'page__main--index-empty': !filteredOffers.length})}
     >
       <h1 className="visually-hidden">Cities</h1>
       <div className="tabs">

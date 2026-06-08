@@ -5,7 +5,7 @@ import { changeSorting } from '../action';
 import { DEFAULT_SORTING } from '../../const';
 
 const initialState: SortingSlice = {
-  SelectedSorting: DEFAULT_SORTING,
+  selectedSorting: DEFAULT_SORTING,
 };
 
 export const sortingSlice = createSlice({
@@ -15,7 +15,7 @@ export const sortingSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(changeSorting, (state, action) => {
-        state.SelectedSorting = action.payload;
+        state.selectedSorting = action.payload;
       });
   },
 });
