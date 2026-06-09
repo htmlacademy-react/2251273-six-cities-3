@@ -50,10 +50,6 @@ const REVIEW_OFFER = {
   MAX_RATING_OFFER: 5,
 };
 
-const PAGE_NOT_FOUND_MESSAGE = {
-  PAGE: 'Page not found',
-};
-
 const SYSTEM_MESSAGE = {
   UPLOADING_OFFERS: 'Loading offers, please wait...',
   ERROR_LOADING_OFFERS: 'Error loading offers',
@@ -123,7 +119,6 @@ export {
   CITIES,
   RATING_OFFER,
   REVIEW_OFFER,
-  PAGE_NOT_FOUND_MESSAGE,
   SYSTEM_MESSAGE,
   MAP_MARKER_DEFAULT,
   MAP_MARKER_ACTIVE,

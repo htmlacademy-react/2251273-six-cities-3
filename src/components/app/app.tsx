@@ -8,7 +8,7 @@ import { FavoritesPage } from '../../pages/favorites-page';
 import { Layout } from '../layout/layout';
 import { Private } from '../private/private';
 import { PageNotFound } from '../page-not-found/page-not-found';
-import { AppRoute, PAGE_NOT_FOUND_MESSAGE } from '../../const';
+import { AppRoute } from '../../const';
 import { getAuthCheckedStatus } from '../../store/selectors/user-selector';
 import { useAppSelector } from '../../hooks/hooks';
 import { useEffect } from 'react';
@@ -65,7 +65,7 @@ function App(): JSX.Element {
             <Route
               path={AppRoute.NotFound}
               element={
-                <PageNotFound message={PAGE_NOT_FOUND_MESSAGE.PAGE} />
+                <PageNotFound />
               }
             />
           </Route>
