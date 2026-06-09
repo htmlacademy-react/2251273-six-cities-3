@@ -6,7 +6,6 @@ import { checkAuthAction, logoutAction, loginAction } from '../api-actions';
 
 const initialState: UserSlice = {
   authorizationStatus: AuthorizationStatus.Unknown,
-  userEmail: null,
 };
 
 export const userSlice = createSlice({

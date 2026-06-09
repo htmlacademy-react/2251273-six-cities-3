@@ -1,7 +1,6 @@
 import axios, {AxiosInstance} from 'axios';
 import { CONFIGURATION_API } from '../const';
 import { getToken } from '../services/token';
-import { getUserEmail } from '../services/user-email';
 
 export const createAPI = (): AxiosInstance => {
   const api = axios.create({
@@ -12,10 +11,8 @@ export const createAPI = (): AxiosInstance => {
   api.interceptors.request.use(
     (config) => {
       const token = getToken();
-      const email = getUserEmail();
-      if (token && email && config.headers) {
+      if (token && config.headers) {
         config.headers['x-token'] = token;
-        config.headers['x-email'] = email;
       }
       return config;
     }

@@ -70,9 +70,10 @@ export const checkAuthAction = createAsyncThunk<void, undefined, {
 }>(
   'user/checkAuth',
   async (_arg, { extra: api }) => {
-    if (getToken()) {
+    const token = getToken();
+    if (token) {
       try {
-        const response = await api.get<{ email: string }>(APIRoute.Login);
+        const response = await api.get<{ email: string }>(APIRoute.Login, { headers: { 'x-token': token } });
         saveUserEmail(response.data.email);
       } catch {
         dropToken();
