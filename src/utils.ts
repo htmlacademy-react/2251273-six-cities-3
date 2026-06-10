@@ -65,7 +65,7 @@ function getPlacesOptionsLabel(value: string): string {
 }
 
 function getRandomNearsOffers(offers: OffersElementType[]): OffersElementType[] {
-  return offers.sort(() => Math.random() - 0.5).slice(0, NEAREST_OFFERS_COUNT);
+  return [...offers].sort(() => Math.random() - 0.5).slice(0, NEAREST_OFFERS_COUNT);
 }
 
 function switchButton(button: HTMLButtonElement | null, isDisabled: boolean): void {
