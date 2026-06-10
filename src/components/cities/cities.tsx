@@ -49,15 +49,15 @@ function Cities({ offers, city }: CitiesProps): JSX.Element {
               offersLoadingStatus === false ? SYSTEM_MESSAGE.ERROR_LOADING_OFFERS : SYSTEM_MESSAGE.UPLOADING_OFFERS
             }
           />}
-        {offers.length === 0 && <MainEmpty />}
-        {offers.length > 0 &&
+        {checkEmptyOffers && <MainEmpty />}
+        {!!offers.length &&
           <CitiesPlaces
             offers={offers}
             city={city}
             onOfferHover={handleOfferHover}
           />}
         <div className="cities__right-section">
-          {offers.length > 0 &&
+          {!!offers.length &&
           <Map
             className="cities__map"
             offers={offers}
