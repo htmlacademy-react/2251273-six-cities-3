@@ -12,7 +12,8 @@ import { clsx } from 'clsx';
 import { useAppDispatch } from '../../hooks/hooks';
 import { setErrorType } from '../../store/action';
 import { TYPE_OF_ERROR } from '../../const';
-import { checkErrorEmptyOffers } from '../../store/selectors/error-slice';
+import { checkErrorEmptyAllOffers } from '../../store/selectors/error-slice';
+import { getOffersLoadingStatus } from '../../store/selectors/offers-slice';
 
 type CitiesProps = {
   offers: OffersElementType[];
@@ -22,20 +23,20 @@ type CitiesProps = {
 function Cities({ offers, city }: CitiesProps): JSX.Element {
   const dispatch = useAppDispatch();
   const [currentOffer, setCurrentOffer] = useState<string>('');
-  const offersLoadingStatus = useAppSelector((state) => state.OFFERS.offersLoadingStatus);
-  const checkEmptyOffers = useAppSelector(checkErrorEmptyOffers);
+  const checkEmptyOffers = useAppSelector(checkErrorEmptyAllOffers);
+  const offersLoadingStatus = useAppSelector(getOffersLoadingStatus);
 
   const handleOfferHover = useCallback((offerId: string) => {
     setCurrentOffer(offerId);
   }, []);
 
   useEffect(() => {
-    if(offers.length === 0) {
+    if(offers.length === 0 && offersLoadingStatus !== null) {
       dispatch(setErrorType(TYPE_OF_ERROR.EMPTY_OFFERS));
     } else {
       dispatch(setErrorType(null));
     }
-  }, [offers, dispatch]);
+  }, [offers, dispatch, offersLoadingStatus]);
 
   return (
     <div className="cities">
