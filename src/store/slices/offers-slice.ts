@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { NameSpace } from '../../const';
 import { OffersSlice } from '../../types/slice/offers-slice';
 import { fetchOffersAction, fetchNearOffersAction, fetchFavoriteOffersAction } from '../api-actions';
+import { updateFavoriteOffers } from '../action';
 
 const initialState: OffersSlice = {
   offers: [],
@@ -47,6 +48,14 @@ export const offersSlice = createSlice({
       })
       .addCase(fetchFavoriteOffersAction.rejected, (state) => {
         state.favoriteOffersLoadingStatus = false;
+      })
+      .addCase(updateFavoriteOffers, (state, action) => {
+        if (action.payload) {
+          const offer = state.offers.find((item) => item.id === action.payload.id);
+          if (offer) {
+            offer.isFavorite = action.payload.isFavorite;
+          }
+        }
       });
   }
 });
