@@ -1,29 +1,25 @@
-// Import React
 import { Link} from 'react-router-dom';
-// Import Utils
 import { clsx } from 'clsx';
-// Import Constants
-import { AppRoute } from '../../const';
-// Import Hooks
+import { AppRoute, DEFAULT_CITY, DEFAULT_SORTING } from '../../const';
 import { useAppDispatch } from '../../hooks/hooks';
-// Import Actions
-import { resetCity, resetSorting } from '../../store/action';
+import { changeCity, changeSorting } from '../../store/action';
+import { checkAuthAction } from '../../store/api-actions';
+import { useCallback } from 'react';
+import { memo } from 'react';
 
-// Create Types
 type LogoProps = {
   logoState: boolean;
 }
 
-// Create Logo
 function Logo({logoState}: LogoProps): JSX.Element {
-  // Create Dispatch
   const dispatch = useAppDispatch();
 
-  // Create handleClick
-  function handleClick(): void {
-    dispatch(resetCity());
-    dispatch(resetSorting());
-  }
+  const handleClick = useCallback(() => {
+    dispatch(changeCity(DEFAULT_CITY));
+    dispatch(changeSorting(DEFAULT_SORTING));
+    dispatch(checkAuthAction());
+  }, [dispatch]);
+
 
   return (
     <Link to={AppRoute.Main}
@@ -35,5 +31,6 @@ function Logo({logoState}: LogoProps): JSX.Element {
   );
 }
 
-// Export Logo
-export {Logo};
+const LogoMemo = memo(Logo);
+
+export { LogoMemo as Logo };

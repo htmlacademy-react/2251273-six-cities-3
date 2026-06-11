@@ -23,7 +23,7 @@ const DEFAULT_SORTING = 'popular';
 
 const NEAREST_OFFERS_COUNT = 3;
 
-const DEFAULT_CITY = 'Amsterdam';
+const DEFAULT_CITY = 'Paris';
 
 const CITIES = [
   'Paris',
@@ -48,10 +48,6 @@ const REVIEW_OFFER = {
   MAX_COMMENT_LENGTH: 300,
   MIN_RATING_OFFER: 1,
   MAX_RATING_OFFER: 5,
-};
-
-const PAGE_NOT_FOUND_MESSAGE = {
-  PAGE: 'Page not found',
 };
 
 const SYSTEM_MESSAGE = {
@@ -79,6 +75,19 @@ const CONFIGURATION_API = {
   TIME_OUT: 5000,
 };
 
+const APIRoute = {
+  'Offers': '/offers',
+  'Login': '/login',
+  'Logout': '/logout',
+  'Offer': '/offers/',
+  'Comments': '/comments/',
+  'Favorite': '/favorite',
+};
+
+const TYPE_OF_ERROR = {
+  EMPTY_OFFERS: 'EMPTY_OFFERS',
+};
+
 export enum AppRoute {
   Main = '/',
   Offer = '/offer',
@@ -93,13 +102,13 @@ export enum AuthorizationStatus {
   Unknown = 'UNKNOWN',
 }
 
-export enum APIRoute {
-  Offers = '/offers',
-  Login = '/login',
-  Logout = '/logout',
-  Offer = '/offers/',
-  Comments = '/comments/',
-  Favorite = '/favorite',
+export enum NameSpace {
+  Offers = 'OFFERS',
+  City = 'CITY',
+  Sorting = 'SORTING',
+  User = 'USER',
+  Offer = 'OFFER',
+  Error = 'ERROR',
 }
 
 export {
@@ -110,9 +119,11 @@ export {
   CITIES,
   RATING_OFFER,
   REVIEW_OFFER,
-  PAGE_NOT_FOUND_MESSAGE,
   SYSTEM_MESSAGE,
   MAP_MARKER_DEFAULT,
   MAP_MARKER_ACTIVE,
   CONFIGURATION_API,
+  APIRoute,
+  TYPE_OF_ERROR,
 };
+

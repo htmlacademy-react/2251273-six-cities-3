@@ -1,9 +1,7 @@
-// Import Components
 import { LocationsItem } from './locations-item';
-// Import Constants
 import { CITIES } from '../../const';
+import { memo } from 'react';
 
-// Create Locations
 function Locations(): JSX.Element {
 
   return (
@@ -20,5 +18,6 @@ function Locations(): JSX.Element {
   );
 }
 
-// Export Locations
-export {Locations};
+const LocationsMemo = memo(Locations);
+
+export { LocationsMemo as Locations };

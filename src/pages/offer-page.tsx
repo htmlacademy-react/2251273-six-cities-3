@@ -10,20 +10,30 @@ import { useAppSelector } from '../hooks/hooks';
 import { useAppDispatch } from '../hooks/hooks';
 import { fetchOfferAction, fetchNearOffersAction } from '../store/api-actions';
 import { SYSTEM_MESSAGE } from '../const';
+import { getSelectedOfferLoadingStatus } from '../store/selectors/offer-slice';
+import { getSelectedOffer } from '../store/selectors/offer-slice';
+import { getNearOffers } from '../store/selectors/offers-slice';
+import { getRandomNearsOffers } from '../utils';
+import { OffersElementType } from '../types/offers';
 
 function OfferPage(): JSX.Element {
 
   const dispatch = useAppDispatch();
   const { offerId } = useParams<{ offerId: string }>();
-  const selectedOffer = useAppSelector((state) => state.selectedOffer);
-  const nearOffers = useAppSelector((state) => state.nearOffers);
-  const selectedOfferLoadingStatus = useAppSelector((state) => state.selectedOfferLoadingStatus);
+  const selectedOffer = useAppSelector(getSelectedOffer);
+  const nearOffers = useAppSelector(getNearOffers);
+  const selectedOfferLoadingStatus = useAppSelector(getSelectedOfferLoadingStatus);
   const [currentOffer, setCurrentOffer] = useState<string>('');
+  const [randomNearsOffers, setRandomNearsOffers] = useState<OffersElementType[]>([]);
 
   useEffect(() => {
     dispatch(fetchOfferAction(offerId));
     dispatch(fetchNearOffersAction(offerId));
   }, [dispatch, offerId]);
+
+  useEffect(() => {
+    setRandomNearsOffers(getRandomNearsOffers(nearOffers));
+  }, [nearOffers]);
 
   const handleOfferHover = (idOffer: string) => {
     setCurrentOffer(idOffer);
@@ -44,7 +54,7 @@ function OfferPage(): JSX.Element {
         {selectedOffer &&
         <Map
           className="offer__map"
-          offers={nearOffers}
+          offers={randomNearsOffers}
           location={getLocation(selectedOffer)}
           currentOffer={currentOffer}
         />}
@@ -52,7 +62,7 @@ function OfferPage(): JSX.Element {
       <div className='container'>
         {selectedOffer &&
         <NearPlaces
-          offers={nearOffers}
+          offers={randomNearsOffers}
           onOfferHover={handleOfferHover}
         />}
       </div>
@@ -61,5 +71,4 @@ function OfferPage(): JSX.Element {
 
 }
 
-// Export OffersPage
 export { OfferPage };

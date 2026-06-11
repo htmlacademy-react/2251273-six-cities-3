@@ -4,10 +4,11 @@ import { useRef } from 'react';
 import { getPlacesOptionsLabel } from '../../utils';
 import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
 import { changeSorting } from '../../store/action';
+import { getSelectedSorting } from '../../store/selectors/sorting-slice';
 
 function Sorting(): JSX.Element {
   const placesOption = useRef<HTMLUListElement>(null);
-  const sortingOffers = useAppSelector((state) => state.typeSorting);
+  const sortingOffers = useAppSelector(getSelectedSorting);
   const dispatch = useAppDispatch();
 
   function handleClickSorting(event: React.MouseEvent<HTMLSpanElement>): void {

@@ -1,35 +1,56 @@
-// Import React
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { clsx } from 'clsx';
-// Import Types
 import { OffersElementType } from '../../types/offers';
 import { postFavoriteOfferAction } from '../../store/api-actions';
-import { useAppDispatch } from '../../hooks/hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
+import { switchButton } from '../../utils';
+import { getAuthCheckedStatus } from '../../store/selectors/user-selector';
+import { useNavigate } from 'react-router-dom';
+import { AppRoute } from '../../const';
 
-// Create Types
 type CardBookmarkProps = {
   offer: OffersElementType;
 }
 
-// Create CardBookmark
 function CardBookmark({ offer }: CardBookmarkProps): JSX.Element {
   const [isFavoriteState, setIsFavoriteState] = useState(offer.isFavorite);
-
   const dispatch = useAppDispatch();
+  const addFavoriteButton = useRef<HTMLButtonElement | null>(null);
+  const isAuthChecked = useAppSelector(getAuthCheckedStatus);
+  const navigation = useNavigate();
 
-  function handleClick(): void {
-    setIsFavoriteState(!isFavoriteState);
-    dispatch(postFavoriteOfferAction({ id: offer.id, status: !isFavoriteState }));
-    // TODO: Доработать добавление в избранное!
+  async function handleClick(): Promise<void> {
+    switchButton(addFavoriteButton.current, true);
+    try {
+      await dispatch(postFavoriteOfferAction({ id: offer.id, status: !isFavoriteState })).unwrap();
+      setIsFavoriteState(!isFavoriteState);
+    } catch {
+      throw new Error('Error postFavoriteOfferAction');
+    } finally {
+      switchButton(addFavoriteButton.current, false);
+    }
+  }
+
+  function onClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+    event.preventDefault();
+    if(!isAuthChecked) {
+      navigation(AppRoute.Login);
+      return;
+    }
+    handleClick();
   }
 
   return (
-    <button className={
-      clsx(
-        'place-card__bookmark-button button',
-        { 'place-card__bookmark-button--active': isFavoriteState }
-      )
-    } type="button" onClick={handleClick}
+    <button
+      ref={addFavoriteButton}
+      className={
+        clsx(
+          'place-card__bookmark-button button',
+          { 'place-card__bookmark-button--active': isFavoriteState }
+        )
+      }
+      type="button"
+      onClick={onClick}
     >
       <svg className="place-card__bookmark-icon" width="18" height="19">
         <use xlinkHref="#icon-bookmark"></use>
@@ -39,5 +60,4 @@ function CardBookmark({ offer }: CardBookmarkProps): JSX.Element {
   );
 }
 
-// Export CardBookmark
 export { CardBookmark };

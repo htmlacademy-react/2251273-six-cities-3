@@ -1,9 +1,10 @@
 import { FavoriteItem } from './favorite-item';
 import { getFavoriteOffersCities } from '../../utils';
 import { useAppSelector } from '../../hooks/hooks';
+import { getFavoriteOffers } from '../../store/selectors/offers-slice';
 
 function Favorites(): JSX.Element {
-  const favoritesOffers = useAppSelector((state) => state.favoriteOffers);
+  const favoritesOffers = useAppSelector(getFavoriteOffers);
   const favoriteOffersCities = getFavoriteOffersCities(favoritesOffers);
   const favoriteCities = Object.keys(favoriteOffersCities);
 

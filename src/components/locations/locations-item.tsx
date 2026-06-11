@@ -1,37 +1,28 @@
-// Import React
 import { Link } from 'react-router-dom';
-// Import Utils
 import { clsx } from 'clsx';
-// Import Constants
 import { AppRoute } from '../../const';
-// Import Hooks
 import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
-// Import Actions
-import { changeCity, resetSorting } from '../../store/action';
+import { changeCity, changeSorting } from '../../store/action';
+import { DEFAULT_SORTING } from '../../const';
+import { getSelectedCity } from '../../store/selectors/city-slice';
 
-// Create Types
 type LocationsItemProps = {
   location: string;
 };
 
-// Create LocationsItem
 function LocationsItem({location}: LocationsItemProps): JSX.Element {
-  // Create Dispatch
   const dispatch = useAppDispatch();
-  // Create Selector
-  const city = useAppSelector((state) => state.city);
+  const city = useAppSelector(getSelectedCity);
 
-  // Create handleClick
   function handleClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>): void {
     event.preventDefault();
     dispatch(changeCity(location));
-    dispatch(resetSorting());
+    dispatch(changeSorting(DEFAULT_SORTING));
   }
 
   return (
     <li className="locations__item">
       <Link
-        // TODO: Correct path ()
         to={AppRoute.Main}
         className={clsx(
           'locations__item-link tabs__item',
@@ -45,5 +36,4 @@ function LocationsItem({location}: LocationsItemProps): JSX.Element {
   );
 }
 
-// Export LocationsItem
 export { LocationsItem };
