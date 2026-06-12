@@ -78,7 +78,7 @@ function LoginForm(): JSX.Element {
   }
 
   return (
-    <form className="login__form form" action="#" method="post" autoComplete="off">
+    <form className="login__form form" action="#" method="post">
       <div className="login__input-wrapper form__input-wrapper">
         <label className="visually-hidden">E-mail</label>
         <input
@@ -86,7 +86,8 @@ function LoginForm(): JSX.Element {
           type="email"
           name="email"
           placeholder="Email"
-          required ref={loginRef}
+          required
+          ref={loginRef}
           onChange={checkForm}
         />
       </div>
@@ -94,9 +95,11 @@ function LoginForm(): JSX.Element {
         <label className="visually-hidden">Password</label>
         <input
           className="login__input form__input"
-          type="password" name="password"
+          type="password"
+          name="password"
           placeholder="Password"
-          required ref={passwordRef}
+          required
+          ref={passwordRef}
           onChange={checkForm}
         />
       </div>
