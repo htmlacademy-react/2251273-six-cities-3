@@ -24,7 +24,6 @@ function Message(): JSX.Element {
     }
   }
 
-
   return (
     <div className="message-container">
       <h2 className="message message--error">{getMessageError()}</h2>

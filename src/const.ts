@@ -69,7 +69,7 @@ const CONFIGURATION_API = {
 
 const APIRoute = {
   'Offers': '/offers',
-  'Login': '/login0',
+  'Login': '/login',
   'Logout': '/logout',
   'Offer': '/offers/',
   'Comments': '/comments/',
@@ -82,7 +82,7 @@ const TYPE_OF_ERROR = {
   ERROR_LOADING_OFFER: 'ERROR_LOADING_OFFER',
   ERROR_LOADING_COMMENTS: 'ERROR_LOADING_COMMENT',
   ERROR_LOADING_NEAR_OFFERS: 'ERROR_LOADING_NEAR_OFFERS',
-  ERROR_LOGIN: 'ERROR_LOGIN_EMAIL',
+  ERROR_LOGIN: 'ERROR_LOGIN',
   ERROR_LOGIN_EMAIL: 'ERROR_LOGIN_EMAIL',
   ERROR_LOGIN_PASSWORD: 'ERROR_LOGIN_PASSWORD',
 };
@@ -92,10 +92,12 @@ const SYSTEM_MESSAGE = {
   ERROR_LOADING_OFFER: 'Error loading offer',
   ERROR_LOADING_COMMENTS: 'Error loading comments',
   ERROR_LOADING_NEAR_OFFERS: 'Error loading similar offers',
-  ERROR_LOGIN: 'Error authorization, please try again',
-  ERROR_LOGIN_EMAIL: 'Enter a valid email address, please try again; example: 0u7YI@example.com',
+  ERROR_LOGIN: 'Error login, please try again',
+  ERROR_LOGIN_EMAIL: 'Enter a valid email address, please try again;  example: 0u7YI@example.com',
   ERROR_LOGIN_PASSWORD: 'Enter a valid password, please try again; example: Password123456',
 };
+
+const TIME_OUT_ERROR = 5000;
 
 const EMAIL_REGEXP = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -138,6 +140,7 @@ export {
   CONFIGURATION_API,
   APIRoute,
   TYPE_OF_ERROR,
+  TIME_OUT_ERROR,
   EMAIL_REGEXP,
   PASSWORD_REGEXP
 };

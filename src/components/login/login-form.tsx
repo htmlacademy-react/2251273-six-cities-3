@@ -7,6 +7,7 @@ import { switchButton } from '../../utils';
 import { Message } from '../message/message';
 import { setErrorType } from '../../store/action';
 import { getErrorType } from '../../store/selectors/error-slice';
+import { TIME_OUT_ERROR } from '../../const';
 
 function LoginForm(): JSX.Element {
   const loginRef = useRef<HTMLInputElement | null>(null);
@@ -27,8 +28,12 @@ function LoginForm(): JSX.Element {
         navigate(AppRoute.Main);
       } catch {
         navigate(AppRoute.Login);
+        dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOGIN));
         throw new Error('Error login');
       } finally {
+        setTimeout(() => {
+          dispatch(setErrorType(null));
+        }, TIME_OUT_ERROR);
         switchButton(formButtonSubmit.current, false);
       }
     }
