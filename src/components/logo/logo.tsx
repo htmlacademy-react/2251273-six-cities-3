@@ -2,7 +2,7 @@ import { Link} from 'react-router-dom';
 import { clsx } from 'clsx';
 import { AppRoute, DEFAULT_CITY, DEFAULT_SORTING } from '../../const';
 import { useAppDispatch } from '../../hooks/hooks';
-import { changeCity, changeSorting } from '../../store/action';
+import { changeCity, changeSorting, setErrorType } from '../../store/action';
 import { checkAuthAction } from '../../store/api-actions';
 import { useCallback,memo } from 'react';
 
@@ -17,6 +17,7 @@ function Logo({logoState}: LogoProps): JSX.Element {
     dispatch(changeCity(DEFAULT_CITY));
     dispatch(changeSorting(DEFAULT_SORTING));
     dispatch(checkAuthAction());
+    dispatch(setErrorType(null));
   }, [dispatch]);
 
 

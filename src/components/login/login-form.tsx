@@ -78,7 +78,7 @@ function LoginForm(): JSX.Element {
   }
 
   return (
-    <form className="login__form form" action="#" method="post">
+    <form className="login__form form" action="#" method="post" autoComplete='off' >
       <div className="login__input-wrapper form__input-wrapper">
         <label className="visually-hidden">E-mail</label>
         <input
@@ -98,6 +98,7 @@ function LoginForm(): JSX.Element {
           type="password"
           name="password"
           placeholder="Password"
+          autoComplete='new-password'
           required
           ref={passwordRef}
           onChange={checkForm}
