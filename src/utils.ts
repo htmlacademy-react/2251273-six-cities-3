@@ -2,6 +2,7 @@ import { OffersElementType } from './types/offers';
 import { OfferType } from './types/offer';
 import { FavoriteType } from './types/favorite';
 import { REVIEW_OFFER, NEAREST_OFFERS_COUNT, PLACES_OPTIONS } from './const';
+import { CITIES } from './const';
 
 function convertRatingToStars(rating: number): string {
   return `${Number(100 / REVIEW_OFFER.MAX_RATING_OFFER * rating)}%`;
@@ -17,12 +18,21 @@ function getFirstName(name: string): string {
 
 function getFavoriteOffersCities(offers: FavoriteType[]): Record<string, FavoriteType[]> {
   const ANSWER: Record<string, FavoriteType[]> = {};
+  CITIES.forEach((city) => {
+    ANSWER[city] = [];
+  });
 
   offers.forEach((offer) => {
     if (ANSWER[offer.city.name]) {
       ANSWER[offer.city.name].push(offer);
     } else {
       ANSWER[offer.city.name] = [offer];
+    }
+  });
+
+  Object.keys(ANSWER).forEach((key) => {
+    if (!ANSWER[key].length) {
+      delete ANSWER[key];
     }
   });
 
