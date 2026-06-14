@@ -74,7 +74,7 @@ describe('get selected offer', () => {
 });
 
 
-describe('get selected offer', () => {
+describe('get selected offer with comments', () => {
   const state = {
     [NameSpace.Offer]: {
       selectedOffer: selectedOfferMock,

@@ -6,12 +6,11 @@ import { useEffect } from 'react';
 import { useAppDispatch } from '../hooks/hooks';
 import { changeCity } from '../store/action';
 
+function getRandomCity(): string {
+  return CITIES[Math.floor(Math.random() * CITIES.length)];
+}
 
 function LoginPage(): JSX.Element {
-  function getRandomCity (): string {
-    return CITIES[Math.floor(Math.random() * CITIES.length)];
-  }
-
   const city = getRandomCity();
   const dispatch = useAppDispatch();
 
@@ -36,4 +35,4 @@ function LoginPage(): JSX.Element {
   );
 }
 
-export {LoginPage};
+export { LoginPage };

@@ -8,6 +8,7 @@ import { FavoriteType } from '../types/favorite';
 import { CommentElementType } from '../types/comments';
 import { ReviewType } from '../types/review';
 import { saveToken, dropToken, getToken } from '../services/token';
+import { AuthDataType } from '../types/api-action';
 
 type AuthData = {
   login: string;
@@ -62,7 +63,7 @@ export const fetchOfferAction = createAsyncThunk<OfferType, string | undefined, 
   },
 );
 
-export const checkAuthAction = createAsyncThunk<{ email: string; avatarUrl: string }, undefined, {
+export const checkAuthAction = createAsyncThunk<AuthDataType, undefined, {
   dispatch: AppDispatch;
   state: State;
   extra: AxiosInstance;

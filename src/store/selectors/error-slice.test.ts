@@ -27,7 +27,7 @@ describe('get error type', () => {
     expect(result).toBe(null);
   });
 
-  it('should return true', () => {
+  it('should return true if error type is error empty offers', () => {
     const state = {
       [NameSpace.Error]: {
         errorType: TYPE_OF_ERROR.ERROR_EMPTY_OFFERS,

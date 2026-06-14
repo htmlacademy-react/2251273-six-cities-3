@@ -22,10 +22,8 @@ function Reviews(): JSX.Element {
   }, [dispatch, offerId]);
 
   useEffect(() => {
-    if (selectedOfferCommentsLoadingStatus === false) {
+    if (!selectedOfferCommentsLoadingStatus) {
       dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOADING_COMMENTS));
-    } else {
-      dispatch(setErrorType(null));
     }
   }, [selectedOfferCommentsLoadingStatus, dispatch]);
 

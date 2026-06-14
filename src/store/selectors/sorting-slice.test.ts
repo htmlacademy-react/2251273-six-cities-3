@@ -3,7 +3,7 @@ import { getSelectedSorting } from './sorting-slice';
 import { DEFAULT_SORTING } from '../../const';
 
 describe('get selected sorting', () => {
-  it('should return selected sorting', () => {
+  it('should return default sorting', () => {
     const state = {
       [NameSpace.Sorting]: {
         selectedSorting: DEFAULT_SORTING,
@@ -17,7 +17,7 @@ describe('get selected sorting', () => {
 });
 
 describe('get selected sorting', () => {
-  it('should return default sorting', () => {
+  it('should return sorting', () => {
     const state = {
       [NameSpace.Sorting]: {
         selectedSorting: '',

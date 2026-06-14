@@ -1,5 +1,6 @@
 import { NameSpace } from '../../const';
 import { getSelectedCity } from './city-slice';
+import { DEFAULT_CITY } from '../../const';
 
 describe('get selected city', () => {
   it('should return selected city', () => {
@@ -17,13 +18,13 @@ describe('get selected city', () => {
   it('should return default city', () => {
     const state = {
       [NameSpace.City]: {
-        selectedCity: '',
+        selectedCity: DEFAULT_CITY,
       },
     };
 
     const result = getSelectedCity(state);
 
-    expect(result).toBe('');
+    expect(result).toBe(DEFAULT_CITY);
   });
 }
 );

@@ -19,7 +19,7 @@ describe('get authorization status', () => {
     expect(result).toBe(AuthorizationStatus.NoAuth);
   });
 
-  it('should return authorization status', () => {
+  it('should return checked status / false', () => {
 
     const result = getAuthCheckedStatus(state);
 
@@ -58,7 +58,7 @@ describe('get authorization status', () => {
     expect(result).toBe(AuthorizationStatus.Auth);
   });
 
-  it('should return authorization status', () => {
+  it('should return checked status / true', () => {
 
     const result = getAuthCheckedStatus(state);
 
