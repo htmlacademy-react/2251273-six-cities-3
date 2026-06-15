@@ -69,7 +69,7 @@ const CONFIGURATION_API = {
 
 const APIRoute = {
   'Offers': '/offers',
-  'Login': '/login0',
+  'Login': '/login',
   'Logout': '/logout',
   'Offer': '/offers/',
   'Comments': '/comments/',
