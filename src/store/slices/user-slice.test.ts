@@ -106,4 +106,32 @@ describe('user slice', () => {
       userAvatar: null,
     });
   });
+
+  it('should update authorization status / NoAuth', () => {
+    const result = userSlice.reducer(
+      undefined,
+      {
+        type: logoutAction.fulfilled.type,
+      });
+
+    expect(result).toEqual({
+      authorizationStatus: AuthorizationStatus.NoAuth,
+      userEmail: null,
+      userAvatar: null,
+    });
+  });
+
+  it('should return initial state / unknown action', () => {
+    const result = userSlice.reducer(
+      undefined,
+      {
+        type: 'unknown action',
+      });
+
+    expect(result).toEqual({
+      authorizationStatus: AuthorizationStatus.Unknown,
+      userEmail: null,
+      userAvatar: null,
+    });
+  });
 });
