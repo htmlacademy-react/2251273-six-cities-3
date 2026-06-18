@@ -13,7 +13,7 @@ type AppThunkDispatch = ThunkDispatch<State, ReturnType<typeof createAPI>, Actio
 
 const extractActionsTypes = (actions: Action<string>[]) => actions.map(({ type }) => type);
 
-describe('Async actions', () => {
+describe('Async actions: user', () => {
   const axios = createAPI();
   const mockAxiosAdapter = new MockAdapter(axios);
   const middleware = [thunk.withExtraArgument(axios)];
