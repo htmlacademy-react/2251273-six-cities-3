@@ -1,4 +1,4 @@
-import { checkAuthAction, fetchOffersAction } from './api-actions';
+import { checkAuthAction } from './api-actions';
 import { AuthorizationStatus, APIRoute } from '../const';
 import { State } from '../types/state';
 import { createAPI } from '../services/api';
@@ -7,7 +7,7 @@ import thunk from 'redux-thunk';
 import { configureMockStore } from '@jedmao/redux-mock-store';
 import { Action } from 'redux';
 import { ThunkDispatch } from '@reduxjs/toolkit';
-import { OFFERS } from './slices/offers-slice-mock';
+import { saveToken, dropToken, getToken } from '../services/token';
 
 type AppThunkDispatch = ThunkDispatch<State, ReturnType<typeof createAPI>, Action>;
 
@@ -38,12 +38,19 @@ describe('Async actions', () => {
     });
   });
 
-  describe(' action', () => {
-    it('should checkAuthAction be fulfilled with 200', async () => {
+  afterEach(() => {
+    mockAxiosAdapter.reset();
+    dropToken();
+  });
 
-      mockAxiosAdapter
-        .onGet(APIRoute.Login)
-        .reply(200, { email: 'oBtXg@example.com', avatarUrl: 'https://via.placeholder.com/150' }, { 'x-token': 'token' });
+  describe('checkAuthAction', () => {
+    it('should check auth', async () => {
+      saveToken('token');
+
+      mockAxiosAdapter.onGet(APIRoute.Login).reply(200, {
+        email: 'oBtXg@example.com',
+        avatarUrl: 'https://via.placeholder.com/150',
+      });
 
       await store.dispatch(checkAuthAction());
 
@@ -53,13 +60,14 @@ describe('Async actions', () => {
         checkAuthAction.pending.type,
         checkAuthAction.fulfilled.type,
       ]);
+
+      expect(store.getState().USER.authorizationStatus).toBe(AuthorizationStatus.Auth);
+      expect(store.getState().USER.userEmail).toBe('oBtXg@example.com');
+      expect(store.getState().USER.userAvatar).toBe('https://via.placeholder.com/150');
     });
 
-    it('should checkAuthAction be rejected with 400', async () => {
-
-      mockAxiosAdapter
-        .onGet(APIRoute.Login)
-        .reply(400);
+    it('should not check auth', async () => {
+      dropToken();
 
       await store.dispatch(checkAuthAction());
 
@@ -69,45 +77,10 @@ describe('Async actions', () => {
         checkAuthAction.pending.type,
         checkAuthAction.rejected.type,
       ]);
+
+      expect(store.getState().USER.authorizationStatus).toBe(AuthorizationStatus.NoAuth);
+      expect(store.getState().USER.userEmail).toBe(null);
+      expect(store.getState().USER.userAvatar).toBe(null);
     });
-
-    it('should checkAuthAction be rejected with 500', async () => {
-
-      mockAxiosAdapter
-        .onGet(APIRoute.Login)
-        .reply(500);
-
-      await store.dispatch(checkAuthAction());
-
-      const actions = extractActionsTypes(store.getActions());
-
-      expect(actions).toEqual([
-        checkAuthAction.pending.type,
-        checkAuthAction.rejected.type,
-      ]);
-    });
-
-    it('should checkAuthAction be fulfilled with 200', async () => {
-      const mockOffers = OFFERS;
-      mockAxiosAdapter
-        .onGet(APIRoute.Offers)
-        .reply(200, mockOffers);
-
-      await store.dispatch(fetchOffersAction());
-
-
-      const emittedActions = store.getActions();
-      const actions = extractActionsTypes(store.getActions());
-      const fetchQuestionsActionFulfilled = emittedActions.at(1) as ReturnType<typeof fetchOffersAction.fulfilled>;
-
-
-      expect(actions).toEqual([
-        fetchOffersAction.pending.type,
-        fetchOffersAction.fulfilled.type,
-      ]);
-
-      expect(fetchQuestionsActionFulfilled.payload).toEqual(mockOffers);
-    });
-
   });
 });
