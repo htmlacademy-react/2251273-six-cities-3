@@ -73,6 +73,7 @@ describe('Async actions', () => {
     });
 
     // check login success
+    // TODO: сомневаюсь в этом тесте! токен нужен или нет?
     it('should login user and check auth', async () => {
       // Создаем мок запрос
       mockAxiosAdapter.onPost(APIRoute.Login).reply(200, {
@@ -96,8 +97,6 @@ describe('Async actions', () => {
 
     // check login fail
     it('should not login user', async () => {
-      // Сохраняем токен
-      saveToken('token');
       // Создаем мок запрос
       mockAxiosAdapter.onPost(APIRoute.Login).reply(401);
       // Выполняем action
