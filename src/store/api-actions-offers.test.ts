@@ -76,15 +76,20 @@ describe('Async actions: offers', () => {
     await store.dispatch(fetchOffersAction());
     // Получаем экшены
     const actions = store.getActions();
-    // Вытаскиваем экшены
-    const fetchOffersActionRejected = actions.at(1) as ReturnType<typeof fetchOffersAction.rejected>;
+    // Вытаскиваем экшены с ошибкой
+    const setErrorAction = actions[1];
     // Проверяем экшены по типу
-    expect(fetchOffersActionRejected.type).toBe(fetchOffersAction.rejected.type);
+    expect(actions[1].type).toBe('error/setErrorType');
     // Проверяем экшены по порядку
     expect(extractActionsTypes(actions)).toEqual([
       fetchOffersAction.pending.type,
+      'error/setErrorType',
       fetchOffersAction.rejected.type
     ]);
+    // Проверяем что не был вызван экшен fetchOffersAction.fulfilled
+    expect(extractActionsTypes(actions)).not.toContain(fetchOffersAction.fulfilled.type);
+    // Проверяем тип экшена
+    expect(setErrorAction.type).toBe('error/setErrorType');
   });
 
   // Fetch near offers success

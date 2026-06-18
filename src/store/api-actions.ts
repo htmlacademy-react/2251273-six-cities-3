@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AxiosInstance } from 'axios';
-import { APIRoute } from '../const';
+import { APIRoute, TYPE_OF_ERROR } from '../const';
 import { AppDispatch, State } from '../types/state';
 import { OffersElementType } from '../types/offers';
 import { OfferType } from '../types/offer';
@@ -9,6 +9,7 @@ import { CommentElementType } from '../types/comments';
 import { ReviewType } from '../types/review';
 import { saveToken, dropToken, getToken } from '../services/token';
 import { AuthDataType } from '../types/api-action';
+import { setErrorType} from '../store/action';
 
 type AuthData = {
   login: string;
@@ -21,9 +22,14 @@ export const fetchOffersAction = createAsyncThunk<OffersElementType[], undefined
   extra: AxiosInstance;
 }>(
   'offers/fetchOffers',
-  async (_arg, { extra: api }) => {
-    const { data } = await api.get<OffersElementType[]>(APIRoute.Offers);
-    return data;
+  async (_arg, { dispatch, extra: api, rejectWithValue }) => {
+    try {
+      const { data } = await api.get<OffersElementType[]>(APIRoute.Offers);
+      return data;
+    } catch (error) {
+      dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOADING_OFFERS));
+      return rejectWithValue(error);
+    }
   },
 );
 
