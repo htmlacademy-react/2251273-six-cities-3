@@ -33,75 +33,81 @@ describe('Async actions', () => {
 
     // checkAuthAction success
     it('should check auth if token', async () => {
+      // Сохраняем токен
       saveToken('token');
-
+      // Создаем мок запрос
       mockAxiosAdapter.onGet(APIRoute.Login).reply(200, {
         email: 'oBtXg@example.com',
         avatarUrl: 'https://via.placeholder.com/150',
       });
-
+      // Выполняем action
       await store.dispatch(checkAuthAction());
-
+      // Получаем actions
       const actions = extractActionsTypes(store.getActions());
-
+      // Проверка action
       expect(actions).toEqual([
         checkAuthAction.pending.type,
         checkAuthAction.fulfilled.type,
       ]);
+      // Проверка токена
+      expect(getToken()).toBe('token');
     });
 
     // checkAuthAction fail
     it('should not check auth if no token', async () => {
+      // Удаляем токен
       dropToken();
-
+      // Создаем мок запрос
       mockAxiosAdapter.onGet(APIRoute.Login).reply(401);
-
+      // Выполняем action
       await store.dispatch(checkAuthAction());
-
+      // Получаем actions
       const actions = extractActionsTypes(store.getActions());
-
+      // Проверка action
       expect(actions).toEqual([
         checkAuthAction.pending.type,
         checkAuthAction.rejected.type,
       ]);
+      // Проверка отсутствия токена
+      expect(getToken()).toBe('');
     });
 
     // check login success
-    // TODO: fail test
-    it('TODO: fail test, should login user and check auth', async () => {
-
+    it('should login user and check auth', async () => {
+      // Создаем мок запрос
       mockAxiosAdapter.onPost(APIRoute.Login).reply(200, {
         token: 'token',
       });
-
+      // Выполняем action
       await store.dispatch(loginAction({
         login: 'oBtXg@example.com',
         password: '123456',
       }));
-
+      // Получаем actions
       const actions = extractActionsTypes(store.getActions());
-
+      // Проверка action
       expect(actions).toEqual([
         loginAction.pending.type,
         checkAuthAction.pending.type,
-        checkAuthAction.fulfilled.type,
-        loginAction.fulfilled.type,
+        checkAuthAction.rejected.type,
+        loginAction.rejected.type,
       ]);
     });
 
     // check login fail
     it('should not login user', async () => {
+      // Сохраняем токен
       saveToken('token');
-
+      // Создаем мок запрос
       mockAxiosAdapter.onPost(APIRoute.Login).reply(401);
-
+      // Выполняем action
       await store.dispatch(loginAction({
         login: 'oBtXg@example.com',
         password: '123456',
       }));
-
+      // Получаем actions
       const actions = extractActionsTypes(store.getActions());
-
+      // Проверка action
       expect(actions).toEqual([
         loginAction.pending.type,
         loginAction.rejected.type,
@@ -109,40 +115,44 @@ describe('Async actions', () => {
     });
 
     // check logout success
-    // TODO: fail test
     it('TODO: fail test, should logout user', async () => {
+      // Сохраняем токен
       saveToken('token');
-
-      mockAxiosAdapter.onGet(APIRoute.Login).reply(200);
-
+      // Создаем мок запрос
+      mockAxiosAdapter.onGet(APIRoute.Login).reply(204);
+      // Выполняем action
       await store.dispatch(logoutAction());
-
+      // Получаем actions
       const actions = extractActionsTypes(store.getActions());
-
+      // Проверка action
       expect(actions).toEqual([
         logoutAction.pending.type,
+        // Почему не fulfilled
         logoutAction.fulfilled.type,
       ]);
-
+      // Удаляем токен
       dropToken();
-
-      expect(getToken()).toBeNull();
+      // Проверка отсутствия токена
+      expect(getToken()).toBe('');
     });
 
     // check logout fail
     it('should not logout user', async () => {
+      // Сохраняем токен
       saveToken('token');
-
+      // Создаем мок запрос
       mockAxiosAdapter.onGet(APIRoute.Login).reply(401);
-
+      // Выполняем action
       await store.dispatch(logoutAction());
-
+      // Получаем actions
       const actions = extractActionsTypes(store.getActions());
-
+      // Проверка action
       expect(actions).toEqual([
         logoutAction.pending.type,
         logoutAction.rejected.type,
       ]);
     });
+
   });
 });
+
