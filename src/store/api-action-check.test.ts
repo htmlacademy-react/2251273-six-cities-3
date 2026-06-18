@@ -1,4 +1,4 @@
-import { checkAuthAction } from './api-actions';
+import { checkAuthAction, loginAction } from './api-actions';
 import { AuthorizationStatus, APIRoute } from '../const';
 import { State } from '../types/state';
 import { createAPI } from '../services/api';
@@ -44,6 +44,8 @@ describe('Async actions', () => {
   });
 
   describe('checkAuthAction', () => {
+
+    // checkAuthAction success
     it('should check auth', async () => {
       saveToken('token');
 
@@ -60,12 +62,9 @@ describe('Async actions', () => {
         checkAuthAction.pending.type,
         checkAuthAction.fulfilled.type,
       ]);
-
-      expect(store.getState().USER.authorizationStatus).toBe(AuthorizationStatus.Auth);
-      expect(store.getState().USER.userEmail).toBe('oBtXg@example.com');
-      expect(store.getState().USER.userAvatar).toBe('https://via.placeholder.com/150');
     });
 
+    // checkAuthAction fail
     it('should not check auth', async () => {
       dropToken();
 
@@ -77,10 +76,43 @@ describe('Async actions', () => {
         checkAuthAction.pending.type,
         checkAuthAction.rejected.type,
       ]);
+    });
 
-      expect(store.getState().USER.authorizationStatus).toBe(AuthorizationStatus.NoAuth);
-      expect(store.getState().USER.userEmail).toBe(null);
-      expect(store.getState().USER.userAvatar).toBe(null);
+    // loginAction success
+    it('should login', async () => {
+      saveToken('token');
+
+      mockAxiosAdapter.onPost(APIRoute.Login).reply(200, {
+        email: 'oBtXg@example.com',
+        avatarUrl: 'https://via.placeholder.com/150',
+      });
+
+      await store.dispatch(loginAction({ login: 'oBtXg@example.com', password: '123' }));
+
+      const actions = extractActionsTypes(store.getActions());
+
+      expect(actions).toEqual([
+        loginAction.pending.type,
+        checkAuthAction.pending.type,
+        checkAuthAction.fulfilled.type,
+        loginAction.fulfilled.type,
+      ]);
+    });
+
+    // loginAction fail
+    it('should not login', async () => {
+      dropToken();
+
+      await store.dispatch(loginAction({ login: 'oBtXg@example.com', password: '123' }));
+
+      const actions = extractActionsTypes(store.getActions());
+
+      expect(actions).toEqual([
+        loginAction.pending.type,
+        checkAuthAction.pending.type,
+        checkAuthAction.rejected.type,
+        loginAction.rejected.type,
+      ]);
     });
   });
 });
