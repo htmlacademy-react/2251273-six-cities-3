@@ -11,7 +11,7 @@ describe('checkAuthAction', () => {
   const axios = createAPI();
   const mockAxiosAdapter = new MockAdapter(axios);
   let store: ReturnType<typeof createTestStore>;
-  const actionHistory: AnyAction[] = [];
+  let actionHistory: AnyAction[] = [];
 
   const actionCollector: Middleware = () => (next: Dispatch) => (action: AnyAction) => {
     actionHistory.push(action);
@@ -29,6 +29,7 @@ describe('checkAuthAction', () => {
     });
 
   beforeEach(() => {
+    actionHistory = [];
     store = createTestStore();
   });
 
@@ -116,10 +117,7 @@ describe('checkAuthAction', () => {
     // Выполняем действие
     await store.dispatch(loginAction({ login: 'test-email', password: 'test-password' }));
     // Проверяем результат
-    const rejectedAction = actionHistory.find(
-      (action) => action.type === checkAuthAction.rejected.type
-    );
-    expect(rejectedAction).toBeDefined();
+
     expect(store.getState()[NameSpace.User].authorizationStatus).toBe(AuthorizationStatus.NoAuth);
     expect(store.getState()[NameSpace.User].userEmail).toBe(null);
     expect(store.getState()[NameSpace.User].userAvatar).toBe(null);

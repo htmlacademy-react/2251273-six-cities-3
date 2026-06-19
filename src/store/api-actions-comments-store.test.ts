@@ -13,7 +13,7 @@ describe('fetchOffersAction', () => {
   const axios = createAPI();
   const mockAxiosAdapter = new MockAdapter(axios);
   let store: ReturnType<typeof createTestStore>;
-  const actionHistory: AnyAction[] = [];
+  let actionHistory: AnyAction[] = [];
 
   const actionCollector: Middleware = () => (next: Dispatch) => (action: AnyAction) => {
     actionHistory.push(action);
@@ -31,7 +31,7 @@ describe('fetchOffersAction', () => {
     });
 
   beforeEach(() => {
-    actionHistory.length = 0;
+    actionHistory = [];
     store = createTestStore();
   });
 
