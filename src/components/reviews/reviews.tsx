@@ -4,19 +4,28 @@ import { useAppSelector, useAppDispatch } from '../../hooks/hooks';
 import { useEffect } from 'react';
 import { fetchCommentsOfferAction } from '../../store/api-actions';
 import { useParams } from 'react-router-dom';
-import { AuthorizationStatus } from '../../const';
+import { AuthorizationStatus, TYPE_OF_ERROR} from '../../const';
+import { getSelectedOfferCommentsLoadingStatus } from '../../store/selectors/offer-slice';
+import { Message } from '../message/message';
+import { setErrorType } from '../../store/action';
 
-// Export Reviews
 function Reviews(): JSX.Element {
   const dispatch = useAppDispatch();
   const statusAuthorization = useAppSelector((state) => state.USER.authorizationStatus);
   const comments = useAppSelector((state) => state.OFFER.selectedOfferComments);
   const offerId: string = useParams().offerId || '';
+  const selectedOfferCommentsLoadingStatus = useAppSelector(getSelectedOfferCommentsLoadingStatus);
 
 
   useEffect(() => {
     dispatch(fetchCommentsOfferAction(offerId));
   }, [dispatch, offerId]);
+
+  useEffect(() => {
+    if (!selectedOfferCommentsLoadingStatus) {
+      dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOADING_COMMENTS));
+    }
+  }, [selectedOfferCommentsLoadingStatus, dispatch]);
 
 
   return (
@@ -24,11 +33,12 @@ function Reviews(): JSX.Element {
       <h2 className='reviews__title'>Reviews &middot;
         <span className='reviews__amount'>{comments.length}</span>
       </h2>
+      {!selectedOfferCommentsLoadingStatus &&
+        <Message />}
       <ReviewsList comments={comments}/>
       {statusAuthorization === AuthorizationStatus.Auth && <ReviewsForm />}
     </section>
   );
 }
 
-// Export Reviews
 export {Reviews};

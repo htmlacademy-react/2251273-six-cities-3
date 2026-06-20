@@ -50,14 +50,6 @@ const REVIEW_OFFER = {
   MAX_RATING_OFFER: 5,
 };
 
-const SYSTEM_MESSAGE = {
-  UPLOADING_OFFERS: 'Loading offers, please wait...',
-  ERROR_LOADING_OFFERS: 'Error loading offers',
-  UPLOADING_OFFER: 'Loading offer, please wait...',
-  ERROR_LOADING_OFFER: 'Error loading offer',
-  DEFAULT: 'Default'
-};
-
 const MAP_MARKER_DEFAULT: leaflet.IconOptions = {
   iconUrl: 'img/pin.svg',
   iconSize: [40, 40],
@@ -85,8 +77,29 @@ const APIRoute = {
 };
 
 const TYPE_OF_ERROR = {
-  EMPTY_OFFERS: 'EMPTY_OFFERS',
+  ERROR_EMPTY_OFFERS: 'ERROR_EMPTY_OFFERS',
+  ERROR_LOADING_OFFERS: 'ERROR_LOADING_OFFERS',
+  ERROR_LOADING_OFFER: 'ERROR_LOADING_OFFER',
+  ERROR_LOADING_COMMENTS: 'ERROR_LOADING_COMMENT',
+  ERROR_LOADING_NEAR_OFFERS: 'ERROR_LOADING_NEAR_OFFERS',
+  ERROR_LOGIN: 'ERROR_LOGIN',
+  ERROR_LOGIN_EMAIL: 'ERROR_LOGIN_EMAIL',
+  ERROR_LOGIN_PASSWORD: 'ERROR_LOGIN_PASSWORD',
 };
+
+const SYSTEM_MESSAGE = {
+  ERROR_LOADING_OFFERS: 'Error loading offers',
+  ERROR_LOADING_OFFER: 'Error loading offer',
+  ERROR_LOADING_COMMENTS: 'Error loading comments',
+  ERROR_LOADING_NEAR_OFFERS: 'Error loading similar offers',
+  ERROR_LOGIN: 'Error login, please try again',
+  ERROR_LOGIN_EMAIL: 'Enter a valid email address, please try again;  example: 0u7YI@example.com',
+  ERROR_LOGIN_PASSWORD: 'Enter a valid password, please try again; example: Password123456',
+};
+
+const EMAIL_REGEXP = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+const PASSWORD_REGEXP = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
 
 export enum AppRoute {
   Main = '/',
@@ -125,5 +138,7 @@ export {
   CONFIGURATION_API,
   APIRoute,
   TYPE_OF_ERROR,
+  EMAIL_REGEXP,
+  PASSWORD_REGEXP
 };
 

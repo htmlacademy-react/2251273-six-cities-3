@@ -1,14 +1,15 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AxiosInstance } from 'axios';
+import { APIRoute, TYPE_OF_ERROR } from '../const';
 import { AppDispatch, State } from '../types/state';
-import { APIRoute } from '../const';
 import { OffersElementType } from '../types/offers';
 import { OfferType } from '../types/offer';
 import { FavoriteType } from '../types/favorite';
 import { CommentElementType } from '../types/comments';
 import { ReviewType } from '../types/review';
 import { saveToken, dropToken, getToken } from '../services/token';
-import { saveUserEmail, dropUserEmail } from '../services/user-email';
+import { AuthDataType } from '../types/api-action';
+import { setErrorType} from '../store/action';
 
 type AuthData = {
   login: string;
@@ -21,9 +22,14 @@ export const fetchOffersAction = createAsyncThunk<OffersElementType[], undefined
   extra: AxiosInstance;
 }>(
   'offers/fetchOffers',
-  async (_arg, { extra: api }) => {
-    const { data } = await api.get<OffersElementType[]>(APIRoute.Offers);
-    return data;
+  async (_arg, { dispatch, extra: api, rejectWithValue }) => {
+    try {
+      const { data } = await api.get<OffersElementType[]>(APIRoute.Offers);
+      return data;
+    } catch (error) {
+      dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOADING_OFFERS));
+      return rejectWithValue(error);
+    }
   },
 );
 
@@ -63,7 +69,7 @@ export const fetchOfferAction = createAsyncThunk<OfferType, string | undefined, 
   },
 );
 
-export const checkAuthAction = createAsyncThunk<void, undefined, {
+export const checkAuthAction = createAsyncThunk<AuthDataType, undefined, {
   dispatch: AppDispatch;
   state: State;
   extra: AxiosInstance;
@@ -75,11 +81,10 @@ export const checkAuthAction = createAsyncThunk<void, undefined, {
       return rejectWithValue(null);
     }
     try {
-      const response = await api.get<{ email: string }>(APIRoute.Login, { headers: { 'x-token': token } });
-      saveUserEmail(response.data.email);
+      const response = await api.get<{ email: string; avatarUrl: string }>(APIRoute.Login, { headers: { 'x-token': token } });
+      return response.data;
     } catch {
       dropToken();
-      dropUserEmail();
       return rejectWithValue(null);
     }
   },
@@ -107,7 +112,6 @@ export const logoutAction = createAsyncThunk<void, undefined, {
   async (_arg, { extra: api }) => {
     await api.delete(APIRoute.Logout);
     dropToken();
-    dropUserEmail();
   },
 );
 
@@ -116,7 +120,7 @@ export const fetchCommentsOfferAction = createAsyncThunk<CommentElementType[], s
   state: State;
   extra: AxiosInstance;
 }>(
-  'data/fetchCommentsOffer',
+  'comments/fetchCommentsOffer',
   async (id, { extra: api }) => {
     const { data } = await api.get<CommentElementType[]>(`${APIRoute.Comments}/${id}`);
     return data;
@@ -128,7 +132,7 @@ export const postCommentsOfferAction = createAsyncThunk<void, ReviewType, {
   state: State;
   extra: AxiosInstance;
 }>(
-  'data/postComment',
+  'comments/postComment',
   async ({ offerId, comment, rating }, { dispatch, extra: api }) => {
     await api.post<ReviewType>(`${APIRoute.Comments}/${offerId}`, { comment, rating });
     dispatch(fetchCommentsOfferAction(offerId));
@@ -140,7 +144,7 @@ export const postFavoriteOfferAction = createAsyncThunk<FavoriteType, { id: stri
   state: State;
   extra: AxiosInstance;
 }>(
-  'data/postFavoriteOffer',
+  'favorite/postFavoriteOffer',
   async ({id, status}, { dispatch, extra: api }) => {
     const { data } = await api.post<FavoriteType>(`${APIRoute.Favorite}/${id}/${Number(status)}`);
     dispatch(fetchFavoriteOffersAction());

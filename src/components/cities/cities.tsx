@@ -1,17 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { CitiesPlaces } from './cities-places';
 import { Map } from '../map/map';
 import { Message } from '../message/message';
 import { getLocation } from '../../utils';
 import { OffersElementType } from '../../types/offers';
-import { useAppSelector } from '../../hooks/hooks';
-import { SYSTEM_MESSAGE } from '../../const';
-import { useCallback } from 'react';
+import { useAppSelector, useAppDispatch } from '../../hooks/hooks';
+import { TYPE_OF_ERROR } from '../../const';
 import { MainEmpty } from '../main-empty/main-empty';
 import { clsx } from 'clsx';
-import { useAppDispatch } from '../../hooks/hooks';
 import { setErrorType } from '../../store/action';
-import { TYPE_OF_ERROR } from '../../const';
 import { checkErrorEmptyOffers } from '../../store/selectors/error-slice';
 import { getOffersLoadingStatus } from '../../store/selectors/offers-slice';
 
@@ -31,24 +28,20 @@ function Cities({ offers, city }: CitiesProps): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if(offers.length === 0 && offersLoadingStatus !== null) {
-      dispatch(setErrorType(TYPE_OF_ERROR.EMPTY_OFFERS));
-    } else {
-      dispatch(setErrorType(null));
+    if (offers.length === 0 && offersLoadingStatus) {
+      dispatch(setErrorType(TYPE_OF_ERROR.ERROR_EMPTY_OFFERS));
     }
   }, [offers, dispatch, offersLoadingStatus]);
 
   return (
     <div className="cities">
+      {!offersLoadingStatus &&
+        <Message />}
+
+      {offersLoadingStatus &&
       <div
-        className={clsx('cities__places-container container', {'cities__places-container--empty': checkEmptyOffers})}
+        className={clsx('cities__places-container container', { 'cities__places-container--empty': checkEmptyOffers })}
       >
-        {!offersLoadingStatus &&
-          <Message
-            message={
-              offersLoadingStatus === false ? SYSTEM_MESSAGE.ERROR_LOADING_OFFERS : SYSTEM_MESSAGE.UPLOADING_OFFERS
-            }
-          />}
         {checkEmptyOffers && <MainEmpty />}
         {!!offers.length &&
           <CitiesPlaces
@@ -58,14 +51,14 @@ function Cities({ offers, city }: CitiesProps): JSX.Element {
           />}
         <div className="cities__right-section">
           {!!offers.length &&
-          <Map
-            className="cities__map"
-            offers={offers}
-            location={getLocation(offers[0])}
-            currentOffer={currentOffer}
-          />}
+            <Map
+              className="cities__map"
+              offers={offers}
+              location={getLocation(offers[0])}
+              currentOffer={currentOffer}
+            />}
         </div>
-      </div>
+      </div>}
     </div>
   );
 }

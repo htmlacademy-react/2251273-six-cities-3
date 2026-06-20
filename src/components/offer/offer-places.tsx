@@ -1,5 +1,8 @@
 import { Card } from '../card/card';
 import { OffersElementType } from '../../types/offers';
+import { Message } from '../message/message';
+import { useAppSelector } from '../../hooks/hooks';
+import { getNearOffersLoadingStatus } from '../../store/selectors/offers-slice';
 
 type NearPlacesProps = {
   offers: OffersElementType[];
@@ -7,9 +10,12 @@ type NearPlacesProps = {
 };
 
 function NearPlaces({offers, onOfferHover}: NearPlacesProps): JSX.Element {
+  const nearOffersLoadingStatus = useAppSelector(getNearOffersLoadingStatus);
   return (
     <section className='near-places places'>
       <h2 className='near-places__title'>Other places in the neighbourhood</h2>
+      {!nearOffersLoadingStatus &&
+        <Message />}
       <div className='near-places__list places__list'>
         {offers.map((offer: OffersElementType) => (
           <Card
