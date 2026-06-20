@@ -1,38 +1,19 @@
 import { fetchCommentsOfferAction, postCommentsOfferAction } from './api-actions';
-import { configureStore, Dispatch, AnyAction, Middleware } from '@reduxjs/toolkit';
 import MockAdapter from 'axios-mock-adapter';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createAPI } from '../services/api';
-import { rootReducer } from './rootReducer';
 import { APIRoute, NameSpace } from '../const';
 import { OFFER } from '../mocks/mock-offer';
 import { COMMENTS } from '../mocks/mock-comments';
 import { CommentElementType } from '../types/comments';
+import { createTestStoreWithHistory } from './test-utils';
+import { createAPI } from '../services/api';
 
 describe('fetchOffersAction', () => {
-  const axios = createAPI();
-  const mockAxiosAdapter = new MockAdapter(axios);
-  let store: ReturnType<typeof createTestStore>;
-  let actionHistory: AnyAction[] = [];
-
-  const actionCollector: Middleware = () => (next: Dispatch) => (action: AnyAction) => {
-    actionHistory.push(action);
-    return next(action);
-  };
-
-  const createTestStore = () =>
-    configureStore({
-      reducer: rootReducer,
-
-      middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-          thunk: { extraArgument: axios },
-        }).concat(actionCollector),
-    });
-
+  const axiosInstance = createAPI();
+  const mockAxiosAdapter = new MockAdapter(axiosInstance);
+  let testStore: ReturnType<typeof createTestStoreWithHistory>;
   beforeEach(() => {
-    actionHistory = [];
-    store = createTestStore();
+    testStore = createTestStoreWithHistory(axiosInstance);
   });
 
   afterEach(() => {
@@ -41,6 +22,7 @@ describe('fetchOffersAction', () => {
 
   // fetchCommentsOfferAction success
   it('should dispatch fetchCommentsOfferAction success', async () => {
+    const { store, actionHistory } = testStore;
     const mockComments: CommentElementType[] = COMMENTS;
     mockAxiosAdapter.onGet(`${APIRoute.Comments}/${OFFER.id}`).reply(200, mockComments);
     // Выполняем действие
@@ -58,6 +40,7 @@ describe('fetchOffersAction', () => {
 
   // fetchCommentsOfferAction success empty array
   it('should dispatch fetchCommentsOfferAction success empty array', async () => {
+    const { store, actionHistory } = testStore;
     const mockComments: CommentElementType[] = [];
     mockAxiosAdapter.onGet(`${APIRoute.Comments}/${OFFER.id}`).reply(200, mockComments);
     // Выполняем действие
@@ -75,6 +58,7 @@ describe('fetchOffersAction', () => {
 
   // fetchCommentsOfferAction error
   it('should dispatch fetchCommentsOfferAction error', async () => {
+    const { store, actionHistory } = testStore;
     mockAxiosAdapter.onGet(`${APIRoute.Comments}/${OFFER.id}`).reply(400);
     // Выполняем действие
     await store.dispatch(fetchCommentsOfferAction(OFFER.id));
@@ -90,6 +74,7 @@ describe('fetchOffersAction', () => {
 
   // postCommentsOfferAction success
   it('should dispatch postCommentsOfferAction success', async () => {
+    const { store, actionHistory } = testStore;
     const mockComments: CommentElementType[] = COMMENTS;
     mockAxiosAdapter
       .onPost(`${APIRoute.Comments}/${OFFER.id}`)
@@ -114,6 +99,7 @@ describe('fetchOffersAction', () => {
 
   // postCommentsOfferAction error
   it('should dispatch postCommentsOfferAction error', async () => {
+    const { store, actionHistory } = testStore;
     mockAxiosAdapter
       .onPost(`${APIRoute.Comments}/${OFFER.id}`)
       .reply(400);

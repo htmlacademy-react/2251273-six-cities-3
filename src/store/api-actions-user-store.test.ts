@@ -1,36 +1,17 @@
 import { checkAuthAction, loginAction, logoutAction } from './api-actions';
-import { configureStore, Dispatch, AnyAction, Middleware } from '@reduxjs/toolkit';
 import MockAdapter from 'axios-mock-adapter';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { saveToken, dropToken, getToken } from '../services/token';
-import { createAPI } from '../services/api';
-import { rootReducer } from './rootReducer';
 import { APIRoute, NameSpace, AuthorizationStatus } from '../const';
+import { createTestStoreWithHistory } from './test-utils';
+import { createAPI } from '../services/api';
 
 describe('checkAuthAction', () => {
-  const axios = createAPI();
-  const mockAxiosAdapter = new MockAdapter(axios);
-  let store: ReturnType<typeof createTestStore>;
-  let actionHistory: AnyAction[] = [];
-
-  const actionCollector: Middleware = () => (next: Dispatch) => (action: AnyAction) => {
-    actionHistory.push(action);
-    return next(action);
-  };
-
-
-  const createTestStore = () =>
-    configureStore({
-      reducer: rootReducer,
-      middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-          thunk: { extraArgument: axios },
-        }).concat(actionCollector),
-    });
-
+  const axiosInstance = createAPI();
+  const mockAxiosAdapter = new MockAdapter(axiosInstance);
+  let testStore: ReturnType<typeof createTestStoreWithHistory>;
   beforeEach(() => {
-    actionHistory = [];
-    store = createTestStore();
+    testStore = createTestStoreWithHistory(axiosInstance);
   });
 
   afterEach(() => {
@@ -40,6 +21,7 @@ describe('checkAuthAction', () => {
 
   // checkAuthAction success
   it('should dispatch checkAuthAction success', async () => {
+    const { store, actionHistory } = testStore;
     // Сохраняем токен
     saveToken('test-token');
     // Мокаем запрос
@@ -65,6 +47,7 @@ describe('checkAuthAction', () => {
 
   // checkAuthAction failure
   it('should dispatch checkAuthAction failure', async () => {
+    const { store, actionHistory } = testStore;
     // Сохраняем токен
     saveToken('test-token');
     // Мокаем запрос
@@ -83,6 +66,7 @@ describe('checkAuthAction', () => {
 
   // loginAction success
   it('should dispatch loginAction success', async () => {
+    const { store, actionHistory } = testStore;
     saveToken('test-token');
     // Мокаем запросЫ
     mockAxiosAdapter.onPost(APIRoute.Login).reply(200, {
@@ -111,13 +95,13 @@ describe('checkAuthAction', () => {
 
   // loginAction failure
   it('should dispatch loginAction failure', async () => {
+    const { store } = testStore;
     saveToken('test-token');
     // Мокаем запрос
     mockAxiosAdapter.onPost(APIRoute.Login).reply(401);
     // Выполняем действие
     await store.dispatch(loginAction({ login: 'test-email', password: 'test-password' }));
     // Проверяем результат
-
     expect(store.getState()[NameSpace.User].authorizationStatus).toBe(AuthorizationStatus.NoAuth);
     expect(store.getState()[NameSpace.User].userEmail).toBe(null);
     expect(store.getState()[NameSpace.User].userAvatar).toBe(null);
@@ -125,6 +109,7 @@ describe('checkAuthAction', () => {
 
   // logoutAction success
   it('should dispatch logoutAction success', async () => {
+    const { store, actionHistory } = testStore;
     saveToken('test-token');
     // Мокаем запросЫ
     mockAxiosAdapter.onPost(APIRoute.Login).reply(200, {
@@ -151,6 +136,7 @@ describe('checkAuthAction', () => {
 
   // logoutAction failure
   it('should dispatch logoutAction failure', async () => {
+    const { store, actionHistory } = testStore;
     saveToken('test-token');
     // Мокаем запросЫ
     mockAxiosAdapter.onPost(APIRoute.Login).reply(200, {

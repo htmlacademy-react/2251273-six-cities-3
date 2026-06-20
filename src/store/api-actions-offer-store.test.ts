@@ -1,71 +1,62 @@
-import { fetchOfferAction } from './api-actions';
-import { configureStore, Dispatch, AnyAction, Middleware } from '@reduxjs/toolkit';
-import MockAdapter from 'axios-mock-adapter';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createAPI } from '../services/api';
-import { rootReducer } from './rootReducer';
+import MockAdapter from 'axios-mock-adapter';
+import { fetchOfferAction } from './api-actions';
 import { APIRoute, NameSpace } from '../const';
 import { OFFER } from '../mocks/mock-offer';
+import { createTestStoreWithHistory } from './test-utils';
+import { createAPI } from '../services/api';
 
-describe('fetchOffersAction', () => {
-  const axios = createAPI();
-  const mockAxiosAdapter = new MockAdapter(axios);
-  let store: ReturnType<typeof createTestStore>;
-  let actionHistory: AnyAction[] = [];
 
-  const actionCollector: Middleware = () => (next: Dispatch) => (action: AnyAction) => {
-    actionHistory.push(action);
-    return next(action);
-  };
+describe('fetchOfferAction', () => {
+  const axiosInstance = createAPI();
 
-  const createTestStore = () =>
-    configureStore({
-      reducer: rootReducer,
+  const mockAxiosAdapter = new MockAdapter(axiosInstance);
 
-      middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-          thunk: { extraArgument: axios },
-        }).concat(actionCollector),
-    });
+  let testStore: ReturnType<typeof createTestStoreWithHistory>;
 
   beforeEach(() => {
-    actionHistory = [];
-    store = createTestStore();
+    testStore = createTestStoreWithHistory(axiosInstance);
   });
 
   afterEach(() => {
     mockAxiosAdapter.reset();
   });
 
-  // fetchOfferAction success
-  it('should dispatch fetchOfferAction success', async () => {
+  it('should dispatch fetchOfferAction fulfilled', async () => {
+
     const mockOffer = OFFER;
+
     mockAxiosAdapter.onGet(`${APIRoute.Offer}/${mockOffer.id}`).reply(200, mockOffer);
-    // Выполняем действие
+
+    const { store, actionHistory } = testStore;
+
     await store.dispatch(fetchOfferAction(mockOffer.id));
-    // Проверяем результат
+
     const fulfilledAction = actionHistory.find(
       (action) => action.type === fetchOfferAction.fulfilled.type
     );
+
     expect(fulfilledAction).toBeDefined();
     expect(fulfilledAction?.payload).toEqual(mockOffer);
 
-    expect(store.getState()[NameSpace.Offer].selectedOffer).toEqual(mockOffer);
-    expect(store.getState()[NameSpace.Offer].selectedOfferLoadingStatus).toBe(true);
+    const offerState = store.getState()[NameSpace.Offer];
+    expect(offerState.selectedOffer).toEqual(mockOffer);
+    expect(offerState.selectedOfferLoadingStatus).toBe(true);
   });
 
-  // fetchOfferAction error
-  it('should dispatch fetchOfferAction error', async () => {
+  it('should dispatch fetchOfferAction rejected', async () => {
     mockAxiosAdapter.onGet(`${APIRoute.Offer}/${OFFER.id}`).reply(400);
-    // Выполняем действие
+
+    const { store, actionHistory } = testStore;
     await store.dispatch(fetchOfferAction(OFFER.id));
-    // Проверяем результат
+
     const rejectedAction = actionHistory.find(
       (action) => action.type === fetchOfferAction.rejected.type
     );
     expect(rejectedAction).toBeDefined();
 
-    expect(store.getState()[NameSpace.Offer].selectedOffer).toEqual(null);
-    expect(store.getState()[NameSpace.Offer].selectedOfferLoadingStatus).toBe(false);
+    const offerState = store.getState()[NameSpace.Offer];
+    expect(offerState.selectedOffer).toBeNull();
+    expect(offerState.selectedOfferLoadingStatus).toBe(false);
   });
 });

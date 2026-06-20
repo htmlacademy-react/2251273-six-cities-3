@@ -1,46 +1,28 @@
 import { fetchOffersAction, fetchNearOffersAction, fetchFavoriteOffersAction } from './api-actions';
-import { configureStore, Dispatch, AnyAction, Middleware } from '@reduxjs/toolkit';
 import MockAdapter from 'axios-mock-adapter';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createAPI } from '../services/api';
-import { rootReducer } from './rootReducer';
 import { APIRoute, NameSpace } from '../const';
 import { OFFERS } from '../mocks/mock-offers';
 import { OffersElementType } from '../types/offers';
+import { createTestStoreWithHistory } from './test-utils';
+import { createAPI } from '../services/api';
 
 describe('fetchOffersAction', () => {
-  const axios = createAPI();
-  const mockAxiosAdapter = new MockAdapter(axios);
-  let store: ReturnType<typeof createTestStore>;
-  let actionHistory: AnyAction[] = [];
-
-  const actionCollector: Middleware = () => (next: Dispatch) => (action: AnyAction) => {
-    actionHistory.push(action);
-    return next(action);
-  };
-
-
-  const createTestStore = () =>
-    configureStore({
-      reducer: rootReducer,
-
-      middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-          thunk: { extraArgument: axios },
-        }).concat(actionCollector),
-    });
-
+  const axiosInstance = createAPI();
+  const mockAxiosAdapter = new MockAdapter(axiosInstance);
+  let testStore: ReturnType<typeof createTestStoreWithHistory>;
   beforeEach(() => {
-    actionHistory = [];
-    store = createTestStore();
+    testStore = createTestStoreWithHistory(axiosInstance);
   });
 
   afterEach(() => {
     mockAxiosAdapter.reset();
   });
 
+
   // fetchOffersAction success
   it('should dispatch fetchOffersAction success', async () => {
+    const { store, actionHistory } = testStore;
     const mockOffers = OFFERS;
     mockAxiosAdapter.onGet(APIRoute.Offers).reply(200, mockOffers);
     // Выполняем действие
@@ -58,6 +40,7 @@ describe('fetchOffersAction', () => {
 
   // fetchOffersAction success empty array
   it('should dispatch fetchOffersAction success empty array', async () => {
+    const { store, actionHistory } = testStore;
     const mockOffers: OffersElementType[] = [];
     mockAxiosAdapter.onGet(APIRoute.Offers).reply(200, mockOffers);
     // Выполняем действие
@@ -76,6 +59,7 @@ describe('fetchOffersAction', () => {
 
   // fetchOffersAction error
   it('should dispatch fetchOffersAction error', async () => {
+    const { store, actionHistory } = testStore;
     mockAxiosAdapter.onGet(APIRoute.Offers).reply(400);
     // Выполняем действие
     await store.dispatch(fetchOffersAction());
@@ -92,6 +76,7 @@ describe('fetchOffersAction', () => {
 
   // fetchNearOffersAction success
   it('should dispatch fetchNearOffersAction success', async () => {
+    const { store, actionHistory } = testStore;
     const mockOffers = OFFERS;
     mockAxiosAdapter.onGet(`${APIRoute.Offer}/id/nearby`).reply(200, mockOffers);
     // Выполняем действие
@@ -110,6 +95,7 @@ describe('fetchOffersAction', () => {
 
   // fetchNearOffersAction success empty array
   it('should dispatch fetchNearOffersAction success empty array', async () => {
+    const { store, actionHistory } = testStore;
     const mockOffers: OffersElementType[] = [];
     mockAxiosAdapter.onGet(`${APIRoute.Offer}/id/nearby`).reply(200, mockOffers);
     // Выполняем действие
@@ -128,6 +114,7 @@ describe('fetchOffersAction', () => {
 
   // fetchNearOffersAction error
   it('should dispatch fetchNearOffersAction error', async () => {
+    const { store, actionHistory } = testStore;
     mockAxiosAdapter.onGet(`${APIRoute.Offer}/id/nearby`).reply(400);
     // Выполняем действие
     await store.dispatch(fetchNearOffersAction('id'));
@@ -144,6 +131,7 @@ describe('fetchOffersAction', () => {
 
   // fetchFavoriteOffersAction success
   it('should dispatch fetchFavoriteOffersAction success', async () => {
+    const { store, actionHistory } = testStore;
     const mockOffers = OFFERS;
     mockAxiosAdapter.onGet(APIRoute.Favorite).reply(200, mockOffers);
     // Выполняем действие
@@ -162,6 +150,7 @@ describe('fetchOffersAction', () => {
 
   // fetchFavoriteOffersAction success empty array
   it('should dispatch fetchFavoriteOffersAction success empty array', async () => {
+    const { store, actionHistory } = testStore;
     const mockOffers: OffersElementType[] = [];
     mockAxiosAdapter.onGet(APIRoute.Favorite).reply(200, mockOffers);
     // Выполняем действие
@@ -180,6 +169,7 @@ describe('fetchOffersAction', () => {
 
   // fetchFavoriteOffersAction error
   it('should dispatch fetchFavoriteOffersAction error', async () => {
+    const { store, actionHistory } = testStore;
     mockAxiosAdapter.onGet(APIRoute.Favorite).reply(400);
     // Выполняем действие
     await store.dispatch(fetchFavoriteOffersAction());
