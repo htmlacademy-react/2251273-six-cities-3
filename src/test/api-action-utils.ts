@@ -1,6 +1,6 @@
 import { configureStore, Middleware, Dispatch, AnyAction } from '@reduxjs/toolkit';
 import { createAPI } from '../services/api';
-import { rootReducer } from './rootReducer';
+import { rootReducer } from '../store/rootReducer';
 
 export const createTestStore = (extraMiddlewares: Middleware[] = []) => {
   const axios = createAPI();
