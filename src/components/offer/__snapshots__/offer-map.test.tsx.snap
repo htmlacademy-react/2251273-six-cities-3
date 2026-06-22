@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OfferMap > matches snapshot 1`] = `
+<div>
+  <section
+    class="offer__map map"
+  />
+</div>
+`;

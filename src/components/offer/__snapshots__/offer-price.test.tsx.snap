@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OfferPrice > should match snapshot 1`] = `
+<div>
+  <div
+    class="offer__price"
+  >
+    <b
+      class="offer__price-value"
+    >
+      €
+      120
+    </b>
+    <span
+      class="offer__price-text"
+    >
+       night
+    </span>
+  </div>
+</div>
+`;

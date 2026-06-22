@@ -1,0 +1,38 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OfferGallery > matches snapshot 1`] = `
+<div>
+  <div
+    class="offer__gallery-container container"
+  >
+    <div
+      class="offer__gallery"
+    >
+      <div
+        data-alt="Cozy Apartment"
+        data-src="image1.jpg"
+        data-testid="mock-offer-image"
+      >
+        Mock Image: 
+        Cozy Apartment
+      </div>
+      <div
+        data-alt="Cozy Apartment"
+        data-src="image2.jpg"
+        data-testid="mock-offer-image"
+      >
+        Mock Image: 
+        Cozy Apartment
+      </div>
+      <div
+        data-alt="Cozy Apartment"
+        data-src="image3.jpg"
+        data-testid="mock-offer-image"
+      >
+        Mock Image: 
+        Cozy Apartment
+      </div>
+    </div>
+  </div>
+</div>
+`;
