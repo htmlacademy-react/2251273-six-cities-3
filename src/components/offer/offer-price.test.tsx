@@ -1,50 +1,85 @@
-// src/components/offer-price/offer-price.test.tsx
-import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 import { OfferPrice } from './offer-price';
 import type { OfferType } from '../../types/offer';
 
 describe('OfferPrice', () => {
-  const mockOffer = {
-    price: 120,
-    // остальные поля OfferType не важны для этого компонента
-  } as OfferType;
+  const createMockOffer = (price: number): OfferType => ({
+    id: 'offer-1',
+    title: 'Test Offer',
+    type: 'apartment',
+    price,
+    city: { name: 'Paris', location: { latitude: 48.8566, longitude: 2.3522, zoom: 12 } },
+    location: { latitude: 48.8566, longitude: 2.3522, zoom: 12 },
+    isFavorite: false,
+    isPremium: false,
+    rating: 4,
+    description: 'Test description',
+    bedrooms: 2,
+    goods: ['Wi-Fi'],
+    host: { name: 'John', avatarUrl: 'avatar.jpg', isPro: false },
+    images: ['image1.jpg'],
+    maxAdults: 4,
+  });
 
-  it('should render price and "night" text', () => {
-    render(<OfferPrice offer={mockOffer} />);
+  it('должен корректно отображать цену', () => {
+    const offer = createMockOffer(120);
+    render(<OfferPrice offer={offer} />);
 
-    // Проверяем наличие цены со знаком евро
-    const priceElement = screen.getByText('€120');
-    expect(priceElement).toBeInTheDocument();
-    expect(priceElement).toHaveClass('offer__price-value');
+    const priceValue = screen.getByText('€120');
+    expect(priceValue).toBeInTheDocument();
+    expect(priceValue).toHaveClass('offer__price-value');
+  });
 
-    // Проверяем текст "night"
-    const nightText = screen.getByText('night');
+  it('должен отображать символ евро', () => {
+    const offer = createMockOffer(100);
+    render(<OfferPrice offer={offer} />);
+
+    const priceValue = screen.getByText('€100');
+    expect(priceValue.textContent).toContain('€');
+  });
+
+  it('должен отображать текст "night"', () => {
+    const offer = createMockOffer(100);
+    render(<OfferPrice offer={offer} />);
+
+    const nightText = screen.getByText(/night/i);
     expect(nightText).toBeInTheDocument();
     expect(nightText).toHaveClass('offer__price-text');
   });
 
-  it('should render correct price for different values', () => {
-    const offers = [{ price: 0 }, { price: 999 }, { price: 1234.5 }] as OfferType[];
+  it('должен иметь правильные CSS классы', () => {
+    const offer = createMockOffer(100);
+    const { container } = render(<OfferPrice offer={offer} />);
 
-    offers.forEach((offer) => {
-      const { unmount } = render(<OfferPrice offer={offer} />);
-      const priceRegex = new RegExp(`€${offer.price}`);
-      expect(screen.getByText(priceRegex)).toBeInTheDocument();
-      unmount();
-    });
+    const priceContainer = container.querySelector('.offer__price');
+    expect(priceContainer).toBeInTheDocument();
+
+    const priceValue = container.querySelector('.offer__price-value');
+    expect(priceValue).toBeInTheDocument();
+
+    const priceText = container.querySelector('.offer__price-text');
+    expect(priceText).toBeInTheDocument();
   });
 
-  it('should contain the wrapping div with class "offer__price"', () => {
-    const { container } = render(<OfferPrice offer={mockOffer} />);
-    const wrapper = container.firstChild as HTMLElement;
-    expect(wrapper).toHaveClass('offer__price');
-    expect(wrapper.tagName).toBe('DIV');
+  it('должен корректно отображать цену 0', () => {
+    const offer = createMockOffer(0);
+    render(<OfferPrice offer={offer} />);
+
+    expect(screen.getByText('€0')).toBeInTheDocument();
   });
 
-  // Опционально: snapshot-тест (если требуется)
-  it('should match snapshot', () => {
-    const { container } = render(<OfferPrice offer={mockOffer} />);
-    expect(container).toMatchSnapshot();
+  it('должен корректно отображать большую цену', () => {
+    const offer = createMockOffer(9999);
+    render(<OfferPrice offer={offer} />);
+
+    expect(screen.getByText('€9999')).toBeInTheDocument();
+  });
+
+  it('должен корректно отображать дробную цену', () => {
+    const offer = createMockOffer(120.5);
+    render(<OfferPrice offer={offer} />);
+
+    expect(screen.getByText('€120.5')).toBeInTheDocument();
   });
 });

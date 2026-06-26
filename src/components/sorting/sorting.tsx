@@ -17,8 +17,8 @@ function Sorting(): JSX.Element {
   }
 
   function handleClickOption(event: React.MouseEvent<HTMLLIElement>): void {
-    const sorting: string = event.currentTarget.dataset.sorting || '';
     event.preventDefault();
+    const sorting: string = event.currentTarget.dataset.sorting || '';
     placesOption.current?.classList.remove('places__options--opened');
     dispatch(changeSorting(sorting));
   }

@@ -1,197 +1,374 @@
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
 import { LoginForm } from './login-form';
-import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
-import { loginAction } from '../../store/api-actions';
-import { setErrorType } from '../../store/action';
-import { AppRoute, TYPE_OF_ERROR } from '../../const';
-import { getErrorType } from '../../store/selectors/error-slice';
 
-// Мокаем хуки Redux
-vi.mock('../../hooks/hooks', () => ({
-  useAppDispatch: vi.fn(),
-  useAppSelector: vi.fn(),
+// 1. Создаем моки с помощью vi.hoisted
+const {
+  mockDispatch,
+  mockNavigate,
+  mockUseAppSelector,
+  mockLoginAction,
+  mockSwitchButton
+} = vi.hoisted(() => ({
+  mockDispatch: vi.fn(() => ({ unwrap: vi.fn(() => Promise.resolve()) })),
+  mockNavigate: vi.fn(),
+  mockUseAppSelector: vi.fn(),
+  mockLoginAction: vi.fn(),
+  mockSwitchButton: vi.fn(),
 }));
 
-vi.mock('../../store/api-actions', () => ({
-  loginAction: vi.fn(),
-}));
-
-vi.mock('../../store/action', () => ({
-  setErrorType: vi.fn(),
-}));
-
-// Мокаем useNavigate
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('react-router-dom')>();
+// 2. Мокаем react-router-dom
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return {
     ...actual,
     useNavigate: () => mockNavigate,
   };
 });
 
-describe('LoginForm', () => {
-  const mockDispatch = vi.fn();
+// 3. Мокаем Redux hooks
+vi.mock('../../hooks/hooks', () => ({
+  useAppDispatch: () => mockDispatch,
+  useAppSelector: mockUseAppSelector,
+}));
 
+// 4. Мокаем api-actions
+vi.mock('../../store/api-actions', () => ({
+  loginAction: mockLoginAction,
+}));
+
+// 5. Мокаем action
+vi.mock('../../store/action', () => ({
+  setErrorType: vi.fn((error: string | null) => ({
+    type: 'error/setErrorType',
+    payload: error
+  })),
+}));
+
+// 6. Мокаем utils
+vi.mock('../../utils', () => ({
+  switchButton: mockSwitchButton,
+}));
+
+// 7. Мокаем константы
+vi.mock('../../const', () => ({
+  AppRoute: { Main: '/', Login: '/login' },
+  TYPE_OF_ERROR: {
+    ERROR_LOGIN: 'ERROR_LOGIN',
+    ERROR_LOGIN_EMAIL: 'ERROR_LOGIN_EMAIL',
+    ERROR_LOGIN_PASSWORD: 'ERROR_LOGIN_PASSWORD',
+  },
+  EMAIL_REGEXP: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+  PASSWORD_REGEXP: /^(?=.*[A-Za-z])(?=.*\d).+$/,
+}));
+
+// 8. Мокаем селекторы
+vi.mock('../../store/selectors/error-slice', () => ({
+  getErrorType: 'error/getErrorType',
+}));
+
+// 9. Мокаем компонент Message
+vi.mock('../message/message', () => ({
+  Message: () => <div data-testid="message">Error Message</div>,
+}));
+
+describe('LoginForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseAppSelector.mockReturnValue(null);
+    mockDispatch.mockReturnValue({ unwrap: vi.fn(() => Promise.resolve()) });
+  });
 
-    // Используем vi.mocked для типизации моков
-    const mockedUseAppDispatch = vi.mocked(useAppDispatch);
-    mockedUseAppDispatch.mockReturnValue(mockDispatch);
-
-    const mockedUseAppSelector = vi.mocked(useAppSelector);
-    mockedUseAppSelector.mockImplementation((selector) => {
-      // Просто проверяем, является ли selector функцией с именем getErrorType
-      if (selector.name === 'getErrorType') {
-        return null;
-      }
-      return null;
+  describe('Рендеринг', () => {
+    it('должен корректно рендериться', () => {
+      const { container } = render(<LoginForm />);
+      expect(container).toBeInTheDocument();
     });
 
-  });
-
-  const renderComponent = () => {
-    render(
-      <MemoryRouter>
-        <LoginForm />
-      </MemoryRouter>
-    );
-  };
-
-  it('renders form fields and submit button', () => {
-    renderComponent();
-    expect(screen.getByPlaceholderText('Email')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
-  });
-
-  it('disables submit button initially when fields are empty', () => {
-    renderComponent();
-    const button = screen.getByRole('button', { name: /sign in/i });
-    expect(button).toBeDisabled();
-  });
-
-  it('enables submit button when both fields are valid', async () => {
-    const user = userEvent.setup();
-    renderComponent();
-
-    const emailInput = screen.getByPlaceholderText('Email');
-    const passwordInput = screen.getByPlaceholderText('Password');
-    const button = screen.getByRole('button', { name: /sign in/i });
-
-    await user.type(emailInput, 'test@example.com');
-    await user.type(passwordInput, 'Password123');
-
-    await waitFor(() => expect(button).not.toBeDisabled());
-  });
-
-  it('displays email error when email is invalid and field loses focus', async () => {
-    const user = userEvent.setup();
-    renderComponent();
-
-    const emailInput = screen.getByPlaceholderText('Email');
-    await user.type(emailInput, 'invalid-email');
-    await user.tab();
-
-    expect(setErrorType).toHaveBeenCalledWith(TYPE_OF_ERROR.ERROR_LOGIN_EMAIL);
-  });
-
-  it('displays password error when password is invalid and field loses focus', async () => {
-    const user = userEvent.setup();
-    renderComponent();
-
-    const emailInput = screen.getByPlaceholderText('Email');
-    const passwordInput = screen.getByPlaceholderText('Password');
-
-    await user.type(emailInput, 'test@example.com');
-    await user.type(passwordInput, '123');
-    await user.tab();
-
-    expect(setErrorType).toHaveBeenCalledWith(TYPE_OF_ERROR.ERROR_LOGIN_PASSWORD);
-  });
-
-  it('submits form with valid data and navigates to main page', async () => {
-    const user = userEvent.setup();
-    const unwrapMock = vi.fn().mockResolvedValue(undefined);
-    mockDispatch.mockReturnValue({ unwrap: unwrapMock });
-
-    renderComponent();
-
-    await user.type(screen.getByPlaceholderText('Email'), 'test@example.com');
-    await user.type(screen.getByPlaceholderText('Password'), 'ValidPass123');
-    await user.click(screen.getByRole('button', { name: /sign in/i }));
-
-    expect(loginAction).toHaveBeenCalledWith({
-      login: 'test@example.com',
-      password: 'ValidPass123',
+    it('должен отображать форму с правильными классами', () => {
+      const { container } = render(<LoginForm />);
+      const form = container.querySelector('.login__form');
+      expect(form).toBeInTheDocument();
+      expect(form).toHaveClass('form');
     });
 
-    await waitFor(() => {
-      expect(unwrapMock).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith(AppRoute.Main);
+    it('должен отображать поле email', () => {
+      render(<LoginForm />);
+      const emailInput = screen.getByPlaceholderText('Email');
+      expect(emailInput).toBeInTheDocument();
+      expect(emailInput).toHaveAttribute('type', 'email');
+      expect(emailInput).toHaveAttribute('name', 'email');
+      expect(emailInput).toHaveClass('login__input');
+      expect(emailInput).toHaveClass('form__input');
+    });
+
+    it('должен отображать поле password', () => {
+      render(<LoginForm />);
+      const passwordInput = screen.getByPlaceholderText('Password');
+      expect(passwordInput).toBeInTheDocument();
+      expect(passwordInput).toHaveAttribute('type', 'password');
+      expect(passwordInput).toHaveAttribute('name', 'password');
+      expect(passwordInput).toHaveAttribute('autocomplete', 'new-password');
+    });
+
+    it('должен отображать кнопку Sign in', () => {
+      render(<LoginForm />);
+      const submitButton = screen.getByRole('button', { name: /Sign in/i });
+      expect(submitButton).toBeInTheDocument();
+      expect(submitButton).toHaveClass('login__submit');
+      expect(submitButton).toHaveClass('form__submit');
+      expect(submitButton).toHaveClass('button');
+    });
+
+    it('должен отображать компонент Message при наличии errorType', () => {
+      mockUseAppSelector.mockReturnValue('ERROR_LOGIN');
+      render(<LoginForm />);
+      expect(screen.getByTestId('message')).toBeInTheDocument();
+    });
+
+    it('не должен отображать компонент Message при отсутствии errorType', () => {
+      mockUseAppSelector.mockReturnValue(null);
+      render(<LoginForm />);
+      expect(screen.queryByTestId('message')).not.toBeInTheDocument();
     });
   });
 
-  it('shows error when login fails and remains on login page', async () => {
-    const user = userEvent.setup();
-    const unwrapMock = vi.fn().mockRejectedValue(new Error('Invalid credentials'));
-    mockDispatch.mockReturnValue({ unwrap: unwrapMock });
+  describe('Валидация формы', () => {
+    it('должен блокировать кнопку при невалидном email', () => {
+      render(<LoginForm />);
+      const emailInput = screen.getByPlaceholderText('Email');
+      const passwordInput = screen.getByPlaceholderText('Password');
+      const submitButton = screen.getByRole('button');
 
-    renderComponent();
+      fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
+      fireEvent.change(passwordInput, { target: { value: 'password1' } });
 
-    await user.type(screen.getByPlaceholderText('Email'), 'test@example.com');
-    await user.type(screen.getByPlaceholderText('Password'), 'ValidPass123');
-    await user.click(screen.getByRole('button', { name: /sign in/i }));
+      expect(submitButton).toHaveAttribute('disabled');
+    });
 
-    await waitFor(() => {
-      expect(setErrorType).toHaveBeenCalledWith(TYPE_OF_ERROR.ERROR_LOGIN);
-      expect(mockNavigate).not.toHaveBeenCalled(); // ← навигации не было
+    it('должен блокировать кнопку при невалидном пароле', () => {
+      render(<LoginForm />);
+      const emailInput = screen.getByPlaceholderText('Email');
+      const passwordInput = screen.getByPlaceholderText('Password');
+      const submitButton = screen.getByRole('button');
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password' } });
+
+      expect(submitButton).toHaveAttribute('disabled');
+    });
+
+    it('должен разблокировать кнопку при валидных данных', () => {
+      render(<LoginForm />);
+      const emailInput = screen.getByPlaceholderText('Email');
+      const passwordInput = screen.getByPlaceholderText('Password');
+      const submitButton = screen.getByRole('button');
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password1' } });
+
+      expect(submitButton).not.toHaveAttribute('disabled');
+    });
+
+    it('должен диспатчить setErrorType с ERROR_LOGIN_EMAIL при невалидном email', () => {
+      render(<LoginForm />);
+      const emailInput = screen.getByPlaceholderText('Email');
+
+      fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
+
+      expect(mockDispatch).toHaveBeenCalledWith({
+        type: 'error/setErrorType',
+        payload: 'ERROR_LOGIN_EMAIL',
+      });
+    });
+
+    it('должен диспатчить setErrorType с null при валидном email', () => {
+      render(<LoginForm />);
+      const emailInput = screen.getByPlaceholderText('Email');
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+
+      expect(mockDispatch).toHaveBeenCalledWith({
+        type: 'error/setErrorType',
+        payload: null,
+      });
+    });
+
+    it('должен диспатчить setErrorType с ERROR_LOGIN_PASSWORD при невалидном пароле', () => {
+      render(<LoginForm />);
+      const emailInput = screen.getByPlaceholderText('Email');
+      const passwordInput = screen.getByPlaceholderText('Password');
+
+      // Сначала делаем email валидным
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      // Затем вводим невалидный пароль
+      fireEvent.change(passwordInput, { target: { value: 'password' } });
+
+      expect(mockDispatch).toHaveBeenCalledWith({
+        type: 'error/setErrorType',
+        payload: 'ERROR_LOGIN_PASSWORD',
+      });
+    });
+
+    it('должен диспатчить setErrorType с null при валидном пароле', () => {
+      render(<LoginForm />);
+      const emailInput = screen.getByPlaceholderText('Email');
+      const passwordInput = screen.getByPlaceholderText('Password');
+
+      // Сначала делаем email валидным, чтобы checkPassword() точно вызвался
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password1' } });
+
+      expect(mockDispatch).toHaveBeenCalledWith({
+        type: 'error/setErrorType',
+        payload: null,
+      });
     });
   });
 
-  it('disables submit button while submitting', async () => {
-    const user = userEvent.setup();
-    let resolvePromise: (value: unknown) => void;
-    const promise = new Promise((resolve) => {
-      resolvePromise = resolve;
-    });
-    const unwrapMock = vi.fn().mockReturnValue(promise);
-    mockDispatch.mockReturnValue({ unwrap: unwrapMock });
+  describe('Отправка формы', () => {
+    it('должен диспатчить loginAction при успешной отправке', async () => {
+      render(<LoginForm />);
+      const emailInput = screen.getByPlaceholderText('Email');
+      const passwordInput = screen.getByPlaceholderText('Password');
+      const submitButton = screen.getByRole('button');
 
-    renderComponent();
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password1' } });
+      fireEvent.click(submitButton);
 
-    await user.type(screen.getByPlaceholderText('Email'), 'test@example.com');
-    await user.type(screen.getByPlaceholderText('Password'), 'ValidPass123');
-
-    const button = screen.getByRole('button', { name: /sign in/i });
-    await user.click(button);
-
-    // Ожидаем, что кнопка станет disabled и текст изменится
-    await waitFor(() => {
-      expect(button).toBeDisabled();
-      expect(button).toHaveTextContent(/Signing in.../i);
+      await waitFor(() => {
+        expect(mockLoginAction).toHaveBeenCalledWith({
+          login: 'test@example.com',
+          password: 'password1',
+        });
+      });
     });
 
-    resolvePromise!(undefined);
-    await waitFor(() => {
-      expect(button).not.toBeDisabled();
-      expect(button).toHaveTextContent(/sign in/i);
+    it('должен вызывать switchButton с true при начале отправки', async () => {
+      render(<LoginForm />);
+      const emailInput = screen.getByPlaceholderText('Email');
+      const passwordInput = screen.getByPlaceholderText('Password');
+      const submitButton = screen.getByRole('button');
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password1' } });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(mockSwitchButton).toHaveBeenCalledWith(expect.anything(), true);
+      });
+    });
+
+    it('должен вызывать switchButton с false после завершения отправки', async () => {
+      render(<LoginForm />);
+      const emailInput = screen.getByPlaceholderText('Email');
+      const passwordInput = screen.getByPlaceholderText('Password');
+      const submitButton = screen.getByRole('button');
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password1' } });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(mockSwitchButton).toHaveBeenCalledWith(expect.anything(), false);
+      });
+    });
+
+    it('должен навигировать на главную страницу при успешной отправке', async () => {
+      render(<LoginForm />);
+      const emailInput = screen.getByPlaceholderText('Email');
+      const passwordInput = screen.getByPlaceholderText('Password');
+      const submitButton = screen.getByRole('button');
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password1' } });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/');
+      });
+    });
+
+    it('не должен отправлять форму при пустых полях', () => {
+      render(<LoginForm />);
+      const submitButton = screen.getByRole('button');
+
+      fireEvent.click(submitButton);
+
+      expect(mockLoginAction).not.toHaveBeenCalled();
+    });
+
+    it('должен обрабатывать ошибку при отправке', async () => {
+      mockDispatch.mockReturnValue({
+        unwrap: vi.fn(() => Promise.reject(new Error('API Error'))),
+      });
+
+      render(<LoginForm />);
+      const emailInput = screen.getByPlaceholderText('Email');
+      const passwordInput = screen.getByPlaceholderText('Password');
+      const submitButton = screen.getByRole('button');
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password1' } });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(mockLoginAction).toHaveBeenCalled();
+      });
+
+      // Проверяем, что был вызван setErrorType с ERROR_LOGIN
+      expect(mockDispatch).toHaveBeenCalledWith({
+        type: 'error/setErrorType',
+        payload: 'ERROR_LOGIN',
+      });
+
+      // Проверяем, что была вызвана навигация на страницу логина
+      expect(mockNavigate).toHaveBeenCalledWith('/login');
+
+      // Проверяем, что switchButton был вызван в finally
+      expect(mockSwitchButton).toHaveBeenCalledWith(expect.anything(), false);
     });
   });
 
-  it('shows error message when errorType is present', () => {
-    const mockedUseAppSelector = vi.mocked(useAppSelector);
-    mockedUseAppSelector.mockImplementation((selector) => {
-      if (selector === getErrorType) { // сравнение по ссылке
-        return TYPE_OF_ERROR.ERROR_LOGIN;
-      }
-      return null;
+  describe('Структура DOM', () => {
+    it('должен иметь правильную структуру формы', () => {
+      const { container } = render(<LoginForm />);
+
+      const form = container.querySelector('form');
+      expect(form).toBeInTheDocument();
+      expect(form).toHaveAttribute('action', '#');
+      expect(form).toHaveAttribute('method', 'post');
+      expect(form).toHaveAttribute('autocomplete', 'off');
     });
-    renderComponent();
-    expect(screen.getByTestId('message')).toBeInTheDocument();
+
+    it('должен иметь label с visually-hidden классом для email', () => {
+      const { container } = render(<LoginForm />);
+
+      const labels = container.querySelectorAll('label');
+      const emailLabel = Array.from(labels).find((label) => label.textContent === 'E-mail');
+      expect(emailLabel).toBeInTheDocument();
+      expect(emailLabel).toHaveClass('visually-hidden');
+    });
+
+    it('должен иметь label с visually-hidden классом для password', () => {
+      const { container } = render(<LoginForm />);
+
+      const labels = container.querySelectorAll('label');
+      const passwordLabel = Array.from(labels).find((label) => label.textContent === 'Password');
+      expect(passwordLabel).toBeInTheDocument();
+      expect(passwordLabel).toHaveClass('visually-hidden');
+    });
+
+    it('должен иметь правильные wrapper классы', () => {
+      const { container } = render(<LoginForm />);
+
+      const wrappers = container.querySelectorAll('.login__input-wrapper');
+      expect(wrappers).toHaveLength(2);
+
+      wrappers.forEach((wrapper) => {
+        expect(wrapper).toHaveClass('form__input-wrapper');
+      });
+    });
   });
 });

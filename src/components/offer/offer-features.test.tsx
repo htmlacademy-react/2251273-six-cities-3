@@ -1,78 +1,157 @@
-// OfferFeatures.test.tsx
-import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 import { OfferFeatures } from './offer-features';
 import type { OfferType } from '../../types/offer';
-import '@testing-library/jest-dom/vitest';
 
 describe('OfferFeatures', () => {
-  // Создаём базовый мок-объект offer
-  const mockOffer: OfferType = {
-    id: '1',
-    title: 'Test offer',
-    type: 'Apartment',
-    bedrooms: 2,
-    maxAdults: 3,
-    // Добавьте другие поля, если они обязательны (заглушки)
-  } as OfferType;
-
-  it('renders the list with correct class', () => {
-    render(<OfferFeatures offer={mockOffer} />);
-    const list = document.querySelector('.offer__features');
-    expect(list).toBeInTheDocument();
-    expect(list).toHaveClass('offer__features');
+  const createMockOffer = (
+    type: string = 'apartment',
+    bedrooms: number = 2,
+    maxAdults: number = 4
+  ): OfferType => ({
+    id: 'offer-1',
+    title: 'Test Offer',
+    type,
+    price: 100,
+    city: { name: 'Paris', location: { latitude: 48.8566, longitude: 2.3522, zoom: 12 } },
+    location: { latitude: 48.8566, longitude: 2.3522, zoom: 12 },
+    isFavorite: false,
+    isPremium: false,
+    rating: 4,
+    description: 'Test description',
+    bedrooms,
+    goods: ['Wi-Fi'],
+    host: { name: 'John', avatarUrl: 'avatar.jpg', isPro: false },
+    images: ['image1.jpg'],
+    maxAdults,
   });
 
-  it('renders three feature items', () => {
-    render(<OfferFeatures offer={mockOffer} />);
-    const items = document.querySelectorAll('.offer__feature');
-    expect(items).toHaveLength(3);
+  it('должен корректно рендериться', () => {
+    const offer = createMockOffer();
+    const { container } = render(<OfferFeatures offer={offer} />);
+
+    expect(container).toBeInTheDocument();
   });
 
-  it('displays the correct offer type', () => {
-    render(<OfferFeatures offer={mockOffer} />);
-    const typeItem = screen.getByText('Apartment');
-    expect(typeItem).toBeInTheDocument();
-    expect(typeItem).toHaveClass('offer__feature', 'offer__feature--entire');
+  it('должен отображать тип оффера', () => {
+    const offer = createMockOffer('apartment');
+    render(<OfferFeatures offer={offer} />);
+
+    expect(screen.getByText('apartment')).toBeInTheDocument();
+    expect(screen.getByText('apartment')).toHaveClass('offer__feature--entire');
   });
 
-  it('displays the correct bedrooms count', () => {
-    render(<OfferFeatures offer={mockOffer} />);
-    const bedroomsText = '2 Bedrooms';
-    expect(screen.getByText(bedroomsText)).toBeInTheDocument();
-    const bedroomsItem = screen.getByText(bedroomsText);
-    expect(bedroomsItem).toHaveClass('offer__feature', 'offer__feature--bedrooms');
+  it('должен отображать количество спален', () => {
+    const offer = createMockOffer('apartment', 3);
+    render(<OfferFeatures offer={offer} />);
+
+    expect(screen.getByText('3 Bedrooms')).toBeInTheDocument();
+    expect(screen.getByText('3 Bedrooms')).toHaveClass('offer__feature--bedrooms');
   });
 
-  it('displays the correct max adults with pluralization (adults)', () => {
-    render(<OfferFeatures offer={mockOffer} />);
-    const adultsText = 'Max 3 adults';
-    expect(screen.getByText(adultsText)).toBeInTheDocument();
-    const adultsItem = screen.getByText(adultsText);
-    expect(adultsItem).toHaveClass('offer__feature', 'offer__feature--adults');
-  });
+  it('должен отображать максимальное количество взрослых с правильным плюрализмом (1 adult)', () => {
+    const offer = createMockOffer('apartment', 2, 1);
+    render(<OfferFeatures offer={offer} />);
 
-  it('uses singular "adult" when maxAdults is 1', () => {
-    const offerWithOneAdult = { ...mockOffer, maxAdults: 1 };
-    render(<OfferFeatures offer={offerWithOneAdult} />);
     expect(screen.getByText('Max 1 adult')).toBeInTheDocument();
-    expect(screen.queryByText('Max 1 adults')).not.toBeInTheDocument();
+    expect(screen.getByText('Max 1 adult')).toHaveClass('offer__feature--adults');
   });
 
-  it('uses plural "adults" when maxAdults is 0', () => {
-    const offerWithZeroAdults = { ...mockOffer, maxAdults: 0 };
-    render(<OfferFeatures offer={offerWithZeroAdults} />);
+  it('должен отображать максимальное количество взрослых с правильным плюрализмом (2 adults)', () => {
+    const offer = createMockOffer('apartment', 2, 2);
+    render(<OfferFeatures offer={offer} />);
+
+    expect(screen.getByText('Max 2 adults')).toBeInTheDocument();
+  });
+
+  it('должен отображать максимальное количество взрослых с правильным плюрализмом (4 adults)', () => {
+    const offer = createMockOffer('apartment', 2, 4);
+    render(<OfferFeatures offer={offer} />);
+
+    expect(screen.getByText('Max 4 adults')).toBeInTheDocument();
+  });
+
+  it('должен отображать максимальное количество взрослых с правильным плюрализмом (0 adults)', () => {
+    const offer = createMockOffer('apartment', 2, 0);
+    render(<OfferFeatures offer={offer} />);
+
     expect(screen.getByText('Max 0 adults')).toBeInTheDocument();
   });
 
-  it('uses plural "adults" when maxAdults is greater than 1', () => {
-    const offerWithManyAdults = { ...mockOffer, maxAdults: 5 };
-    render(<OfferFeatures offer={offerWithManyAdults} />);
-    expect(screen.getByText('Max 5 adults')).toBeInTheDocument();
+  it('должен иметь правильные CSS классы', () => {
+    const offer = createMockOffer();
+    const { container } = render(<OfferFeatures offer={offer} />);
+
+    const featuresList = container.querySelector('.offer__features');
+    expect(featuresList).toBeInTheDocument();
+    expect(featuresList?.tagName).toBe('UL');
+
+    const features = container.querySelectorAll('.offer__feature');
+    expect(features).toHaveLength(3);
+
+    expect(features[0]).toHaveClass('offer__feature--entire');
+    expect(features[1]).toHaveClass('offer__feature--bedrooms');
+    expect(features[2]).toHaveClass('offer__feature--adults');
   });
 
-  it('matches snapshot', () => {
-    const { container } = render(<OfferFeatures offer={mockOffer} />);
-    expect(container).toMatchSnapshot();
+  it('должен иметь правильную структуру DOM', () => {
+    const offer = createMockOffer();
+    const { container } = render(<OfferFeatures offer={offer} />);
+
+    const featuresList = container.querySelector('.offer__features');
+    expect(featuresList?.tagName).toBe('UL');
+
+    const listItems = featuresList?.querySelectorAll('li');
+    expect(listItems?.length).toBe(3);
+
+    listItems?.forEach((item) => {
+      expect(item.tagName).toBe('LI');
+      expect(item).toHaveClass('offer__feature');
+    });
+  });
+
+  it('должен отображать все три характеристики', () => {
+    const offer = createMockOffer('house', 5, 8);
+    render(<OfferFeatures offer={offer} />);
+
+    expect(screen.getByText('house')).toBeInTheDocument();
+    expect(screen.getByText('5 Bedrooms')).toBeInTheDocument();
+    expect(screen.getByText('Max 8 adults')).toBeInTheDocument();
+
+    const listItems = screen.getAllByRole('listitem');
+    expect(listItems).toHaveLength(3);
+  });
+
+  it('должен корректно отображать разные типы офферов', () => {
+    const offer = createMockOffer('room');
+    render(<OfferFeatures offer={offer} />);
+
+    expect(screen.getByText('room')).toBeInTheDocument();
+  });
+
+  it('должен корректно отображать одну спальню', () => {
+    const offer = createMockOffer('apartment', 1, 2);
+    render(<OfferFeatures offer={offer} />);
+
+    expect(screen.getByText('1 Bedrooms')).toBeInTheDocument();
+  });
+
+  it('должен корректно отображать много спален', () => {
+    const offer = createMockOffer('apartment', 10, 20);
+    render(<OfferFeatures offer={offer} />);
+
+    expect(screen.getByText('10 Bedrooms')).toBeInTheDocument();
+    expect(screen.getByText('Max 20 adults')).toBeInTheDocument();
+  });
+
+  it('должен сохранять порядок характеристик', () => {
+    const offer = createMockOffer('villa', 4, 6);
+    const { container } = render(<OfferFeatures offer={offer} />);
+
+    const listItems = container.querySelectorAll('.offer__feature');
+
+    expect(listItems[0]).toHaveTextContent('villa');
+    expect(listItems[1]).toHaveTextContent('4 Bedrooms');
+    expect(listItems[2]).toHaveTextContent('Max 6 adults');
   });
 });

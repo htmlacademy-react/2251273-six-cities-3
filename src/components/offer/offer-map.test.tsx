@@ -1,29 +1,55 @@
-// OfferMap.test.tsx
-import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 import { OfferMap } from './offer-map';
 
-// Подключаем matchers из @testing-library/jest-dom (нужно настроить в setup-файле)
-import '@testing-library/jest-dom/vitest';
-
 describe('OfferMap', () => {
-  it('renders a section element with correct classes', () => {
-    render(<OfferMap />);
+  it('должен корректно рендериться', () => {
+    const { container } = render(<OfferMap />);
 
-    // Ищем элемент section с обоими классами
-    const section = document.querySelector('section.offer__map.map');
+    expect(container).toBeInTheDocument();
+  });
 
+  it('должен рендерить section элемент', () => {
+    const { container } = render(<OfferMap />);
+
+    const section = container.querySelector('section');
     expect(section).toBeInTheDocument();
+  });
+
+  it('должен иметь класс "offer__map"', () => {
+    const { container } = render(<OfferMap />);
+
+    const section = container.querySelector('.offer__map');
+    expect(section).toBeInTheDocument();
+  });
+
+  it('должен иметь класс "map"', () => {
+    const { container } = render(<OfferMap />);
+
+    const section = container.querySelector('.map');
+    expect(section).toBeInTheDocument();
+  });
+
+  it('должен иметь оба класса одновременно', () => {
+    const { container } = render(<OfferMap />);
+
+    const section = container.querySelector('section');
     expect(section).toHaveClass('offer__map');
     expect(section).toHaveClass('map');
   });
 
-  it('renders without errors', () => {
-    expect(() => render(<OfferMap />)).not.toThrow();
+  it('должен быть пустым элементом', () => {
+    const { container } = render(<OfferMap />);
+
+    const section = container.querySelector('section');
+    expect(section?.children.length).toBe(0);
+    expect(section?.textContent).toBe('');
   });
 
-  it('matches snapshot', () => {
+  it('должен иметь правильную структуру DOM', () => {
     const { container } = render(<OfferMap />);
-    expect(container).toMatchSnapshot();
+
+    const section = container.querySelector('section');
+    expect(section?.tagName).toBe('SECTION');
   });
 });

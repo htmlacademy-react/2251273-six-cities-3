@@ -1,89 +1,78 @@
-import { useState, useCallback, ChangeEvent, FormEvent } from 'react';
+import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginAction } from '../../store/api-actions';
 import { setErrorType } from '../../store/action';
 import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
 import { AppRoute, TYPE_OF_ERROR, EMAIL_REGEXP, PASSWORD_REGEXP } from '../../const';
+import { switchButton } from '../../utils';
 import { Message } from '../message/message';
 import { getErrorType } from '../../store/selectors/error-slice';
 
 function LoginForm(): JSX.Element {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const loginRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
+  const formButtonSubmit = useRef<HTMLButtonElement | null>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const errorType = useAppSelector(getErrorType);
 
-  // Валидация полей
-  const isEmailValid = EMAIL_REGEXP.test(email);
-  const isPasswordValid = PASSWORD_REGEXP.test(password);
-  const isFormValid = isEmailValid && isPasswordValid;
-
-  // Обработчики изменения полей
-  const handleEmailChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
-    setEmail(evt.target.value);
-    // Сбрасываем ошибку, если она была от email
-    if (errorType === TYPE_OF_ERROR.ERROR_LOGIN_EMAIL) {
-      dispatch(setErrorType(null));
-    }
-  }, [dispatch, errorType]);
-
-  const handlePasswordChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
-    setPassword(evt.target.value);
-    if (errorType === TYPE_OF_ERROR.ERROR_LOGIN_PASSWORD) {
-      dispatch(setErrorType(null));
-    }
-  }, [dispatch, errorType]);
-
-  // Валидация при потере фокуса (для UX)
-  const handleBlur = useCallback(() => {
-    if (email && !isEmailValid) {
-      dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOGIN_EMAIL));
-    } else if (password && !isPasswordValid) {
-      dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOGIN_PASSWORD));
-    } else if (isFormValid) {
-      dispatch(setErrorType(null));
-    }
-  }, [email, password, isEmailValid, isPasswordValid, isFormValid, dispatch]);
-
-  // Отправка формы
-  const handleSubmit = useCallback((evt: FormEvent<HTMLFormElement>) => {
-    evt.preventDefault();
-
-    if (!isEmailValid) {
-      dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOGIN_EMAIL));
-      return;
-    }
-    if (!isPasswordValid) {
-      dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOGIN_PASSWORD));
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    // Асинхронный вызов без возврата Promise в обработчик
-    (async () => {
+  async function onSubmit(): Promise<void> {
+    if (loginRef.current !== null && passwordRef.current !== null) {
+      switchButton(formButtonSubmit.current, true);
       try {
-        await dispatch(loginAction({ login: email, password })).unwrap();
+        await dispatch(loginAction({
+          login: loginRef.current.value,
+          password: passwordRef.current.value
+        })).unwrap();
         navigate(AppRoute.Main);
       } catch {
         dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOGIN));
-        // остаёмся на странице логина
+        navigate(AppRoute.Login);
       } finally {
-        setIsSubmitting(false);
+        switchButton(formButtonSubmit.current, false);
       }
-    })();
-  }, [email, password, isEmailValid, isPasswordValid, dispatch, navigate]);
+    }
+  }
+
+  function handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+    event.preventDefault();
+    if(loginRef.current?.value && passwordRef.current?.value) {
+      onSubmit();
+    }
+  }
+
+  function checkEmail(): boolean {
+    const loginEmail = loginRef.current?.value;
+    if (loginEmail && EMAIL_REGEXP.test(loginEmail)) {
+      dispatch(setErrorType(null));
+      return true;
+    } else {
+      dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOGIN_EMAIL));
+      return false;
+    }
+  }
+
+  function checkPassword (): boolean {
+    const loginPassword = passwordRef.current?.value;
+    if (loginPassword && PASSWORD_REGEXP.test(loginPassword)) {
+      dispatch(setErrorType(null));
+      return true;
+    } else {
+      dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOGIN_PASSWORD));
+      return false;
+    }
+  }
+
+  function checkForm(): void {
+    if (checkEmail() && checkPassword()) {
+      formButtonSubmit.current?.removeAttribute('disabled');
+    } else {
+      formButtonSubmit.current?.setAttribute('disabled', 'disabled');
+    }
+  }
 
   return (
-    <form
-      className="login__form form"
-      action="#"
-      method="post"
-      autoComplete="off"
-      onSubmit={handleSubmit}
-    >
+    <form className="login__form form" action="#" method="post" autoComplete='off' >
       <div className="login__input-wrapper form__input-wrapper">
         <label className="visually-hidden">E-mail</label>
         <input
@@ -92,9 +81,8 @@ function LoginForm(): JSX.Element {
           name="email"
           placeholder="Email"
           required
-          value={email}
-          onChange={handleEmailChange}
-          onBlur={handleBlur}
+          ref={loginRef}
+          onChange={checkForm}
         />
       </div>
       <div className="login__input-wrapper form__input-wrapper">
@@ -104,23 +92,23 @@ function LoginForm(): JSX.Element {
           type="password"
           name="password"
           placeholder="Password"
-          autoComplete="new-password"
+          autoComplete='new-password'
           required
-          value={password}
-          onChange={handlePasswordChange}
-          onBlur={handleBlur}
+          ref={passwordRef}
+          onChange={checkForm}
         />
       </div>
       <button
+        ref={formButtonSubmit}
         className="login__submit form__submit button"
         type="submit"
-        disabled={!isFormValid || isSubmitting}
+        onClick={handleSubmit}
       >
-        {isSubmitting ? 'Signing in...' : 'Sign in'}
+          Sign in
       </button>
       {errorType && <Message />}
     </form>
   );
 }
 
-export { LoginForm };
+export {LoginForm};

@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom';
 import { clsx } from 'clsx';
-import { memo, useCallback, useEffect } from 'react';
+import { memo, useCallback } from 'react';
 import { useAppDispatch } from '../../hooks/hooks';
 import { changeCity, changeSorting, setErrorType } from '../../store/action';
 import { AppRoute, DEFAULT_CITY, DEFAULT_SORTING } from '../../const';
-import { checkAuthAction } from '../../store/api-actions';
 
 type LogoProps = {
   logoState: boolean;
@@ -17,10 +16,6 @@ export const Logo = memo(({ logoState }: LogoProps): JSX.Element => {
     dispatch(changeCity(DEFAULT_CITY));
     dispatch(changeSorting(DEFAULT_SORTING));
     dispatch(setErrorType(null));
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(checkAuthAction());
   }, [dispatch]);
 
   return (

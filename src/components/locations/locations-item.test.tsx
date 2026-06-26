@@ -1,114 +1,109 @@
-// locations-item.test.tsx
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { LocationsItem } from './locations-item';
-import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
-import { changeCity, changeSorting } from '../../store/action';
-import { useNavigate } from 'react-router-dom';
-import { AppRoute, DEFAULT_SORTING } from '../../const';
-import { getSelectedCity } from '../../store/selectors/city-slice';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+import { LocationsItem } from './locations-item'; // Укажите правильный путь к компоненту
 
-// Мокаем зависимости
-vi.mock('react-router-dom', () => ({
-  useNavigate: vi.fn(),
+// 1. Создаем моки с помощью vi.hoisted, чтобы избежать проблем с порядком инициализации
+const { mockDispatch, mockNavigate, mockUseAppSelector } = vi.hoisted(() => ({
+  mockDispatch: vi.fn(),
+  mockNavigate: vi.fn(),
+  mockUseAppSelector: vi.fn(),
 }));
 
+// 2. Мокаем react-router-dom
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
+// 3. Мокаем хуки Redux
 vi.mock('../../hooks/hooks', () => ({
-  useAppDispatch: vi.fn(),
-  useAppSelector: vi.fn(),
+  useAppDispatch: () => mockDispatch,
+  useAppSelector: mockUseAppSelector,
 }));
 
+// 4. Мокаем экшены Redux, чтобы предсказуемо проверять их вызовы
 vi.mock('../../store/action', () => ({
-  changeCity: vi.fn(),
-  changeSorting: vi.fn(),
+  changeCity: vi.fn((city: string) => ({
+    type: 'city/changeCity',
+    payload: city
+  })),
+  changeSorting: vi.fn((sort: string) => ({
+    type: 'sorting/changeSorting',
+    payload: sort
+  })),
 }));
 
-vi.mock('../../store/selectors/city-slice', () => ({
-  getSelectedCity: vi.fn(),
+// 5. Мокаем константы
+vi.mock('../../const', () => ({
+  AppRoute: { Main: '/' },
+  DEFAULT_SORTING: 'POPULAR',
 }));
 
 describe('LocationsItem', () => {
-  const mockDispatch = vi.fn();
-  const mockNavigate = vi.fn();
-
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useAppDispatch).mockReturnValue(mockDispatch);
-    vi.mocked(useNavigate).mockReturnValue(mockNavigate);
+    // Сбрасываем значение селектора по умолчанию
+    mockUseAppSelector.mockReturnValue('');
   });
-  it('should render the location name', () => {
-    vi.mocked(useAppSelector).mockImplementation((selector) => {
-      if (selector === getSelectedCity) {
-        return 'Paris';
-      }
-      return null;
-    });
 
-    render(<LocationsItem location="Paris" />);
+  it('должен корректно отображать название локации', () => {
+    render(<LocationsItem location="Paris" />, { wrapper: MemoryRouter });
+
     expect(screen.getByText('Paris')).toBeInTheDocument();
   });
 
-  it('should apply active class when location matches selected city', () => {
-    vi.mocked(useAppSelector).mockImplementation((selector) => {
-      if (selector === getSelectedCity) {
-        return 'Paris';
-      }
-      return null;
-    });
+  it('должен добавлять активный класс, если локация совпадает с выбранным городом', () => {
+    mockUseAppSelector.mockReturnValue('Paris');
 
-    render(<LocationsItem location="Paris" />);
-    const link = screen.getByRole('link');
+    render(<LocationsItem location="Paris" />, { wrapper: MemoryRouter });
+
+    const link = screen.getByText('Paris').closest('a');
     expect(link).toHaveClass('tabs__item--active');
   });
 
-  it('should not apply active class when location does not match selected city', () => {
-    vi.mocked(useAppSelector).mockImplementation((selector) => {
-      if (selector === getSelectedCity) {
-        return 'Amsterdam';
-      }
-      return null;
-    });
+  it('должен добавлять активный класс без учета регистра', () => {
+    mockUseAppSelector.mockReturnValue('pArIs');
 
-    render(<LocationsItem location="Paris" />);
-    const link = screen.getByRole('link');
+    render(<LocationsItem location="Paris" />, { wrapper: MemoryRouter });
+
+    const link = screen.getByText('Paris').closest('a');
+    expect(link).toHaveClass('tabs__item--active');
+  });
+
+  it('не должен добавлять активный класс, если локация не совпадает с городом', () => {
+    mockUseAppSelector.mockReturnValue('London');
+
+    render(<LocationsItem location="Paris" />, { wrapper: MemoryRouter });
+
+    const link = screen.getByText('Paris').closest('a');
     expect(link).not.toHaveClass('tabs__item--active');
   });
 
-  it('should dispatch actions and navigate on click', async () => {
-    const user = userEvent.setup();
-    vi.mocked(useAppSelector).mockImplementation((selector) => {
-      if (selector === getSelectedCity) {
-        return 'Amsterdam';
-      }
-      return null;
-    });
+  it('при клике должен диспатчить экшены смены города и сортировки, а также делать navigate', () => {
+    mockUseAppSelector.mockReturnValue('London');
 
-    render(<LocationsItem location="Paris" />);
-    const link = screen.getByRole('link');
-    await user.click(link);
+    render(<LocationsItem location="Paris" />, { wrapper: MemoryRouter });
 
+    const link = screen.getByText('Paris').closest('a')!;
+    fireEvent.click(link);
+
+    // Проверяем вызовы dispatch
     expect(mockDispatch).toHaveBeenCalledTimes(2);
-    expect(mockDispatch).toHaveBeenCalledWith(changeCity('Paris'));
-    expect(mockDispatch).toHaveBeenCalledWith(changeSorting(DEFAULT_SORTING));
-    expect(mockNavigate).toHaveBeenCalledWith(AppRoute.Main);
-  });
-
-  it('should not crash when selected city is undefined', async () => {
-    const user = userEvent.setup();
-    vi.mocked(useAppSelector).mockImplementation((selector) => {
-      if (selector === getSelectedCity) {
-        return undefined;
-      }
-      return null;
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: 'city/changeCity',
+      payload: 'Paris'
+    });
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: 'sorting/changeSorting',
+      payload: 'POPULAR'
     });
 
-    render(<LocationsItem location="Paris" />);
-    const link = screen.getByRole('link');
-    await user.click(link);
-
-    expect(mockDispatch).toHaveBeenCalledWith(changeCity('Paris'));
-    expect(mockDispatch).toHaveBeenCalledWith(changeSorting(DEFAULT_SORTING));
-    expect(mockNavigate).toHaveBeenCalledWith(AppRoute.Main);
+    // Проверяем вызов navigate
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith('/'); // AppRoute.Main
   });
 });

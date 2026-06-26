@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { AppRoute, DEFAULT_SORTING } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
@@ -24,8 +24,8 @@ const LocationsItem = React.memo(({ location }: LocationsItemProps) => {
 
   return (
     <li className="locations__item">
-      <a
-        href="#"
+      <Link
+        to={AppRoute.Main}
         className={clsx(
           'locations__item-link tabs__item',
           { 'tabs__item--active': location.toLowerCase() === city.toLowerCase() }
@@ -33,7 +33,7 @@ const LocationsItem = React.memo(({ location }: LocationsItemProps) => {
         onClick={handleClick}
       >
         <span>{location}</span>
-      </a>
+      </Link>
     </li>
   );
 });

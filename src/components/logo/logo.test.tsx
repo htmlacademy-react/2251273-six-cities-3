@@ -8,7 +8,6 @@ import { Logo } from './logo';
 import { AppRoute, DEFAULT_CITY, DEFAULT_SORTING } from '../../const';
 import * as hooks from '../../hooks/hooks';
 import * as actions from '../../store/action';
-import * as apiActions from '../../store/api-actions';
 
 vi.mock('../../hooks/hooks', () => ({
   useAppDispatch: vi.fn(),
@@ -75,19 +74,9 @@ describe('Logo component', () => {
     expect(link).toHaveAttribute('href', AppRoute.Main);
   });
 
-  it('dispatches checkAuthAction on mount (useEffect)', () => {
-    renderWithProviders(false);
-    expect(apiActions.checkAuthAction).toHaveBeenCalledTimes(1);
-    expect(mockDispatch).toHaveBeenCalledTimes(1);
-    expect(mockDispatch).toHaveBeenCalledWith(apiActions.checkAuthAction());
-  });
-
-  it('dispatches city, sorting and error reset on click, but not checkAuthAction again', async () => {
+  it('', async () => {
     const user = userEvent.setup();
     renderWithProviders(false);
-
-    expect(mockDispatch).toHaveBeenCalledTimes(1);
-    expect(mockDispatch).toHaveBeenCalledWith(apiActions.checkAuthAction());
 
     const link = screen.getByRole('link');
     await user.click(link);
@@ -99,11 +88,9 @@ describe('Logo component', () => {
     expect(actions.setErrorType).toHaveBeenCalledTimes(1);
     expect(actions.setErrorType).toHaveBeenCalledWith(null);
 
-    expect(mockDispatch).toHaveBeenCalledTimes(4);
-    expect(mockDispatch).toHaveBeenNthCalledWith(1, apiActions.checkAuthAction());
-    expect(mockDispatch).toHaveBeenNthCalledWith(2, actions.changeCity(DEFAULT_CITY));
-    expect(mockDispatch).toHaveBeenNthCalledWith(3, actions.changeSorting(DEFAULT_SORTING));
-    expect(mockDispatch).toHaveBeenNthCalledWith(4, actions.setErrorType(null));
+    expect(mockDispatch).toHaveBeenNthCalledWith(1, actions.changeCity(DEFAULT_CITY));
+    expect(mockDispatch).toHaveBeenNthCalledWith(2, actions.changeSorting(DEFAULT_SORTING));
+    expect(mockDispatch).toHaveBeenNthCalledWith(3, actions.setErrorType(null));
   });
 
   it('is memoized', () => {

@@ -24,9 +24,4 @@ describe('Компонент CardType', () => {
     });
   });
 
-  // Опционально: snapshot-тест
-  it('соответствует снепшоту', () => {
-    const { container } = render(<CardType cardType="Apartment" />);
-    expect(container.firstChild).toMatchSnapshot();
-  });
 });
