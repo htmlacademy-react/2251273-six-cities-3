@@ -2,15 +2,20 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MainPage } from './main-page';
 import { OffersElementType } from '../types/offers';
+import { useAppSelector } from '../hooks/hooks';
+import { getSelectedCity } from '../store/selectors/city-slice';
+import { getOffers } from '../store/selectors/offers-slice';
+import { getSelectedSorting } from '../store/selectors/sorting-slice';
+import { checkErrorEmptyOffers } from '../store/selectors/error-slice';
+import { fetchOffersAction } from '../store/api-actions';
+import { filterOffersByCity, getSortedOffersByType } from '../utils';
 
-// Мокаем Redux хуки
 const mockDispatch = vi.fn();
 vi.mock('../hooks/hooks', () => ({
   useAppDispatch: () => mockDispatch,
   useAppSelector: vi.fn(),
 }));
 
-// Мокаем селекторы
 vi.mock('../store/selectors/city-slice', () => ({
   getSelectedCity: vi.fn(),
 }));
@@ -27,18 +32,15 @@ vi.mock('../store/selectors/error-slice', () => ({
   checkErrorEmptyOffers: vi.fn(),
 }));
 
-// Мокаем action
 vi.mock('../store/api-actions', () => ({
   fetchOffersAction: vi.fn(() => ({ type: 'FETCH_OFFERS' })),
 }));
 
-// Мокаем утилиты
 vi.mock('../utils', () => ({
   filterOffersByCity: vi.fn((offers: OffersElementType[]) => offers),
   getSortedOffersByType: vi.fn((offers: OffersElementType[]) => offers),
 }));
 
-// Мокаем дочерние компоненты
 vi.mock('../components/locations/locations', () => ({
   Locations: () => <div data-testid="locations">Locations</div>,
 }));
@@ -52,15 +54,6 @@ vi.mock('../components/cities/cities', () => ({
   ),
 }));
 
-// Импортируем после моков
-import { useAppSelector } from '../hooks/hooks';
-import { getSelectedCity } from '../store/selectors/city-slice';
-import { getOffers } from '../store/selectors/offers-slice';
-import { getSelectedSorting } from '../store/selectors/sorting-slice';
-import { checkErrorEmptyOffers } from '../store/selectors/error-slice';
-import { fetchOffersAction } from '../store/api-actions';
-import { filterOffersByCity, getSortedOffersByType } from '../utils';
-
 describe('MainPage', () => {
   const mockCity = 'Paris';
   const mockOffers = [
@@ -72,7 +65,6 @@ describe('MainPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Настраиваем моки селекторов
     vi.mocked(useAppSelector).mockImplementation((selector) => {
       if (selector === getSelectedCity) {
         return mockCity;

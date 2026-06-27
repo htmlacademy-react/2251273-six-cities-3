@@ -3,10 +3,11 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useParams } from 'react-router-dom';
 import { ReviewsForm } from './reviews-form';
 import { postCommentsOfferAction } from '../../store/api-actions';
 import { REVIEW_OFFER, RATING_OFFER } from '../../const';
+import { useAppDispatch } from '../../hooks/hooks';
 
 // Мокируем зависимости
 vi.mock('react-router-dom', async () => {
@@ -28,10 +29,6 @@ vi.mock('../../utils', () => ({
 vi.mock('../../hooks/hooks', () => ({
   useAppDispatch: vi.fn(),
 }));
-
-
-import { useParams } from 'react-router-dom';
-import { useAppDispatch } from '../../hooks/hooks';
 
 describe('ReviewsForm', () => {
   const mockDispatch = vi.fn();
@@ -66,19 +63,16 @@ describe('ReviewsForm', () => {
   it('should render form fields and submit button', () => {
     renderComponent();
 
-    // Проверяем наличие текстового поля
     const textarea = screen.getByPlaceholderText(
       /Tell how was your stay, what you like and what can be improved/i
     );
     expect(textarea).toBeInTheDocument();
 
-    // Проверяем наличие радио-кнопок
     RATING_OFFER.forEach(({ value }) => {
       const radio = screen.getByTestId(`rating-${value}`);
       expect(radio).toBeInTheDocument();
     });
 
-    // Кнопка отправки должна быть disabled изначально
     const submitButton = screen.getByRole('button', { name: /Submit/i });
     expect(submitButton).toBeDisabled();
   });
@@ -92,11 +86,9 @@ describe('ReviewsForm', () => {
     );
     const ratingRadio = screen.getByTestId('rating-5');
 
-    // Вводим текст
     await user.type(textarea, 'Great stay, very comfortable!');
     expect(textarea).toHaveValue('Great stay, very comfortable!');
 
-    // Выбираем рейтинг
     await user.click(ratingRadio);
     expect(ratingRadio).toBeChecked();
   });
@@ -111,24 +103,20 @@ describe('ReviewsForm', () => {
     const ratingRadio = screen.getByTestId('rating-1');
     const submitButton = screen.getByRole('button', { name: /Submit/i });
 
-    // Изначально disabled
     expect(submitButton).toBeDisabled();
 
-    // Вводим текст (50 символов, MIN_COMMENT_LENGTH = 50)
     await user.type(textarea, 'a'.repeat(REVIEW_OFFER.MIN_COMMENT_LENGTH + 1));
-    // Ещё не выбран рейтинг, кнопка должна быть disabled
+
     expect(submitButton).toBeDisabled();
 
-    // Выбираем рейтинг
     await user.click(ratingRadio);
-    // Теперь кнопка должна быть активна
+
     expect(submitButton).toBeEnabled();
   });
 
   it('should use offerId from useParams', () => {
     renderComponent();
-    // Проверяем, что useParams был вызван
+
     expect(useParams).toHaveBeenCalled();
-    // При отправке будет использован offerId, но мы проверили в тесте отправки
   });
 });

@@ -1,6 +1,6 @@
 function CardMark(): JSX.Element {
   return (
-    <div className="place-card__mark" aria-label="Premium">
+    <div className="place-card__mark">
       <span>Premium</span>
     </div>
   );

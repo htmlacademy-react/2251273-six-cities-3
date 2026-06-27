@@ -4,18 +4,15 @@ import { MemoryRouter } from 'react-router-dom';
 import { LoginPage } from './login-page';
 import { CITIES, AppRoute } from '../const';
 
-// 1. Мокаем дочерний компонент Login
 vi.mock('../components/login/login', () => ({
   Login: () => <div data-testid="login-mock">Login Form</div>,
 }));
 
-// 2. Мокаем Redux action
 const mockChangeCity = vi.fn((city: string) => ({ type: 'city/changeCity', payload: city }));
 vi.mock('../store/action', () => ({
   changeCity: (city: string) => mockChangeCity(city),
 }));
 
-// 3. Мокаем хук useAppDispatch
 const mockDispatch = vi.fn();
 vi.mock('../hooks/hooks', () => ({
   useAppDispatch: () => mockDispatch,
@@ -31,25 +28,20 @@ describe('LoginPage', () => {
   it('should render main structure correctly', () => {
     renderWithRouter(<LoginPage />);
 
-    // 1. Проверяем main элемент
     const mainElement = document.querySelector('main');
     expect(mainElement).toBeInTheDocument();
     expect(mainElement).toHaveClass('page__main', 'page__main--login');
 
-    // 2. Проверяем, что отрендерился компонент Login
     expect(screen.getByTestId('login-mock')).toBeInTheDocument();
 
-    // 3. Проверяем наличие секции locations (по классу, а не по тексту)
     const locationsSection = document.querySelector('.locations');
     expect(locationsSection).toBeInTheDocument();
     expect(locationsSection).toHaveClass('locations--login', 'locations--current');
 
-    // 4. Проверяем наличие ссылки на главную страницу
     const link = screen.getByRole('link');
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', AppRoute.Main);
 
-    // 5. Проверяем, что отображается какой-то город из списка CITIES
     const citySpan = link.querySelector('span');
     expect(citySpan).toBeInTheDocument();
     expect(CITIES).toContain(citySpan?.textContent);
@@ -77,7 +69,6 @@ describe('LoginPage', () => {
     expect(displayedCity).toBeDefined();
     expect(mockChangeCity).toHaveBeenCalledWith(displayedCity);
 
-    // ✅ Исправление: используем expect.objectContaining вместо прямого сравнения объектов
     expect(mockDispatch).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'city/changeCity',

@@ -27,7 +27,6 @@ describe('Async actions: offers', () => {
     },
   });
 
-  // reset store
   beforeEach(() => {
     store = mockStoreCreator({
       OFFER: {
@@ -39,13 +38,11 @@ describe('Async actions: offers', () => {
     });
   });
 
-  // reset mocks
   afterEach(() => {
     mockAxiosAdapter.reset();
     store.clearActions();
   });
 
-  // fetchOffer action success
   it('should fetch offer', async () => {
     mockAxiosAdapter
       .onGet(`${APIRoute.Offer}/id`)
@@ -61,7 +58,6 @@ describe('Async actions: offers', () => {
     ]);
   });
 
-  // fetchOffer action error
   it('should fetch offer error', async () => {
     mockAxiosAdapter
       .onGet(`${APIRoute.Offer}/id`)

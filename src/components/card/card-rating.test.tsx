@@ -1,10 +1,8 @@
-// CardRating.test.tsx
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { CardRating } from './card-rating';
 import { convertRatingToStars } from '../../utils';
 
-// Мокаем утилиту, чтобы изолировать тест
 vi.mock('../../utils', () => ({
   convertRatingToStars: vi.fn(),
 }));
@@ -14,17 +12,14 @@ describe('Component: CardRating', () => {
     const mockRating = 4.2;
     const mockWidth = '84%';
 
-    // Настраиваем мок
     (convertRatingToStars as jest.Mock).mockReturnValue(mockWidth);
 
     const { container } = render(<CardRating cardRating={mockRating} />);
 
-    // Ищем span внутри элемента со звёздами
     const starsSpan = container.querySelector('.place-card__stars span');
     expect(starsSpan).toBeInTheDocument();
     expect(starsSpan).toHaveStyle({ width: mockWidth });
 
-    // Проверяем, что утилита вызвана с правильным аргументом
     expect(convertRatingToStars).toHaveBeenCalledTimes(1);
     expect(convertRatingToStars).toHaveBeenCalledWith(mockRating);
   });
@@ -47,7 +42,6 @@ describe('Component: CardRating', () => {
 
   it('should render visually hidden text "Rating"', () => {
     render(<CardRating cardRating={3} />);
-    // Ищем элемент с классом visually-hidden и текстом "Rating"
     const hiddenText = screen.getByText('Rating');
     expect(hiddenText).toBeInTheDocument();
     expect(hiddenText).toHaveClass('visually-hidden');

@@ -43,7 +43,7 @@ describe('CardImage', () => {
       </MemoryRouter>
     );
 
-    const wrapper = screen.getByRole('link').parentElement; // .cities__image-wrapper
+    const wrapper = screen.getByRole('link').parentElement;
     expect(wrapper).toHaveClass('cities__image-wrapper', 'place-card__image-wrapper');
 
     const img = screen.getByRole('img');

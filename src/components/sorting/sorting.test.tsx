@@ -2,7 +2,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Sorting } from './sorting';
 
-// 1. Создаем моки с помощью vi.hoisted
 const {
   mockDispatch,
   mockUseAppSelector
@@ -11,13 +10,11 @@ const {
   mockUseAppSelector: vi.fn(),
 }));
 
-// 2. Мокаем Redux hooks
 vi.mock('../../hooks/hooks', () => ({
   useAppDispatch: () => mockDispatch,
   useAppSelector: mockUseAppSelector,
 }));
 
-// 3. Мокаем utils
 vi.mock('../../utils', () => ({
   getPlacesOptionsLabel: vi.fn((value: string) => {
     const labels: Record<string, string> = {
@@ -30,7 +27,6 @@ vi.mock('../../utils', () => ({
   }),
 }));
 
-// 4. Мокаем action
 vi.mock('../../store/action', () => ({
   changeSorting: vi.fn((sort: string) => ({
     type: 'sorting/changeSorting',
@@ -38,7 +34,6 @@ vi.mock('../../store/action', () => ({
   })),
 }));
 
-// 5. Мокаем константы
 vi.mock('../../const', () => ({
   PLACES_OPTIONS: [
     { value: 'POPULAR', label: 'Popular' },
@@ -48,7 +43,6 @@ vi.mock('../../const', () => ({
   ],
 }));
 
-// 6. Мокаем селекторы
 vi.mock('../../store/selectors/sorting-slice', () => ({
   getSelectedSorting: 'sorting/getSelectedSorting',
 }));
@@ -72,7 +66,6 @@ describe('Sorting', () => {
     const sortingType = screen.getByTestId('sorting-type');
     fireEvent.click(sortingType);
 
-    // Проверяем, что класс places__options--opened был добавлен
     const optionsList = document.querySelector('.places__options');
     expect(optionsList).toHaveClass('places__options--opened');
   });
@@ -82,12 +75,10 @@ describe('Sorting', () => {
 
     const sortingType = screen.getByTestId('sorting-type');
 
-    // Открываем
     fireEvent.click(sortingType);
     let optionsList = document.querySelector('.places__options');
     expect(optionsList).toHaveClass('places__options--opened');
 
-    // Закрываем
     fireEvent.click(sortingType);
     optionsList = document.querySelector('.places__options');
     expect(optionsList).not.toHaveClass('places__options--opened');
@@ -108,18 +99,15 @@ describe('Sorting', () => {
   it('должен закрывать список опций при выборе опции', () => {
     render(<Sorting />);
 
-    // Сначала открываем список
     const sortingType = screen.getByTestId('sorting-type');
     fireEvent.click(sortingType);
 
     let optionsList = document.querySelector('.places__options');
     expect(optionsList).toHaveClass('places__options--opened');
 
-    // Выбираем опцию
     const priceLowOption = screen.getByText('Price: low to high');
     fireEvent.click(priceLowOption);
 
-    // Список должен закрыться
     optionsList = document.querySelector('.places__options');
     expect(optionsList).not.toHaveClass('places__options--opened');
   });
@@ -127,18 +115,15 @@ describe('Sorting', () => {
   it('должен закрывать список опций при mouseLeave', () => {
     render(<Sorting />);
 
-    // Сначала открываем список
     const sortingType = screen.getByTestId('sorting-type');
     fireEvent.click(sortingType);
 
     let optionsList = document.querySelector('.places__options');
     expect(optionsList).toHaveClass('places__options--opened');
 
-    // Симулируем mouseLeave на форме
     const form = document.querySelector('.places__sorting');
     fireEvent.mouseLeave(form!);
 
-    // Список должен закрыться
     optionsList = document.querySelector('.places__options');
     expect(optionsList).not.toHaveClass('places__options--opened');
   });

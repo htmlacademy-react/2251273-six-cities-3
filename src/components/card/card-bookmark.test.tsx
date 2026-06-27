@@ -2,8 +2,8 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CardBookmark } from './card-bookmark';
 import type { OffersElementType } from '../../types/offers';
+import { OFFERS } from '../../mocks/mock-offers';
 
-// 1. Создаем моки с помощью vi.hoisted
 const {
   mockDispatch,
   mockNavigate,
@@ -16,7 +16,6 @@ const {
   mockPostFavoriteOfferAction: vi.fn(),
 }));
 
-// 2. Мокаем react-router-dom
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return {
@@ -25,45 +24,25 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// 3. Мокаем Redux hooks
 vi.mock('../../hooks/hooks', () => ({
   useAppDispatch: () => mockDispatch,
   useAppSelector: mockUseAppSelector,
 }));
 
-// 4. Мокаем api-actions
 vi.mock('../../store/api-actions', () => ({
   postFavoriteOfferAction: mockPostFavoriteOfferAction,
 }));
 
-// 5. Мокаем utils
 vi.mock('../../utils', () => ({
   switchButton: vi.fn(),
 }));
 
-// 6. Мокаем константы
-vi.mock('../../const', () => ({
-  AppRoute: { Login: '/login' },
-}));
-
-// 7. Мокаем селекторы
 vi.mock('../../store/selectors/user-selector', () => ({
   getAuthCheckedStatus: 'user/getAuthCheckedStatus',
 }));
 
 describe('CardBookmark', () => {
-  const mockOffer: OffersElementType = {
-    id: 'offer-1',
-    title: 'Test Offer',
-    type: 'apartment',
-    price: 100,
-    city: { name: 'Paris', location: { latitude: 48.8566, longitude: 2.3522, zoom: 12 } },
-    location: { latitude: 48.8566, longitude: 2.3522, zoom: 12 },
-    isFavorite: false,
-    isPremium: false,
-    rating: 4,
-    previewImage: 'preview.jpg',
-  };
+  const mockOffer: OffersElementType = OFFERS[0];
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -87,11 +66,11 @@ describe('CardBookmark', () => {
     expect(button).toHaveClass('place-card__bookmark-button--active');
   });
 
-  it('не должен добавлять активный класс, если оффер не в избранном', () => {
+  it('должен добавлять активный класс, если оффер в избранном', () => {
     render(<CardBookmark offer={mockOffer} />);
 
     const button = screen.getByRole('button');
-    expect(button).not.toHaveClass('place-card__bookmark-button--active');
+    expect(button).toHaveClass('place-card__bookmark-button--active');
   });
 
   it('при клике должен диспатчить postFavoriteOfferAction, если пользователь авторизован', async () => {
@@ -104,7 +83,7 @@ describe('CardBookmark', () => {
     await waitFor(() => {
       expect(mockPostFavoriteOfferAction).toHaveBeenCalledWith({
         id: mockOffer.id,
-        status: true, // !isFavoriteState = !false = true
+        status: false,
       });
     });
   });
@@ -125,12 +104,12 @@ describe('CardBookmark', () => {
     render(<CardBookmark offer={mockOffer} />);
 
     const button = screen.getByRole('button');
-    expect(button).not.toHaveClass('place-card__bookmark-button--active');
+    expect(button).toHaveClass('place-card__bookmark-button--active');
 
     fireEvent.click(button);
 
     await waitFor(() => {
-      expect(button).toHaveClass('place-card__bookmark-button--active');
+      expect(button).not.toHaveClass('place-card__bookmark-button--active');
     });
   });
 

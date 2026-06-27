@@ -83,7 +83,6 @@ describe('MainEmpty', () => {
   });
 
   it('должен быть мемоизирован', () => {
-    // Проверяем, что компонент обернут в memo
     expect(MainEmpty.$$typeof).toBe(Symbol.for('react.memo'));
   });
 });

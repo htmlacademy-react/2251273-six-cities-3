@@ -3,7 +3,6 @@ import { describe, it, expect, vi } from 'vitest';
 import { OfferGallery } from './offer-gallery';
 import type { OfferType } from '../../types/offer';
 
-// Мокаем OfferImage
 vi.mock('./offer-image', () => ({
   OfferImage: vi.fn(({ imgSrc, imgAlt }: { imgSrc: string; imgAlt: string }) => (
     <div data-testid="offer-image" data-src={imgSrc} data-alt={imgAlt}>

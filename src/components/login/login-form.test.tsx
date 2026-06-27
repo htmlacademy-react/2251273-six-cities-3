@@ -2,7 +2,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LoginForm } from './login-form';
 
-// 1. Создаем моки с помощью vi.hoisted
 const {
   mockDispatch,
   mockNavigate,
@@ -17,7 +16,6 @@ const {
   mockSwitchButton: vi.fn(),
 }));
 
-// 2. Мокаем react-router-dom
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return {
@@ -26,18 +24,15 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// 3. Мокаем Redux hooks
 vi.mock('../../hooks/hooks', () => ({
   useAppDispatch: () => mockDispatch,
   useAppSelector: mockUseAppSelector,
 }));
 
-// 4. Мокаем api-actions
 vi.mock('../../store/api-actions', () => ({
   loginAction: mockLoginAction,
 }));
 
-// 5. Мокаем action
 vi.mock('../../store/action', () => ({
   setErrorType: vi.fn((error: string | null) => ({
     type: 'error/setErrorType',
@@ -45,12 +40,10 @@ vi.mock('../../store/action', () => ({
   })),
 }));
 
-// 6. Мокаем utils
 vi.mock('../../utils', () => ({
   switchButton: mockSwitchButton,
 }));
 
-// 7. Мокаем константы
 vi.mock('../../const', () => ({
   AppRoute: { Main: '/', Login: '/login' },
   TYPE_OF_ERROR: {
@@ -62,12 +55,10 @@ vi.mock('../../const', () => ({
   PASSWORD_REGEXP: /^(?=.*[A-Za-z])(?=.*\d).+$/,
 }));
 
-// 8. Мокаем селекторы
 vi.mock('../../store/selectors/error-slice', () => ({
   getErrorType: 'error/getErrorType',
 }));
 
-// 9. Мокаем компонент Message
 vi.mock('../message/message', () => ({
   Message: () => <div data-testid="message">Error Message</div>,
 }));
@@ -199,9 +190,8 @@ describe('LoginForm', () => {
       const emailInput = screen.getByPlaceholderText('Email');
       const passwordInput = screen.getByPlaceholderText('Password');
 
-      // Сначала делаем email валидным
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-      // Затем вводим невалидный пароль
+
       fireEvent.change(passwordInput, { target: { value: 'password' } });
 
       expect(mockDispatch).toHaveBeenCalledWith({
@@ -215,7 +205,6 @@ describe('LoginForm', () => {
       const emailInput = screen.getByPlaceholderText('Email');
       const passwordInput = screen.getByPlaceholderText('Password');
 
-      // Сначала делаем email валидным, чтобы checkPassword() точно вызвался
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
       fireEvent.change(passwordInput, { target: { value: 'password1' } });
 
@@ -317,16 +306,13 @@ describe('LoginForm', () => {
         expect(mockLoginAction).toHaveBeenCalled();
       });
 
-      // Проверяем, что был вызван setErrorType с ERROR_LOGIN
       expect(mockDispatch).toHaveBeenCalledWith({
         type: 'error/setErrorType',
         payload: 'ERROR_LOGIN',
       });
 
-      // Проверяем, что была вызвана навигация на страницу логина
       expect(mockNavigate).toHaveBeenCalledWith('/login');
 
-      // Проверяем, что switchButton был вызван в finally
       expect(mockSwitchButton).toHaveBeenCalledWith(expect.anything(), false);
     });
   });

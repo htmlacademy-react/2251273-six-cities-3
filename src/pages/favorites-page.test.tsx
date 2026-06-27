@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { FavoritesPage } from './favorites-page';
 
-// Мокаем компонент Favorites, чтобы тестировать только верстку страницы
 vi.mock('../components/favorites/favorites', () => ({
   Favorites: () => <div data-testid="mocked-favorites">Избранное</div>,
 }));
@@ -10,7 +9,6 @@ vi.mock('../components/favorites/favorites', () => ({
 describe('FavoritesPage', () => {
   it('должен рендериться без ошибок', () => {
     render(<FavoritesPage />);
-    // Если render не упал с ошибкой — тест пройден
   });
 
   it('должен рендерить тег <main> с правильными классами', () => {
@@ -26,7 +24,6 @@ describe('FavoritesPage', () => {
   it('должен рендерить контейнер с правильными классами', () => {
     const { container } = render(<FavoritesPage />);
 
-    // Ищем div по классам, так как у него нет текстового содержимого
     const containerDiv = container.querySelector('.page__favorites-container.container');
 
     expect(containerDiv).toBeInTheDocument();

@@ -1,4 +1,3 @@
-
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -16,15 +15,12 @@ describe('CardName', () => {
       </MemoryRouter>
     );
 
-    // Ищем ссылку по тексту
     const link = screen.getByRole('link', { name: title });
     expect(link).toBeInTheDocument();
 
-    // Проверяем href (если AppRoute.OfferDetails ещё не определён, используем шаблон)
     const expectedHref = `${AppRoute.Offer}/${offerId}`;
     expect(link).toHaveAttribute('href', expectedHref);
 
-    // Проверяем, что ссылка обёрнута в h2 с правильным классом
     const heading = screen.getByRole('heading', { level: 2 });
     expect(heading).toHaveClass('place-card__name');
     expect(heading).toContainElement(link);

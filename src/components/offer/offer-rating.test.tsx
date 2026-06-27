@@ -4,7 +4,6 @@ import { OfferRating } from './offer-rating';
 import { convertRatingToStars } from '../../utils';
 import { OfferType } from '../../types/offer';
 
-// Мокаем утилиту конвертации рейтинга
 vi.mock('../../utils', () => ({
   convertRatingToStars: vi.fn(),
 }));
@@ -14,7 +13,6 @@ describe('OfferRating', () => {
     id: '1',
     title: 'Test offer',
     rating: 4.2,
-    // … остальные поля, необходимые для типа OfferType
   } as OfferType;
 
   it('should render rating value correctly', () => {

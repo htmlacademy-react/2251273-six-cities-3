@@ -13,7 +13,6 @@ describe('Компонент Locations', () => {
   it('рендерит элементы для всех городов (проверка DOM)', () => {
     render(<Locations />);
     const items = screen.getAllByTestId('location-item');
-    // В StrictMode будет 12 элементов, но мы проверяем, что каждый город присутствует
     const renderedTexts = items.map((el) => el.textContent);
     CITIES.forEach((city) => {
       expect(renderedTexts).toContain(city);

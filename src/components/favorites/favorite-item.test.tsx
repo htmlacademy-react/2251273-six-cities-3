@@ -7,7 +7,6 @@ import { AppRoute } from '../../const';
 import { OFFERS } from '../../mocks/mock-offers';
 import { OffersElementType } from '../../types/offers';
 
-// Мокаем хуки и экшены
 vi.mock('../../hooks/hooks', () => ({
   useAppDispatch: vi.fn(),
 }));
@@ -16,14 +15,12 @@ vi.mock('../../store/action', () => ({
   changeCity: vi.fn(),
 }));
 
-// Мокаем дочерний компонент FavoriteCard
 vi.mock('./favorites-card', () => ({
   FavoriteCard: vi.fn(({ offer }: { offer: FavoriteType }) => (
     <div data-testid="favorite-card">{offer.title}</div>
   )),
 }));
 
-// Импортируем моки после объявления
 import { useAppDispatch } from '../../hooks/hooks';
 import { changeCity as changeCityAction } from '../../store/action';
 
@@ -34,7 +31,6 @@ describe('Component: FavoriteItem', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    // Подставляем мок dispatch
     (useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
   });
 
@@ -45,14 +41,11 @@ describe('Component: FavoriteItem', () => {
       </MemoryRouter>
     );
 
-    // Проверяем название города
     expect(screen.getByText(mockCity)).toBeInTheDocument();
 
-    // Проверяем ссылку: должна вести на главную
     const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', AppRoute.Main);
 
-    // Проверяем, что каждая карточка отрендерена
     const cards = screen.getAllByTestId('favorite-card');
     expect(cards).toHaveLength(mockOffers.length);
     expect(cards[0]).toHaveTextContent(mockOffers[0].title);
@@ -69,10 +62,8 @@ describe('Component: FavoriteItem', () => {
     const link = screen.getByRole('link');
     fireEvent.click(link);
 
-    // Проверяем, что dispatch вызван с экшеном changeCity(mockCity)
     expect(mockDispatch).toHaveBeenCalledTimes(1);
     expect(changeCityAction).toHaveBeenCalledWith(mockCity);
-    // Проверяем, что переданный аргумент в dispatch — это результат вызова changeCity
     expect(mockDispatch).toHaveBeenCalledWith(changeCityAction(mockCity));
   });
 
@@ -89,7 +80,6 @@ describe('Component: FavoriteItem', () => {
   });
 
   it('should pass correct offer prop to FavoriteCard', async () => {
-    // Проверяем, что FavoriteCard получает правильный offer
     const { FavoriteCard } = await import('./favorites-card');
 
     render(
@@ -98,13 +88,12 @@ describe('Component: FavoriteItem', () => {
       </MemoryRouter>
     );
 
-    // Проверяем, что FavoriteCard был вызван с правильными пропсами для каждого оффера
     expect(FavoriteCard).toHaveBeenCalledTimes(mockOffers.length);
     mockOffers.forEach((offer, index) => {
       expect(FavoriteCard).toHaveBeenNthCalledWith(
         index + 1,
         expect.objectContaining({ offer }),
-        expect.anything() // второй аргумент — контекст
+        expect.anything()
       );
     });
   });

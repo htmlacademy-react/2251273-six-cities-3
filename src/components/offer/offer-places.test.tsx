@@ -6,7 +6,6 @@ import { getNearOffersLoadingStatus } from '../../store/selectors/offers-slice';
 import { Card } from '../card/card';
 import { OffersElementType } from '../../types/offers';
 
-// Мокаем хуки и компоненты
 vi.mock('../../hooks/hooks', () => ({
   useAppSelector: vi.fn(),
 }));
@@ -23,7 +22,7 @@ describe('NearPlaces', () => {
   const mockOffers = [
     { id: '1', title: 'Offer 1' },
     { id: '2', title: 'Offer 2' },
-  ] as OffersElementType[]; // используем any для упрощения, можно типизировать
+  ] as OffersElementType[];
 
   const mockOnOfferHover = vi.fn();
 
@@ -32,7 +31,6 @@ describe('NearPlaces', () => {
   });
 
   it('should render title, offers list and Message when loading is false', () => {
-    // Мокаем селектор: загрузка завершена (false)
     (useAppSelector as jest.Mock).mockImplementation((selector) => {
       if (selector === getNearOffersLoadingStatus) {
         return false;
@@ -44,17 +42,13 @@ describe('NearPlaces', () => {
       <NearPlaces offers={mockOffers} onOfferHover={mockOnOfferHover} />
     );
 
-    // Заголовок
     expect(screen.getByText('Other places in the neighbourhood')).toBeInTheDocument();
 
-    // Список карточек: должно быть столько же, сколько офферов
     const cards = screen.getAllByTestId('card-mock');
     expect(cards).toHaveLength(mockOffers.length);
 
-    // Message должен быть
     expect(screen.getByTestId('message-mock')).toBeInTheDocument();
 
-    // Проверяем, что Card был вызван с правильными пропсами для каждого оффера
     expect(Card).toHaveBeenCalledTimes(mockOffers.length);
     mockOffers.forEach((offer, index) => {
       expect(Card).toHaveBeenNthCalledWith(
@@ -63,7 +57,7 @@ describe('NearPlaces', () => {
           offer,
           onOfferHover: mockOnOfferHover,
         }),
-        expect.anything() // для контекста
+        expect.anything()
       );
     });
   });
@@ -85,7 +79,6 @@ describe('NearPlaces', () => {
     const cards = screen.getAllByTestId('card-mock');
     expect(cards).toHaveLength(mockOffers.length);
 
-    // Message НЕ должен быть
     expect(screen.queryByTestId('message-mock')).not.toBeInTheDocument();
   });
 
@@ -114,7 +107,6 @@ describe('NearPlaces', () => {
       <NearPlaces offers={mockOffers} onOfferHover={mockOnOfferHover} />
     );
 
-    // Проверяем, что все вызовы Card получили колбэк
     expect(Card).toHaveBeenCalledWith(
       expect.objectContaining({
         onOfferHover: mockOnOfferHover,

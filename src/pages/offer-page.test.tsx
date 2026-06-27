@@ -10,7 +10,6 @@ import { OffersElementType } from '../types/offers';
 import { OfferType } from '../types/offer';
 import { OFFER } from '../mocks/mock-offer';
 
-// Мокируем зависимости
 vi.mock('../hooks/hooks');
 vi.mock('react-router-dom');
 vi.mock('../store/api-actions');
@@ -44,7 +43,6 @@ describe('OfferPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Настройка моков
     vi.mocked(useAppDispatch).mockReturnValue(mockDispatch);
     vi.mocked(useParams).mockReturnValue({ offerId: mockOfferId });
 

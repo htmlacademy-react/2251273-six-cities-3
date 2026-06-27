@@ -15,7 +15,6 @@ type CitiesPlacesProps = {
   onOfferHover: (id: string) => void;
 };
 
-// Мокаем дочерние компоненты
 vi.mock('../cities-places', () => ({
   CitiesPlaces: vi.fn(({ onOfferHover }: CitiesPlacesProps) => (
     <div data-testid="cities-places">
@@ -81,7 +80,6 @@ describe('Cities', () => {
   });
 
   it('should render MainEmpty and dispatch error when offers empty and offersLoadingStatus is true', () => {
-    // Мокаем все селекторы, используемые в компоненте
     vi.mocked(hooks.useAppSelector).mockImplementation((selector) => {
       if (selector === checkErrorEmptyOffers) {
         return true;
@@ -101,7 +99,6 @@ describe('Cities', () => {
     expect(screen.queryByTestId('map')).not.toBeInTheDocument();
     expect(screen.queryByTestId('message')).not.toBeInTheDocument();
 
-    // Диспатч должен быть вызван один раз (если StrictMode отключён)
     expect(mockDispatch).toHaveBeenCalledWith(
       actions.setErrorType(TYPE_OF_ERROR.ERROR_EMPTY_OFFERS)
     );

@@ -4,7 +4,6 @@ import { ReviewsList } from './reviews-list';
 import { CommentElementType } from '../../types/comments';
 import { convertRatingToStars } from '../../utils';
 
-// Мокаем утилиту convertRatingToStars
 vi.mock('../../utils', () => ({
   convertRatingToStars: vi.fn(),
 }));
@@ -13,7 +12,6 @@ describe('ReviewsList', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    // Задаём возвращаемое значение для convertRatingToStars
     vi.mocked(convertRatingToStars).mockImplementation(
       (rating) => `${rating * 20}%`
     );
@@ -26,17 +24,12 @@ describe('ReviewsList', () => {
     expect(list).toBeInTheDocument();
     expect(list?.children).toHaveLength(0);
 
-    // Проверяем, что нет элементов списка
     expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
 
-    // Убедимся, что convertRatingToStars не вызывалась
     expect(convertRatingToStars).not.toHaveBeenCalled();
   });
 
   it('should format date correctly using dayjs', () => {
-    // Можно проверить корректность форматирования для другой даты,
-    // но это уже покрыто предыдущим тестом.
-    // Добавим проверку для одного комментария с другой датой.
     const singleComment: CommentElementType[] = [
       {
         id: '3',
@@ -58,7 +51,6 @@ describe('ReviewsList', () => {
   });
 
   it('should apply the correct width style based on rating', () => {
-    // Проверяем, что ширина соответствует рейтингу для конкретного отзыва
     const comment: CommentElementType[] = [
       {
         id: '4',

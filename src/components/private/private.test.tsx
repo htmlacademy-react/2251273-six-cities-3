@@ -3,15 +3,12 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { Private } from './private';
 import { AuthorizationStatus } from '../../const';
+import { useAppSelector } from '../../hooks/hooks';
 
-// Мокаем хук
 vi.mock('../../hooks/hooks', () => ({
   useAppSelector: vi.fn(),
 }));
 
-import { useAppSelector } from '../../hooks/hooks';
-
-// Типизируем мок
 const mockedUseAppSelector = vi.mocked(useAppSelector);
 
 describe('Private', () => {

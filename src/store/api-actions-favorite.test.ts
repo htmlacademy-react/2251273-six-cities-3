@@ -20,7 +20,6 @@ describe('Async actions: offers', () => {
   const mockStoreCreator = configureMockStore<State, Action<string>, AppThunkDispatch>(middleware);
   let store: ReturnType<typeof mockStoreCreator> = mockStoreCreator({});
 
-  // reset store
   beforeEach(() => {
     store = mockStoreCreator({
       OFFER: {
@@ -32,13 +31,11 @@ describe('Async actions: offers', () => {
     });
   });
 
-  // reset mocks
   afterEach(() => {
     mockAxiosAdapter.reset();
     store.clearActions();
   });
 
-  // fetch favorite offers / add / success
   it('should fetch favorite offers', async () => {
     const fakeOffer = [OFFER];
     mockAxiosAdapter.onPost(`${APIRoute.Favorite}/${fakeOffer[0].id}/1`).reply(200);
@@ -51,14 +48,11 @@ describe('Async actions: offers', () => {
       postFavoriteOfferAction.pending.type,
       fetchFavoriteOffersAction.pending.type,
       postFavoriteOfferAction.fulfilled.type,
-      // TODO: Почему не срабатывает?!
-      // fetchFavoriteOffersAction.fulfilled.type
     ]);
 
     mockAxiosAdapter.onAny().reply(200, fakeOffer);
   });
 
-  // fetch favorite offers / remove / success
   it('should fetch favorite offers', async () => {
     const fakeOffer = [OFFER];
     mockAxiosAdapter.onPost(`${APIRoute.Favorite}/${fakeOffer[0].id}/0`).reply(200);
@@ -74,7 +68,6 @@ describe('Async actions: offers', () => {
     ]);
   });
 
-  // fetch favorite offers error
   it('should fetch favorite offers error', async () => {
     const fakeOffer = [OFFER];
     mockAxiosAdapter.onPost(`${APIRoute.Favorite}/${fakeOffer[0].id}/1`).reply(400);

@@ -19,7 +19,6 @@ function Map({ className, offers, location, currentOffer }: MapProps): JSX.Eleme
 
   useEffect(() => {
     if (mapRef.current !== null && !isRendered.current && location !== null) {
-      // Create Map (Создание карты)
       const mapInstance = leaflet.map(mapRef.current, {
         center: {
           lat: location.latitude,
@@ -28,18 +27,17 @@ function Map({ className, offers, location, currentOffer }: MapProps): JSX.Eleme
         zoom: location.zoom,
       });
 
-      // Create Layer (Создание слоя)
       const layer = leaflet.tileLayer(
         'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
         {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         },
       );
-      // Add Layer (Добавление слоя)
+
       layer.addTo(mapInstance);
-      // Set Map (Установка карты)
+
       setMap(mapInstance);
-      // Set Rendered
+
       isRendered.current = true;
     }
   }, [location]);
@@ -53,7 +51,7 @@ function Map({ className, offers, location, currentOffer }: MapProps): JSX.Eleme
     }
   }, [map, location]);
 
-  // Создание маркеров
+
   useEffect(() => {
     if (!map) {
       return;
@@ -99,7 +97,6 @@ function Map({ className, offers, location, currentOffer }: MapProps): JSX.Eleme
     };
   }, [map, offers]);
 
-  // Выбор активного маркера
   useEffect(() => {
     markersRef.current.forEach((marker, index) => {
       const offer = offers[index];

@@ -3,7 +3,6 @@ import { describe, it, expect, vi } from 'vitest';
 import { OfferHost } from './offer-host';
 import type { OfferType } from '../../types/offer';
 
-// Мокаем utils
 vi.mock('../../utils', () => ({
   getFirstName: vi.fn((name: string) => name.split(' ')[0]),
 }));

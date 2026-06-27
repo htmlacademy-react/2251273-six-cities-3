@@ -1,9 +1,9 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Offer } from './offer';
 import { OfferType } from '../../types/offer';
+import { OFFER } from '../../mocks/mock-offer';
 
-// Мокаем все дочерние компоненты и утилиту
 vi.mock('./offer-mark', () => ({
   OfferMark: () => <div data-testid="offer-mark">Premium Mark</div>,
 }));
@@ -15,6 +15,7 @@ vi.mock('./offer-name', () => ({
 }));
 
 vi.mock('./offer-rating', () => ({
+
   OfferRating: ({ offer }: { offer: OfferType }) => (
     <div data-testid="offer-rating">{offer.rating}</div>
   ),
@@ -55,43 +56,16 @@ vi.mock('../../utils', () => ({
 import { checkGoodOffer } from '../../utils';
 
 describe('Offer', () => {
-  const mockOffer: OfferType = {
-    id: '1',
-    title: 'Beautiful apartment',
-    type: 'apartment',
-    price: 120,
-    rating: 4.5,
-    isPremium: true,
-    isFavorite: false,
-    city: {
-      name: 'Paris',
-      location: { latitude: 48.8566, longitude: 2.3522, zoom: 12 },
-    },
-    location: { latitude: 48.8566, longitude: 2.3522, zoom: 12 },
-    bedrooms: 2,
-    maxAdults: 3,
-    goods: ['Wi-Fi', 'Kitchen'],
-    host: {
-      name: 'John Doe',
-      isPro: true,
-      avatarUrl: 'avatar.jpg',
-    },
-    description: 'Nice place',
-    images: ['image1.jpg'],
-  };
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+  const mockOffer: OfferType = OFFER;
 
   it('should render all subcomponents correctly', () => {
     render(<Offer offer={mockOffer} />);
 
-    expect(screen.getByTestId('offer-name')).toHaveTextContent('Beautiful apartment');
-    expect(screen.getByTestId('offer-rating')).toHaveTextContent('4.5');
+    expect(screen.getByTestId('offer-name')).toHaveTextContent('Beautiful & luxurious studio at great location');
+    expect(screen.getByTestId('offer-rating')).toHaveTextContent('4');
     expect(screen.getByTestId('offer-features')).toHaveTextContent('apartment');
-    expect(screen.getByTestId('offer-price')).toHaveTextContent('120');
-    expect(screen.getByTestId('offer-host')).toHaveTextContent('John Doe');
+    expect(screen.getByTestId('offer-price')).toHaveTextContent('777');
+    expect(screen.getByTestId('offer-host')).toHaveTextContent('Oliver Conner');
     expect(screen.getByTestId('reviews')).toBeInTheDocument();
   });
 
@@ -116,14 +90,5 @@ describe('Offer', () => {
     (checkGoodOffer as jest.Mock).mockReturnValue(false);
     render(<Offer offer={mockOffer} />);
     expect(screen.queryByTestId('offer-inside')).not.toBeInTheDocument();
-  });
-
-  it('should pass the correct offer prop to subcomponents', () => {
-    // Проверяем, что OfferName получил offer (уже проверено через текст)
-    // Можно также проверить вызовы моков, если они были замоканы с помощью vi.fn()
-    // Но мы использовали простые компоненты-заглушки, поэтому проверяем через текст.
-    // Этого достаточно.
-    render(<Offer offer={mockOffer} />);
-    // Все проверки уже сделаны в первом тесте.
   });
 });

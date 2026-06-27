@@ -12,7 +12,6 @@ import { setErrorType } from '../../store/action';
 import * as ReactRouterDom from 'react-router-dom';
 import { CommentElementType } from '../../types/comments';
 
-// Мокаем хуки и экшены
 vi.mock('../../hooks/hooks', () => ({
   useAppSelector: vi.fn(),
   useAppDispatch: vi.fn(),
@@ -108,7 +107,6 @@ describe('Reviews', () => {
       },
       comment: 'Тестовый комментарий',
       rating: 4,
-      // другие поля, если они обязательны
     };
     const initialState = {
       OFFER: {

@@ -12,7 +12,6 @@ import * as userSelectors from '../../store/selectors/user-selector';
 import * as offersSlice from '../../store/selectors/offers-slice';
 import { useNavigate } from 'react-router-dom';
 
-// Мокаем
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return {
@@ -21,7 +20,6 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// Мокаем селекторы и экшены
 vi.mock('../../store/selectors/user-selector');
 vi.mock('../../store/selectors/offers-slice');
 vi.mock('../../store/api-actions');
@@ -39,7 +37,6 @@ describe('Navigation component', () => {
     mockDispatch.mockReset();
   });
 
-  // Хелпер рендеринга с заданным статусом авторизации
   const renderWithProviders = (authStatus: AuthorizationStatus) => {
     mockUseAppSelector.mockImplementation((selector) => {
       if (selector === userSelectors.getAuthorizationStatus) {
@@ -97,14 +94,12 @@ describe('Navigation component', () => {
   it('navigates to main page after successful logout', async () => {
     const user = userEvent.setup();
 
-    // Мокаем logoutAction, чтобы он возвращал thunk с успешным unwrap
     const successThunk = vi.fn(() => ({
       unwrap: vi.fn().mockResolvedValue(undefined),
     }));
     const mockedLogoutAction = vi.mocked(apiActions.logoutAction);
     mockedLogoutAction.mockReturnValue(successThunk as unknown as ReturnType<typeof apiActions.logoutAction>);
 
-    // Настраиваем dispatch так, чтобы он возвращал результат вызова thunk
     mockDispatch.mockImplementation((action) => {
       if (typeof action === 'function') {
         return successThunk();

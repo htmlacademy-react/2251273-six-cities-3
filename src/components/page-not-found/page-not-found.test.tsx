@@ -11,14 +11,11 @@ describe('PageNotFound', () => {
       </MemoryRouter>
     );
 
-    // Проверяем наличие заголовка 404
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toHaveTextContent('404');
 
-    // Проверяем наличие подзаголовка
     expect(screen.getByText('Page not found')).toBeInTheDocument();
 
-    // Проверяем ссылку на главную страницу
     const link = screen.getByRole('link', { name: /go to main page/i });
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', '/');

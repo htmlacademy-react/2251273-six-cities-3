@@ -6,12 +6,10 @@ import { configureStore } from '@reduxjs/toolkit';
 import { Login } from './login';
 import { AuthorizationStatus, AppRoute } from '../../const';
 
-// Мокаем дочерний компонент LoginForm
 vi.mock('./login-form', () => ({
   LoginForm: () => <div data-testid="login-form">Login Form</div>,
 }));
 
-// Мокаем Navigate
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();
   return {
@@ -20,7 +18,6 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
-// Определяем тип состояния для USER (можно импортировать из реального кода)
 interface UserState {
   authorizationStatus: AuthorizationStatus;
 }
@@ -31,9 +28,6 @@ function renderWithStatus(status: AuthorizationStatus) {
       USER: (state: UserState = { authorizationStatus: status }): UserState => state,
     },
   });
-
-  // остальной код
-
 
   render(
     <Provider store={store}>

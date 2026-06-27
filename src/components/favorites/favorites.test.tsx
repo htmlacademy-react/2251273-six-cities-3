@@ -6,7 +6,6 @@ import { getFavoriteOffersCities } from '../../utils';
 import { OFFERS } from '../../mocks/mock-offers';
 import { OffersElementType } from '../../types/offers';
 
-// Мокаем хуки и утилиты
 vi.mock('../../hooks/hooks', () => ({
   useAppSelector: vi.fn(),
 }));
@@ -15,7 +14,6 @@ vi.mock('../../utils', () => ({
   getFavoriteOffersCities: vi.fn(),
 }));
 
-// Мокаем дочерний компонент с правильной типизацией
 vi.mock('./favorite-item', () => ({
   FavoriteItem: vi.fn(
     ({ city, favoriteOffers }: { city: string; favoriteOffers: OffersElementType[] }) => (
@@ -27,7 +25,6 @@ vi.mock('./favorite-item', () => ({
 }));
 
 describe('Component: Favorites', () => {
-  // Используем vi.mocked для типизированных моков
   const mockUseAppSelector = vi.mocked(useAppSelector);
   const mockGetFavoriteOffersCities = vi.mocked(getFavoriteOffersCities);
 
@@ -38,7 +35,6 @@ describe('Component: Favorites', () => {
   it('should render correctly with favorite offers grouped by city', () => {
     const mockFavorites: OffersElementType[] = OFFERS;
 
-    // Группируем по городам, как в реальном коде
     const mockGrouped = {
       Paris: mockFavorites.filter((offer) => offer.city.name === 'Paris'),
       Amsterdam: mockFavorites.filter((offer) => offer.city.name === 'Amsterdam'),
@@ -49,17 +45,14 @@ describe('Component: Favorites', () => {
 
     render(<Favorites />);
 
-    // Заголовок
     expect(screen.getByText('Saved listing')).toBeInTheDocument();
 
-    // Элементы для каждого города
     const parisItem = screen.getByTestId('favorite-item-Paris');
     const amsterdamItem = screen.getByTestId('favorite-item-Amsterdam');
 
     expect(parisItem).toBeInTheDocument();
     expect(amsterdamItem).toBeInTheDocument();
 
-    // Проверяем количество предложений
     expect(parisItem).toHaveTextContent(`Paris (offers: ${mockGrouped.Paris.length})`);
     expect(amsterdamItem).toHaveTextContent(`Amsterdam (offers: ${mockGrouped.Amsterdam.length})`);
   });

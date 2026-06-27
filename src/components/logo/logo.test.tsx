@@ -94,7 +94,6 @@ describe('Logo component', () => {
   });
 
   it('is memoized', () => {
-    // Приводим компонент к типу React.MemoExoticComponent для доступа к $$typeof
     const MemoComponent = Logo as React.MemoExoticComponent<React.FC<{ logoState: boolean }>>;
     expect(MemoComponent.$$typeof).toBe(Symbol.for('react.memo'));
   });

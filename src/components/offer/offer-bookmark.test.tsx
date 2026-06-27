@@ -1,4 +1,3 @@
-// OfferBookmark.test.tsx
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -12,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
 import type { OfferType } from '../../types/offer';
 import '@testing-library/jest-dom/vitest';
 
-// Моки с сохранением оригинальных экспортов
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return {
@@ -52,7 +50,6 @@ describe('OfferBookmark', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Типизированные моки через vi.mocked
     vi.mocked(useAppDispatch).mockReturnValue(mockDispatch);
     vi.mocked(useNavigate).mockReturnValue(mockNavigate);
     vi.mocked(useAppSelector).mockImplementation((selector) =>

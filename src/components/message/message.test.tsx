@@ -1,23 +1,19 @@
-// src/components/message/message.test.tsx
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Message } from './message';
 import { useAppSelector } from '../../hooks/hooks';
 import { TYPE_OF_ERROR, SYSTEM_MESSAGE } from '../../const';
 
-// Мокаем хук useAppSelector
 vi.mock('../../hooks/hooks', () => ({
   useAppSelector: vi.fn(),
 }));
 
-// Мокаем CustomLoader, чтобы упростить проверку
 vi.mock('../custom-loader/custom-loader', () => ({
   CustomLoader: () => <div data-testid="custom-loader">Loading...</div>,
 }));
 
 describe('Component: Message', () => {
   it('should render error message when errorType is ERROR_LOADING_OFFERS', () => {
-    // Подставляем нужный тип ошибки
     (useAppSelector as jest.Mock).mockReturnValue(TYPE_OF_ERROR.ERROR_LOADING_OFFERS);
 
     render(<Message />);
@@ -74,7 +70,6 @@ describe('Component: Message', () => {
   });
 
   it('should render empty error message (no text) for unknown errorType', () => {
-    // Передаём значение, которого нет в switch
     (useAppSelector as jest.Mock).mockReturnValue('UNKNOWN_ERROR');
 
     render(<Message />);
@@ -91,7 +86,7 @@ describe('Component: Message', () => {
     render(<Message />);
 
     expect(screen.getByTestId('custom-loader')).toBeInTheDocument();
-    // Сообщение об ошибке должно быть пустым (так как errorType falsy, но h2 всё равно рендерится)
+
     const heading = screen.getByRole('heading', { level: 2 });
     expect(heading).toHaveTextContent('');
   });
