@@ -18,7 +18,6 @@ function FavoriteItem({ city, favoriteOffers }: FavoriteItemProps): JSX.Element 
     dispatch(changeCity(city));
   }
 
-
   return (
     <li className="favorites__locations-items">
       <div className="favorites__locations locations locations--current">

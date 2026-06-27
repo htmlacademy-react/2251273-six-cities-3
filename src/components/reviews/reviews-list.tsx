@@ -9,7 +9,6 @@ type ReviewsListProps = {
 function ReviewsList({ comments }: ReviewsListProps): JSX.Element {
   return (
     <ul className='reviews__list'>
-      {/* TODO: Доработать! PRO! */}
       {comments.map((comment) => (
         <li className='reviews__item' key={comment.id}>
           <div className='reviews__user user'>

@@ -15,10 +15,10 @@ function Map({ className, offers, location, currentOffer }: MapProps): JSX.Eleme
   const mapRef = useRef(null);
   const isRendered = useRef(false);
   const [map, setMap] = useState<leaflet.Map | null>(null);
+  const markersRef = useRef<leaflet.Marker[]>([]);
 
   useEffect(() => {
     if (mapRef.current !== null && !isRendered.current && location !== null) {
-      // Create Map (Создание карты)
       const mapInstance = leaflet.map(mapRef.current, {
         center: {
           lat: location.latitude,
@@ -27,18 +27,17 @@ function Map({ className, offers, location, currentOffer }: MapProps): JSX.Eleme
         zoom: location.zoom,
       });
 
-      // Create Layer (Создание слоя)
       const layer = leaflet.tileLayer(
         'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
         {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         },
       );
-      // Add Layer (Добавление слоя)
+
       layer.addTo(mapInstance);
-      // Set Map (Установка карты)
+
       setMap(mapInstance);
-      // Set Rendered
+
       isRendered.current = true;
     }
   }, [location]);
@@ -50,20 +49,26 @@ function Map({ className, offers, location, currentOffer }: MapProps): JSX.Eleme
         lng: location.longitude,
       }, location.zoom);
     }
-
   }, [map, location]);
+
 
   useEffect(() => {
     if (!map) {
       return;
     }
     const markersLayer = leaflet.layerGroup().addTo(map);
+    const markers: leaflet.Marker[] = [];
 
     offers.forEach((offer) => {
-      const marker = leaflet.marker({
-        lat: offer.location.latitude,
-        lng: offer.location.longitude,
-      });
+      const marker = leaflet.marker(
+        {
+          lat: offer.location.latitude,
+          lng: offer.location.longitude,
+        },
+        {
+          icon: leaflet.icon(MAP_MARKER_DEFAULT),
+        }
+      );
       marker.bindPopup(offer.title);
       marker.on('mouseover', () => {
         marker.setIcon(leaflet.icon(MAP_MARKER_ACTIVE));
@@ -79,15 +84,31 @@ function Map({ className, offers, location, currentOffer }: MapProps): JSX.Eleme
           lng: offer.location.longitude,
         });
       });
-      marker.setIcon(leaflet.icon(currentOffer === offer.id ? MAP_MARKER_ACTIVE : MAP_MARKER_DEFAULT));
-      marker.setZIndexOffset(currentOffer === offer.id ? 1000 : 0);
+
+      markers.push(marker);
       marker.addTo(markersLayer);
     });
 
+    markersRef.current = markers;
+
     return () => {
       map?.removeLayer(markersLayer);
+      markersRef.current = [];
     };
-  }, [map, offers, currentOffer]);
+  }, [map, offers]);
+
+  useEffect(() => {
+    markersRef.current.forEach((marker, index) => {
+      const offer = offers[index];
+      if (!offer) {
+        return;
+      }
+
+      marker.setZIndexOffset(currentOffer === offer.id ? 1000 : 0);
+      marker.setIcon(currentOffer === offer.id ? leaflet.icon(MAP_MARKER_ACTIVE) : leaflet.icon(MAP_MARKER_DEFAULT));
+
+    });
+  }, [currentOffer, offers]);
 
   return (
     <section

@@ -16,7 +16,6 @@ function Reviews(): JSX.Element {
   const offerId: string = useParams().offerId || '';
   const selectedOfferCommentsLoadingStatus = useAppSelector(getSelectedOfferCommentsLoadingStatus);
 
-
   useEffect(() => {
     dispatch(fetchCommentsOfferAction(offerId));
   }, [dispatch, offerId]);

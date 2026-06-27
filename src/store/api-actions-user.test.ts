@@ -31,63 +31,61 @@ describe('Async actions: user', () => {
 
   describe('checkAuthAction', () => {
 
-    // checkAuthAction success
     it('should check auth if token', async () => {
-      // Сохраняем токен
+
       saveToken('token');
-      // Создаем мок запрос
+
       mockAxiosAdapter.onGet(APIRoute.Login).reply(200, {
         email: 'oBtXg@example.com',
         avatarUrl: 'https://via.placeholder.com/150',
       });
-      // Выполняем action
+
       await store.dispatch(checkAuthAction());
-      // Получаем actions
+
       const actions = extractActionsTypes(store.getActions());
-      // Проверка action
+
       expect(actions).toEqual([
         checkAuthAction.pending.type,
         checkAuthAction.fulfilled.type,
       ]);
-      // Проверка токена
+
       expect(getToken()).toBe('token');
     });
 
-    // checkAuthAction fail
     it('should check auth if no token', async () => {
-      // Удаляем токен
+
       dropToken();
-      // Создаем мок запрос
+
       mockAxiosAdapter.onGet(APIRoute.Login).reply(401);
-      // Выполняем action
+
       await store.dispatch(checkAuthAction());
-      // Получаем actions
+
       const actions = extractActionsTypes(store.getActions());
-      // Проверка action
+
       expect(actions).toEqual([
         checkAuthAction.pending.type,
         checkAuthAction.rejected.type,
       ]);
-      // Проверка отсутствия токена
+
       expect(getToken()).toBe('');
     });
 
-    // login success
+
     it('should login user', async () => {
-      // Создаем мок запросЫ!
+
       mockAxiosAdapter.onPost(APIRoute.Login).reply(200, { token: 'token' });
       mockAxiosAdapter.onGet(APIRoute.Login).reply(200, {
         email: 'oBtXg@example.com',
         avatarUrl: 'https://via.placeholder.com/150',
       });
-      // Выполняем action
+
       await store.dispatch(loginAction({
         login: 'oBtXg@example.com',
         password: '123456',
       }));
-      // Получаем actions
+
       const actions = extractActionsTypes(store.getActions());
-      // Проверка action
+
       expect(actions).toEqual([
         loginAction.pending.type,
         checkAuthAction.pending.type,
@@ -96,56 +94,53 @@ describe('Async actions: user', () => {
       ]);
     });
 
-    // check login fail
     it('should login fail', async () => {
-      // Создаем мок запрос
+
       mockAxiosAdapter.onPost(APIRoute.Login).reply(401);
-      // Выполняем action
+
       await store.dispatch(loginAction({
         login: 'oBtXg@example.com',
         password: '123456',
       }));
-      // Получаем actions
+
       const actions = extractActionsTypes(store.getActions());
-      // Проверка action
+
       expect(actions).toEqual([
         loginAction.pending.type,
         loginAction.rejected.type,
       ]);
     });
 
-    // check logout success
     it('should logout user', async () => {
-      // Сохраняем токен
+
       saveToken('token');
-      // Создаем мок запрос
+
       mockAxiosAdapter.onDelete(APIRoute.Logout).reply(204);
-      // Выполняем action
+
       await store.dispatch(logoutAction());
-      // Получаем actions
+
       const actions = extractActionsTypes(store.getActions());
-      // Проверка action
+
       expect(actions).toEqual([
         logoutAction.pending.type,
         logoutAction.fulfilled.type,
       ]);
-      // Удаляем токен
+
       dropToken();
-      // Проверка отсутствия токена
+
       expect(getToken()).toBe('');
     });
 
-    // check logout fail
     it('should logout fail', async () => {
-      // Сохраняем токен
+
       saveToken('token');
-      // Создаем мок запрос
+
       mockAxiosAdapter.onDelete(APIRoute.Logout).reply(401);
-      // Выполняем action
+
       await store.dispatch(logoutAction());
-      // Получаем actions
+
       const actions = extractActionsTypes(store.getActions());
-      // Проверка action
+
       expect(actions).toEqual([
         logoutAction.pending.type,
         logoutAction.rejected.type,

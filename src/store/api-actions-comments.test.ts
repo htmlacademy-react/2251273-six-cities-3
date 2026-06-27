@@ -28,7 +28,6 @@ describe('Async actions: offers', () => {
     },
   });
 
-  // reset store
   beforeEach(() => {
     store = mockStoreCreator({
       OFFER: {
@@ -40,13 +39,11 @@ describe('Async actions: offers', () => {
     });
   });
 
-  // reset mocks
   afterEach(() => {
     mockAxiosAdapter.reset();
     store.clearActions();
   });
 
-  // fetch comments offer success
   it('should fetch comments offer', async () => {
     mockAxiosAdapter
       .onGet(`${APIRoute.Comments}/${OFFER.id}`)
@@ -61,7 +58,6 @@ describe('Async actions: offers', () => {
     ]);
   });
 
-  // fetch comments offer error
   it('should fetch comments offer', async () => {
     mockAxiosAdapter
       .onGet(`${APIRoute.Comments}/${OFFER.id}`)
@@ -76,7 +72,6 @@ describe('Async actions: offers', () => {
     ]);
   });
 
-  // post comments offer success
   it('should post comments offer', async () => {
     mockAxiosAdapter
       .onPost(`${APIRoute.Comments}/${OFFER.id}`)
@@ -93,8 +88,6 @@ describe('Async actions: offers', () => {
       postCommentsOfferAction.pending.type,
       fetchCommentsOfferAction.pending.type,
       postCommentsOfferAction.fulfilled.type,
-      // TODO: Почему не доходит до fulfilled?!
-      // fetchCommentsOfferAction.fulfilled.type,
     ]);
 
     const postRequests = mockAxiosAdapter.history.post.filter(
@@ -110,7 +103,6 @@ describe('Async actions: offers', () => {
     expect(getRequests).toHaveLength(1);
   });
 
-  // post comments offer error
   it('should post comments offer', async () => {
     mockAxiosAdapter
       .onPost(`${APIRoute.Comments}/${OFFER.id}`)

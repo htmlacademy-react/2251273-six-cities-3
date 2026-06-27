@@ -19,15 +19,13 @@ describe('fetchOffersAction', () => {
     mockAxiosAdapter.reset();
   });
 
-
-  // fetchOffersAction success
   it('should dispatch fetchOffersAction success', async () => {
     const { store, actionHistory } = testStore;
     const mockOffers = OFFERS;
     mockAxiosAdapter.onGet(APIRoute.Offers).reply(200, mockOffers);
-    // Выполняем действие
+
     await store.dispatch(fetchOffersAction());
-    // Проверяем результат
+
     const fulfilledAction = actionHistory.find(
       (action) => action.type === fetchOffersAction.fulfilled.type
     );
@@ -38,14 +36,13 @@ describe('fetchOffersAction', () => {
     expect(store.getState()[NameSpace.Offers].offersLoadingStatus).toBe(true);
   });
 
-  // fetchOffersAction success empty array
   it('should dispatch fetchOffersAction success empty array', async () => {
     const { store, actionHistory } = testStore;
     const mockOffers: OffersElementType[] = [];
     mockAxiosAdapter.onGet(APIRoute.Offers).reply(200, mockOffers);
-    // Выполняем действие
+
     await store.dispatch(fetchOffersAction());
-    // Проверяем результат
+
     const fulfilledAction = actionHistory.find(
       (action) => action.type === fetchOffersAction.fulfilled.type
     );
@@ -57,13 +54,12 @@ describe('fetchOffersAction', () => {
     expect(store.getState()[NameSpace.Offers].offersLoadingStatus).toBe(true);
   });
 
-  // fetchOffersAction error
   it('should dispatch fetchOffersAction error', async () => {
     const { store, actionHistory } = testStore;
     mockAxiosAdapter.onGet(APIRoute.Offers).reply(400);
-    // Выполняем действие
+
     await store.dispatch(fetchOffersAction());
-    // Проверяем результат
+
     const rejectedAction = actionHistory.find(
       (action) => action.type === fetchOffersAction.rejected.type
     );
@@ -74,14 +70,13 @@ describe('fetchOffersAction', () => {
     expect(store.getState()[NameSpace.Offers].offersLoadingStatus).toBe(false);
   });
 
-  // fetchNearOffersAction success
   it('should dispatch fetchNearOffersAction success', async () => {
     const { store, actionHistory } = testStore;
     const mockOffers = OFFERS;
     mockAxiosAdapter.onGet(`${APIRoute.Offer}/id/nearby`).reply(200, mockOffers);
-    // Выполняем действие
+
     await store.dispatch(fetchNearOffersAction('id'));
-    // Проверяем результат
+
     const fulfilledAction = actionHistory.find(
       (action) => action.type === fetchNearOffersAction.fulfilled.type
     );
@@ -93,14 +88,13 @@ describe('fetchOffersAction', () => {
     expect(store.getState()[NameSpace.Offers].nearOffersLoadingStatus).toBe(true);
   });
 
-  // fetchNearOffersAction success empty array
   it('should dispatch fetchNearOffersAction success empty array', async () => {
     const { store, actionHistory } = testStore;
     const mockOffers: OffersElementType[] = [];
     mockAxiosAdapter.onGet(`${APIRoute.Offer}/id/nearby`).reply(200, mockOffers);
-    // Выполняем действие
+
     await store.dispatch(fetchNearOffersAction('id'));
-    // Проверяем результат
+
     const fulfilledAction = actionHistory.find(
       (action) => action.type === fetchNearOffersAction.fulfilled.type
     );
@@ -112,13 +106,12 @@ describe('fetchOffersAction', () => {
     expect(store.getState()[NameSpace.Offers].nearOffersLoadingStatus).toBe(true);
   });
 
-  // fetchNearOffersAction error
   it('should dispatch fetchNearOffersAction error', async () => {
     const { store, actionHistory } = testStore;
     mockAxiosAdapter.onGet(`${APIRoute.Offer}/id/nearby`).reply(400);
-    // Выполняем действие
+
     await store.dispatch(fetchNearOffersAction('id'));
-    // Проверяем результат
+
     const rejectedAction = actionHistory.find(
       (action) => action.type === fetchNearOffersAction.rejected.type
     );
@@ -129,14 +122,13 @@ describe('fetchOffersAction', () => {
     expect(store.getState()[NameSpace.Offers].nearOffersLoadingStatus).toBe(false);
   });
 
-  // fetchFavoriteOffersAction success
   it('should dispatch fetchFavoriteOffersAction success', async () => {
     const { store, actionHistory } = testStore;
     const mockOffers = OFFERS;
     mockAxiosAdapter.onGet(APIRoute.Favorite).reply(200, mockOffers);
-    // Выполняем действие
+
     await store.dispatch(fetchFavoriteOffersAction());
-    // Проверяем результат
+
     const fulfilledAction = actionHistory.find(
       (action) => action.type === fetchFavoriteOffersAction.fulfilled.type
     );
@@ -148,14 +140,13 @@ describe('fetchOffersAction', () => {
     expect(store.getState()[NameSpace.Offers].favoriteOffersLoadingStatus).toBe(true);
   });
 
-  // fetchFavoriteOffersAction success empty array
   it('should dispatch fetchFavoriteOffersAction success empty array', async () => {
     const { store, actionHistory } = testStore;
     const mockOffers: OffersElementType[] = [];
     mockAxiosAdapter.onGet(APIRoute.Favorite).reply(200, mockOffers);
-    // Выполняем действие
+
     await store.dispatch(fetchFavoriteOffersAction());
-    // Проверяем результат
+
     const fulfilledAction = actionHistory.find(
       (action) => action.type === fetchFavoriteOffersAction.fulfilled.type
     );
@@ -167,13 +158,12 @@ describe('fetchOffersAction', () => {
     expect(store.getState()[NameSpace.Offers].favoriteOffersLoadingStatus).toBe(true);
   });
 
-  // fetchFavoriteOffersAction error
   it('should dispatch fetchFavoriteOffersAction error', async () => {
     const { store, actionHistory } = testStore;
     mockAxiosAdapter.onGet(APIRoute.Favorite).reply(400);
-    // Выполняем действие
+
     await store.dispatch(fetchFavoriteOffersAction());
-    // Проверяем результат
+
     const rejectedAction = actionHistory.find(
       (action) => action.type === fetchFavoriteOffersAction.rejected.type
     );

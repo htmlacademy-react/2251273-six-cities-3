@@ -60,6 +60,7 @@ function ReviewsForm(): JSX.Element {
                 type='radio'
                 onChange={(event) => handleReviewsOfferChange('rating', Number(event.target.value))}
                 checked={value === reviewsOffer.rating}
+                data-testid={`rating-${value}`}
               />
               <label
                 className='reviews__rating-label form__rating-label'
@@ -100,7 +101,6 @@ function ReviewsForm(): JSX.Element {
         </button>
       </div>
     </form>
-
   );
 }
 
