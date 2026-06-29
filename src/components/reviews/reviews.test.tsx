@@ -1,29 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
-import { configureStore } from '@reduxjs/toolkit';
 import { Reviews } from './reviews';
 import { AuthorizationStatus, TYPE_OF_ERROR } from '../../const';
 import { useAppSelector, useAppDispatch } from '../../hooks/hooks';
 import { useParams } from 'react-router-dom';
 import { fetchCommentsOfferAction } from '../../store/api-actions';
 import { setErrorType } from '../../store/action';
-import * as ReactRouterDom from 'react-router-dom';
 import { CommentElementType } from '../../types/comments';
+type RootState = Parameters<Parameters<typeof useAppSelector>[0]>[0];
 
 vi.mock('../../hooks/hooks', () => ({
   useAppSelector: vi.fn(),
   useAppDispatch: vi.fn(),
 }));
 
-vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal<typeof ReactRouterDom>();
-  return {
-    ...actual,
-    useParams: vi.fn(),
-  };
-});
+vi.mock('react-router-dom', () => ({
+  useParams: vi.fn(),
+}));
 
 vi.mock('../../store/api-actions', () => ({
   fetchCommentsOfferAction: vi.fn(),
@@ -55,23 +48,18 @@ describe('Reviews', () => {
     vi.mocked(useAppDispatch).mockReturnValue(mockDispatch);
   });
 
-  const renderWithStore = (initialState: {
+  const renderComponent = (initialState: {
     OFFER: { selectedOfferComments: CommentElementType[]; selectedOfferCommentsLoadingStatus: boolean };
     USER: { authorizationStatus: AuthorizationStatus };
   }) => {
-    const store = configureStore({
-      reducer: {
-        OFFER: () => initialState.OFFER,
-        USER: () => initialState.USER,
-      },
-    });
-    render(
-      <Provider store={store}>
-        <MemoryRouter>
-          <Reviews />
-        </MemoryRouter>
-      </Provider>
+    vi.mocked(useAppSelector).mockImplementation((selector) =>
+      selector({
+        OFFER: initialState.OFFER,
+        USER: initialState.USER,
+      } as unknown as RootState)
     );
+
+    render(<Reviews />);
   };
 
   it('should dispatch fetchCommentsOfferAction on mount', () => {
@@ -79,20 +67,9 @@ describe('Reviews', () => {
       OFFER: { selectedOfferComments: [], selectedOfferCommentsLoadingStatus: true },
       USER: { authorizationStatus: AuthorizationStatus.Auth },
     };
-    vi.mocked(useAppSelector).mockImplementation((selector) => {
-      if (selector.toString().includes('getSelectedOfferCommentsLoadingStatus')) {
-        return initialState.OFFER.selectedOfferCommentsLoadingStatus;
-      }
-      if (selector.toString().includes('state.OFFER.selectedOfferComments')) {
-        return initialState.OFFER.selectedOfferComments;
-      }
-      if (selector.toString().includes('state.USER.authorizationStatus')) {
-        return initialState.USER.authorizationStatus;
-      }
-      return undefined;
-    });
 
-    renderWithStore(initialState);
+    renderComponent(initialState);
+
     expect(mockDispatch).toHaveBeenCalledWith(fetchCommentsOfferAction(mockOfferId));
   });
 
@@ -115,20 +92,9 @@ describe('Reviews', () => {
       },
       USER: { authorizationStatus: AuthorizationStatus.NoAuth },
     };
-    vi.mocked(useAppSelector).mockImplementation((selector) => {
-      if (selector.toString().includes('getSelectedOfferCommentsLoadingStatus')) {
-        return initialState.OFFER.selectedOfferCommentsLoadingStatus;
-      }
-      if (selector.toString().includes('state.OFFER.selectedOfferComments')) {
-        return initialState.OFFER.selectedOfferComments;
-      }
-      if (selector.toString().includes('state.USER.authorizationStatus')) {
-        return initialState.USER.authorizationStatus;
-      }
-      return undefined;
-    });
 
-    renderWithStore(initialState);
+    renderComponent(initialState);
+
     expect(screen.getByTestId('reviews-list')).toBeInTheDocument();
     expect(screen.queryByTestId('reviews-form')).not.toBeInTheDocument();
   });
@@ -138,20 +104,9 @@ describe('Reviews', () => {
       OFFER: { selectedOfferComments: [], selectedOfferCommentsLoadingStatus: true },
       USER: { authorizationStatus: AuthorizationStatus.Auth },
     };
-    vi.mocked(useAppSelector).mockImplementation((selector) => {
-      if (selector.toString().includes('getSelectedOfferCommentsLoadingStatus')) {
-        return initialState.OFFER.selectedOfferCommentsLoadingStatus;
-      }
-      if (selector.toString().includes('state.OFFER.selectedOfferComments')) {
-        return initialState.OFFER.selectedOfferComments;
-      }
-      if (selector.toString().includes('state.USER.authorizationStatus')) {
-        return initialState.USER.authorizationStatus;
-      }
-      return undefined;
-    });
 
-    renderWithStore(initialState);
+    renderComponent(initialState);
+
     expect(screen.getByTestId('reviews-list')).toBeInTheDocument();
     expect(screen.getByTestId('reviews-form')).toBeInTheDocument();
   });
@@ -161,20 +116,9 @@ describe('Reviews', () => {
       OFFER: { selectedOfferComments: [], selectedOfferCommentsLoadingStatus: false },
       USER: { authorizationStatus: AuthorizationStatus.Auth },
     };
-    vi.mocked(useAppSelector).mockImplementation((selector) => {
-      if (selector.toString().includes('getSelectedOfferCommentsLoadingStatus')) {
-        return initialState.OFFER.selectedOfferCommentsLoadingStatus;
-      }
-      if (selector.toString().includes('state.OFFER.selectedOfferComments')) {
-        return initialState.OFFER.selectedOfferComments;
-      }
-      if (selector.toString().includes('state.USER.authorizationStatus')) {
-        return initialState.USER.authorizationStatus;
-      }
-      return undefined;
-    });
 
-    renderWithStore(initialState);
+    renderComponent(initialState);
+
     expect(screen.getByTestId('message')).toBeInTheDocument();
     expect(mockDispatch).toHaveBeenCalledWith(setErrorType(TYPE_OF_ERROR.ERROR_LOADING_COMMENTS));
   });
