@@ -4,7 +4,7 @@ import { Reviews } from './reviews';
 import { useAppSelector, useAppDispatch } from '../../hooks/hooks';
 import { useParams } from 'react-router-dom';
 import { setErrorType } from '../../store/action';
-import { AuthorizationStatus, TYPE_OF_ERROR, REVIEW_OFFER } from '../../const';
+import { AuthorizationStatus, TYPE_OF_ERROR } from '../../const';
 import { getSelectedOfferCommentsLoadingStatus } from '../../store/selectors/offer-slice';
 import { CommentElementType } from '../../types/comments';
 import { fetchCommentsOfferAction } from '../../store/api-actions';
