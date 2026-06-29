@@ -8,7 +8,7 @@ import { AuthorizationStatus, TYPE_OF_ERROR, REVIEW_OFFER } from '../../const';
 import { getSelectedOfferCommentsLoadingStatus } from '../../store/selectors/offer-slice';
 import { Message } from '../message/message';
 import { setErrorType } from '../../store/action';
-import { CommentElementType } from '../../types/comments';
+import { sortCommentsByDate } from '../../utils';
 
 function Reviews(): JSX.Element {
   const dispatch = useAppDispatch();
@@ -26,19 +26,6 @@ function Reviews(): JSX.Element {
       dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOADING_COMMENTS));
     }
   }, [selectedOfferCommentsLoadingStatus, dispatch]);
-
-  function sortCommentsByDate(commentsSorting: CommentElementType[]): CommentElementType[] {
-    if (!commentsSorting) {
-      return [];
-    }
-
-    return commentsSorting
-      .toSorted((a, b) => {
-        const dateA = new Date(a.date).getTime() || 0;
-        const dateB = new Date(b.date).getTime() || 0;
-        return dateA - dateB;
-      });
-  }
 
   return (
     <section className='offer__reviews reviews'>
