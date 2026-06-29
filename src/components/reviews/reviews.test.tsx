@@ -9,7 +9,6 @@ import { getSelectedOfferCommentsLoadingStatus } from '../../store/selectors/off
 import { CommentElementType } from '../../types/comments';
 import { fetchCommentsOfferAction } from '../../store/api-actions';
 
-// Моки
 vi.mock('../../hooks/hooks');
 vi.mock('react-router-dom');
 vi.mock('../../store/api-actions');
@@ -37,7 +36,6 @@ describe('Reviews Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Моки по умолчанию
     (useAppDispatch as ReturnType<typeof vi.fn>).mockReturnValue(mockDispatch);
     (useParams as ReturnType<typeof vi.fn>).mockReturnValue({ offerId: mockOfferId });
     (useAppSelector as ReturnType<typeof vi.fn>)
@@ -45,22 +43,6 @@ describe('Reviews Component', () => {
       .mockReturnValueOnce([]);
     (getSelectedOfferCommentsLoadingStatus as ReturnType<typeof vi.fn>).mockReturnValue(true);
   });
-
-  // it('должен отрендерить заголовок с количеством отзывов', () => {
-  //   const mockComments = [
-  //     { id: '1', date: '2024-01-01' },
-  //     { id: '2', date: '2024-01-02' },
-  //   ];
-
-  //   (useAppSelector as ReturnType<typeof vi.fn>)
-  //     .mockReturnValueOnce(AuthorizationStatus.NoAuth)
-  //     .mockReturnValueOnce(mockComments);
-
-  //   render(<Reviews />);
-
-  //   // expect(screen.getByText(/Reviews/)).toBeInTheDocument();
-  //   // expect(screen.getByText('2')).toBeInTheDocument();
-  // });
 
   it('должен вызвать fetchCommentsOfferAction при монтировании', () => {
     render(<Reviews />);
