@@ -34,7 +34,7 @@ function Reviews(): JSX.Element {
       </h2>
       {!selectedOfferCommentsLoadingStatus &&
         <Message />}
-      <ReviewsList comments={sortCommentsByDate(comments).slice(comments.length - REVIEW_OFFER.MAX_COMMENTS_COUNT)} />
+      <ReviewsList comments={sortCommentsByDate(comments).slice(0, REVIEW_OFFER.MAX_COMMENTS_COUNT)} />
       {statusAuthorization === AuthorizationStatus.Auth && <ReviewsForm />}
     </section>
   );
