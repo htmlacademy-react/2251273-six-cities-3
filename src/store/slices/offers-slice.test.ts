@@ -1,223 +1,298 @@
-import { fetchOffersAction, fetchNearOffersAction, fetchFavoriteOffersAction} from '../api-actions';
-import { updateFavoriteOffers } from '../action';
+import { describe, it, expect } from 'vitest';
 import { offersSlice } from './offers-slice';
-import { OffersSlice } from '../../types/slice/offers-slice';
-import { OFFERS } from '../../mocks/mock-offers';
+import { fetchOffersAction, fetchNearOffersAction, fetchFavoriteOffersAction } from '../api-actions';
+import { updateFavoriteOffers, updateOffers } from '../action';
+import { OffersElementType } from '../../types/offers';
+import { FavoriteType } from '../../types/favorite';
 
-describe('Reducer: offersSlice', () => {
-  it('should return initial state', () => {
-    const state = offersSlice.getInitialState();
+const reducer = offersSlice.reducer;
 
-    expect(state).toEqual({
-      offers: [],
-      offersLoadingStatus: null,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: [],
-      favoriteOffersLoadingStatus: null,
-    });
-  });
+const mockOffer: OffersElementType = {
+  id: 'offer-1',
+  title: 'Test Offer',
+  type: 'apartment',
+  price: 100,
+  city: { name: 'Paris', location: { latitude: 48.85, longitude: 2.35, zoom: 10 } },
+  location: { latitude: 48.85, longitude: 2.35, zoom: 10 },
+  isFavorite: false,
+  isPremium: false,
+  rating: 4,
+  previewImage: 'preview.jpg',
+};
 
-  it('should return initial state / unknown action', () => {
-    const result = offersSlice.reducer(
-      undefined,
-      {
-        type: 'unknown action',
+const mockOffer2: OffersElementType = {
+  ...mockOffer,
+  id: 'offer-2',
+  title: 'Test Offer 2',
+  isFavorite: true,
+};
+
+const mockNearOffer: OffersElementType = {
+  ...mockOffer,
+  id: 'near-1',
+  title: 'Near Offer',
+};
+
+const mockFavoriteOffer: OffersElementType = {
+  ...mockOffer,
+  id: 'fav-1',
+  title: 'Favorite Offer',
+  isFavorite: true,
+};
+
+describe('offersSlice', () => {
+  describe('initial state', () => {
+    it('should return initial state', () => {
+      const state = reducer(undefined, { type: 'unknown' });
+
+      expect(state).toEqual({
+        offers: [],
+        offersLoadingStatus: null,
+        nearOffers: [],
+        nearOffersLoadingStatus: null,
+        favoriteOffers: [],
+        favoriteOffersLoadingStatus: null,
       });
-
-    expect(result).toEqual({
-      offers: [],
-      offersLoadingStatus: null,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: [],
-      favoriteOffersLoadingStatus: null,
     });
   });
 
-  it('should update offers', () => {
-    const state = <OffersSlice>{
-      offers: [],
-      offersLoadingStatus: null,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: [],
-      favoriteOffersLoadingStatus: null,
-    };
+  describe('fetchOffersAction', () => {
+    it('should set offers and loading status to true on fulfilled', () => {
+      const initialState = reducer(undefined, { type: 'unknown' });
+      const state = reducer(initialState, fetchOffersAction.fulfilled([mockOffer, mockOffer2], '', undefined));
 
-    const resultState = <OffersSlice>{
-      offers: OFFERS,
-      offersLoadingStatus: true,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: [],
-      favoriteOffersLoadingStatus: null,
-    };
+      expect(state.offers).toEqual([mockOffer, mockOffer2]);
+      expect(state.offersLoadingStatus).toBe(true);
+    });
 
-    const action = {
-      type: fetchOffersAction.fulfilled.type,
-      payload: OFFERS,
-    };
+    it('should set loading status to null on pending', () => {
+      const initialState = reducer(undefined, { type: 'unknown' });
+      const state = reducer(initialState, fetchOffersAction.pending('', undefined));
 
-    expect(offersSlice.reducer(state, action)).toEqual(resultState);
+      expect(state.offersLoadingStatus).toBeNull();
+    });
+
+    it('should set loading status to false on rejected', () => {
+      const initialState = reducer(undefined, { type: 'unknown' });
+      const state = reducer(initialState, fetchOffersAction.rejected(null, '', undefined));
+
+      expect(state.offersLoadingStatus).toBe(false);
+    });
   });
 
-  it('should update near offers', () => {
-    const state = <OffersSlice>{
-      offers: [],
-      offersLoadingStatus: null,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: [],
-      favoriteOffersLoadingStatus: null,
-    };
+  describe('fetchNearOffersAction', () => {
+    it('should set nearOffers and loading status to true on fulfilled', () => {
+      const initialState = reducer(undefined, { type: 'unknown' });
+      const state = reducer(initialState, fetchNearOffersAction.fulfilled([mockNearOffer], '', ''));
 
-    const resultState = <OffersSlice>{
-      offers: [],
-      offersLoadingStatus: null,
-      nearOffers: OFFERS.slice(0, 5),
-      nearOffersLoadingStatus: true,
-      favoriteOffers: [],
-      favoriteOffersLoadingStatus: null,
-    };
+      expect(state.nearOffers).toEqual([mockNearOffer]);
+      expect(state.nearOffersLoadingStatus).toBe(true);
+    });
 
-    const action = {
-      type: fetchNearOffersAction.fulfilled.type,
-      payload: OFFERS.slice(0, 5),
-    };
+    it('should set loading status to null on pending', () => {
+      const initialState = reducer(undefined, { type: 'unknown' });
+      const state = reducer(initialState, fetchNearOffersAction.pending('', ''));
 
-    expect(offersSlice.reducer(state, action)).toEqual(resultState);
+      expect(state.nearOffersLoadingStatus).toBeNull();
+    });
+
+    it('should set loading status to false on rejected', () => {
+      const initialState = reducer(undefined, { type: 'unknown' });
+      const state = reducer(initialState, fetchNearOffersAction.rejected(null, '', ''));
+
+      expect(state.nearOffersLoadingStatus).toBe(false);
+    });
   });
 
-  it('should update favorite offers', () => {
-    const state = <OffersSlice>{
-      offers: [],
-      offersLoadingStatus: null,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: [],
-      favoriteOffersLoadingStatus: null,
-    };
+  describe('fetchFavoriteOffersAction', () => {
+    it('should set favoriteOffers and loading status to true on fulfilled', () => {
+      const initialState = reducer(undefined, { type: 'unknown' });
+      const state = reducer(initialState, fetchFavoriteOffersAction.fulfilled([mockFavoriteOffer], '', undefined));
 
-    const resultState = <OffersSlice>{
-      offers: [],
-      offersLoadingStatus: null,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: OFFERS.slice(0, 3),
-      favoriteOffersLoadingStatus: true,
-    };
+      expect(state.favoriteOffers).toEqual([mockFavoriteOffer]);
+      expect(state.favoriteOffersLoadingStatus).toBe(true);
+    });
 
-    const action = {
-      type: fetchFavoriteOffersAction.fulfilled.type,
-      payload: OFFERS.slice(0, 3),
-    };
+    it('should set loading status to null on pending', () => {
+      const initialState = reducer(undefined, { type: 'unknown' });
+      const state = reducer(initialState, fetchFavoriteOffersAction.pending('', undefined));
 
-    expect(offersSlice.reducer(state, action)).toEqual(resultState);
+      expect(state.favoriteOffersLoadingStatus).toBeNull();
+    });
+
+    it('should set loading status to false on rejected', () => {
+      const initialState = reducer(undefined, { type: 'unknown' });
+      const state = reducer(initialState, fetchFavoriteOffersAction.rejected(null, '', undefined));
+
+      expect(state.favoriteOffersLoadingStatus).toBe(false);
+    });
   });
 
-  it('should update offers loading status', () => {
-    const state = <OffersSlice>{
-      offers: [],
-      offersLoadingStatus: null,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: [],
-      favoriteOffersLoadingStatus: null,
-    };
+  describe('updateFavoriteOffers', () => {
+    it('should update isFavorite for offer in offers array', () => {
+      const initialState = {
+        offers: [mockOffer, mockOffer2],
+        offersLoadingStatus: true,
+        nearOffers: [],
+        nearOffersLoadingStatus: null,
+        favoriteOffers: [],
+        favoriteOffersLoadingStatus: null,
+      };
 
-    const resultState = <OffersSlice>{
-      offers: [],
-      offersLoadingStatus: false,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: [],
-      favoriteOffersLoadingStatus: null,
-    };
+      const state = reducer(initialState, updateFavoriteOffers({ ...mockOffer, isFavorite: true }));
 
-    const action = {
-      type: fetchOffersAction.rejected.type,
-    };
+      expect(state.offers[0].isFavorite).toBe(true);
+      expect(state.offers[1].isFavorite).toBe(true);
+    });
 
-    expect(offersSlice.reducer(state, action)).toEqual(resultState);
+    it('should not update offers if payload is falsy', () => {
+      const initialState = {
+        offers: [mockOffer],
+        offersLoadingStatus: true,
+        nearOffers: [],
+        nearOffersLoadingStatus: null,
+        favoriteOffers: [],
+        favoriteOffersLoadingStatus: null,
+      };
+
+      const state = reducer(initialState, updateFavoriteOffers(null as unknown as OffersElementType));
+
+      expect(state.offers).toEqual(initialState.offers);
+    });
+
+    it('should not update if offer not found', () => {
+      const initialState = {
+        offers: [mockOffer],
+        offersLoadingStatus: true,
+        nearOffers: [],
+        nearOffersLoadingStatus: null,
+        favoriteOffers: [],
+        favoriteOffersLoadingStatus: null,
+      };
+
+      const state = reducer(initialState, updateFavoriteOffers({ ...mockOffer, id: 'non-existent', isFavorite: true }));
+
+      expect(state.offers[0].isFavorite).toBe(false);
+    });
+
+    it('should not update offers if payload is falsy', () => {
+      const initialState = {
+        offers: [mockOffer],
+        offersLoadingStatus: true,
+        nearOffers: [],
+        nearOffersLoadingStatus: null,
+        favoriteOffers: [],
+        favoriteOffersLoadingStatus: null,
+      };
+
+      const state = reducer(initialState, updateFavoriteOffers(null as unknown as FavoriteType));
+
+      expect(state.offers).toEqual(initialState.offers);
+    });
+
+    it('should not update offers if payload is falsy', () => {
+      const initialState = {
+        offers: [mockOffer],
+        offersLoadingStatus: true,
+        nearOffers: [],
+        nearOffersLoadingStatus: null,
+        favoriteOffers: [],
+        favoriteOffersLoadingStatus: null,
+      };
+
+      const state = reducer(
+        initialState,
+        updateFavoriteOffers(null as unknown as Parameters<typeof updateFavoriteOffers>[0])
+      );
+
+      expect(state.offers).toEqual(initialState.offers);
+    });
   });
 
-  it('should update near offers loading status', () => {
-    const state = <OffersSlice>{
-      offers: [],
-      offersLoadingStatus: null,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: [],
-      favoriteOffersLoadingStatus: null,
-    };
+  describe('updateOffers', () => {
+    it('should update offer in offers array', () => {
+      const initialState = {
+        offers: [mockOffer, mockOffer2],
+        offersLoadingStatus: true,
+        nearOffers: [],
+        nearOffersLoadingStatus: null,
+        favoriteOffers: [],
+        favoriteOffersLoadingStatus: null,
+      };
 
-    const resultState = <OffersSlice>{
-      offers: [],
-      offersLoadingStatus: null,
-      nearOffers: [],
-      nearOffersLoadingStatus: false,
-      favoriteOffers: [],
-      favoriteOffersLoadingStatus: null,
-    };
+      const updatedOffer = { ...mockOffer, title: 'Updated Title' };
+      const state = reducer(initialState, updateOffers(updatedOffer));
 
-    const action = {
-      type: fetchNearOffersAction.rejected.type,
-    };
+      expect(state.offers[0].title).toBe('Updated Title');
+      expect(state.offers[1].title).toBe('Test Offer 2');
+    });
 
-    expect(offersSlice.reducer(state, action)).toEqual(resultState);
-  });
+    it('should update offer in nearOffers array', () => {
+      const initialState = {
+        offers: [],
+        offersLoadingStatus: true,
+        nearOffers: [mockNearOffer],
+        nearOffersLoadingStatus: true,
+        favoriteOffers: [],
+        favoriteOffersLoadingStatus: null,
+      };
 
-  it('should update favorite offers loading status', () => {
-    const state = <OffersSlice>{
-      offers: [],
-      offersLoadingStatus: null,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: [],
-      favoriteOffersLoadingStatus: null,
-    };
+      const updatedOffer = { ...mockNearOffer, title: 'Updated Near' };
+      const state = reducer(initialState, updateOffers(updatedOffer));
 
-    const resultState = <OffersSlice>{
-      offers: [],
-      offersLoadingStatus: null,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: [],
-      favoriteOffersLoadingStatus: false,
-    };
+      expect(state.nearOffers[0].title).toBe('Updated Near');
+    });
 
-    const action = {
-      type: fetchFavoriteOffersAction.rejected.type,
-    };
+    it('should update offer in favoriteOffers array', () => {
+      const initialState = {
+        offers: [],
+        offersLoadingStatus: true,
+        nearOffers: [],
+        nearOffersLoadingStatus: null,
+        favoriteOffers: [mockFavoriteOffer],
+        favoriteOffersLoadingStatus: true,
+      };
 
-    expect(offersSlice.reducer(state, action)).toEqual(resultState);
-  });
+      const updatedOffer = { ...mockFavoriteOffer, title: 'Updated Favorite' };
+      const state = reducer(initialState, updateOffers(updatedOffer));
 
-  it('should update favorite offers', () => {
-    const state = <OffersSlice>{
-      offers: OFFERS,
-      offersLoadingStatus: null,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: OFFERS.slice(0, 3),
-      favoriteOffersLoadingStatus: null,
-    };
+      expect(state.favoriteOffers[0].title).toBe('Updated Favorite');
+    });
 
-    const resultState = <OffersSlice>{
-      offers: OFFERS,
-      offersLoadingStatus: null,
-      nearOffers: [],
-      nearOffersLoadingStatus: null,
-      favoriteOffers: OFFERS.slice(0, 3),
-      favoriteOffersLoadingStatus: null,
-    };
+    it('should update offer in all arrays if present', () => {
+      const initialState = {
+        offers: [mockOffer],
+        offersLoadingStatus: true,
+        nearOffers: [mockOffer],
+        nearOffersLoadingStatus: true,
+        favoriteOffers: [mockOffer],
+        favoriteOffersLoadingStatus: true,
+      };
 
-    const action = {
-      type: updateFavoriteOffers.type,
-      payload: OFFERS,
-    };
+      const updatedOffer = { ...mockOffer, title: 'Updated Everywhere' };
+      const state = reducer(initialState, updateOffers(updatedOffer));
 
-    expect(offersSlice.reducer(state, action)).toEqual(resultState);
+      expect(state.offers[0].title).toBe('Updated Everywhere');
+      expect(state.nearOffers[0].title).toBe('Updated Everywhere');
+      expect(state.favoriteOffers[0].title).toBe('Updated Everywhere');
+    });
+
+    it('should not modify arrays if offer not found', () => {
+      const initialState = {
+        offers: [mockOffer],
+        offersLoadingStatus: true,
+        nearOffers: [mockNearOffer],
+        nearOffersLoadingStatus: true,
+        favoriteOffers: [mockFavoriteOffer],
+        favoriteOffersLoadingStatus: true,
+      };
+
+      const updatedOffer = { ...mockOffer, id: 'non-existent', title: 'Updated' };
+      const state = reducer(initialState, updateOffers(updatedOffer));
+
+      expect(state.offers[0].title).toBe('Test Offer');
+      expect(state.nearOffers[0].title).toBe('Near Offer');
+      expect(state.favoriteOffers[0].title).toBe('Favorite Offer');
+    });
   });
 });

@@ -1,14 +1,13 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { OfferGallery } from '../components/offer/offer-gallery';
 import { Offer } from '../components/offer/offer';
 import { NearPlaces } from '../components/offer/offer-places';
 import { Map } from '../components/map/map';
-import { Message } from '../components/message/message';
 import { getLocation, getRandomNearsOffers } from '../utils';
 import { useAppSelector, useAppDispatch } from '../hooks/hooks';
 import { fetchOfferAction, fetchNearOffersAction } from '../store/api-actions';
-import { TYPE_OF_ERROR } from '../const';
+import { AppRoute, TYPE_OF_ERROR } from '../const';
 import { getSelectedOfferLoadingStatus, getSelectedOffer } from '../store/selectors/offer-slice';
 import { getNearOffers } from '../store/selectors/offers-slice';
 import { OffersElementType } from '../types/offers';
@@ -23,16 +22,20 @@ function OfferPage(): JSX.Element {
   const selectedOfferLoadingStatus = useAppSelector(getSelectedOfferLoadingStatus);
   const [currentOffer, setCurrentOffer] = useState<string>(`${offerId}`);
   const [randomNearsOffers, setRandomNearsOffers] = useState<OffersElementType[]>([]);
+  const navigation = useNavigate();
 
-  const handleOfferHover = (idOffer: string) => {
-    setCurrentOffer(idOffer || `${offerId}`);
+  const handleOfferHover = () => {
+    setCurrentOffer(`${offerId}`);
   };
 
   useEffect(() => {
-    dispatch(fetchOfferAction(offerId));
-    dispatch(fetchNearOffersAction(offerId));
-  }, [dispatch, offerId]);
-
+    dispatch(fetchOfferAction(offerId)).unwrap().then(() => {
+      dispatch(fetchNearOffersAction(offerId));
+      setCurrentOffer(`${offerId}`);
+    }).catch(() => {
+      navigation(AppRoute.NotFound);
+    });
+  }, [dispatch, offerId, navigation]);
   useEffect(() => {
     setRandomNearsOffers(getRandomNearsOffers(nearOffers));
   }, [nearOffers]);
@@ -46,7 +49,6 @@ function OfferPage(): JSX.Element {
   return (
     <main className='page__main page__main--offer'>
       <section className='offer'>
-        {!selectedOfferLoadingStatus && <Message />}
         {selectedOffer && <OfferGallery offer={selectedOffer} />}
         {selectedOffer && <Offer offer={selectedOffer} />}
         {selectedOffer &&

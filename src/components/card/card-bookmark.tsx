@@ -7,6 +7,7 @@ import { switchButton } from '../../utils';
 import { getAuthCheckedStatus } from '../../store/selectors/user-selector';
 import { useNavigate } from 'react-router-dom';
 import { AppRoute } from '../../const';
+import { updateOffers } from '../../store/action';
 
 type CardBookmarkProps = {
   offer: OffersElementType;
@@ -23,6 +24,7 @@ function CardBookmark({ offer }: CardBookmarkProps): JSX.Element {
     switchButton(addFavoriteButton.current, true);
     try {
       await dispatch(postFavoriteOfferAction({ id: offer.id, status: !isFavoriteState })).unwrap();
+      dispatch(updateOffers({...offer, isFavorite: !isFavoriteState}));
       setIsFavoriteState(!isFavoriteState);
     } catch {
       throw new Error('Error postFavoriteOfferAction');

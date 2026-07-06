@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { AppRoute, AuthorizationStatus } from '../../const';
 import { useAppSelector, useAppDispatch } from '../../hooks/hooks';
-import { logoutAction, fetchFavoriteOffersAction, checkAuthAction } from '../../store/api-actions';
+import { logoutAction, fetchFavoriteOffersAction, checkAuthAction, fetchOffersAction } from '../../store/api-actions';
 import { useEffect, memo, useRef } from 'react';
 import { getUserEmail, getUserAvatar, getAuthorizationStatus } from '../../store/selectors/user-selector';
 import { getFavoriteOffers } from '../../store/selectors/offers-slice';
@@ -25,6 +25,7 @@ function Navigation(): JSX.Element {
     if (statusAuthorization === AuthorizationStatus.Auth) {
       try {
         await dispatch(logoutAction()).unwrap();
+        dispatch(fetchOffersAction());
         navigate(AppRoute.Main);
       } catch {
         dispatch(checkAuthAction());

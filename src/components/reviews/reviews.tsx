@@ -1,4 +1,4 @@
-import { ReviewsList } from './reviews-list';
+import { ReviewsComments } from './reviews-comments';
 import { ReviewsForm } from './reviews-form';
 import { useAppSelector, useAppDispatch } from '../../hooks/hooks';
 import { useEffect } from 'react';
@@ -9,6 +9,7 @@ import { getSelectedOfferCommentsLoadingStatus } from '../../store/selectors/off
 import { Message } from '../message/message';
 import { setErrorType } from '../../store/action';
 import { sortCommentsByDate } from '../../utils';
+import { checkErrorAddComment } from '../../store/selectors/error-slice';
 
 function Reviews(): JSX.Element {
   const dispatch = useAppDispatch();
@@ -16,26 +17,27 @@ function Reviews(): JSX.Element {
   const comments = useAppSelector((state) => state.OFFER.selectedOfferComments);
   const offerId: string = useParams().offerId || '';
   const selectedOfferCommentsLoadingStatus = useAppSelector(getSelectedOfferCommentsLoadingStatus);
+  const errorAddComment = useAppSelector(checkErrorAddComment);
 
   useEffect(() => {
-    dispatch(fetchCommentsOfferAction(offerId));
-  }, [dispatch, offerId]);
-
-  useEffect(() => {
-    if (!selectedOfferCommentsLoadingStatus) {
+    dispatch(fetchCommentsOfferAction(offerId)).unwrap().then(() => {
+      dispatch(setErrorType(null));
+    }).catch(() => {
       dispatch(setErrorType(TYPE_OF_ERROR.ERROR_LOADING_COMMENTS));
-    }
-  }, [selectedOfferCommentsLoadingStatus, dispatch]);
+    });
+  }, [dispatch, offerId]);
 
   return (
     <section className='offer__reviews reviews'>
       <h2 className='reviews__title'>Reviews &middot;
         <span className='reviews__amount'>{comments.length}</span>
       </h2>
-      {!selectedOfferCommentsLoadingStatus &&
+      {(!selectedOfferCommentsLoadingStatus || errorAddComment) &&
         <Message />}
-      <ReviewsList comments={sortCommentsByDate(comments).slice(0, REVIEW_OFFER.MAX_COMMENTS_COUNT)} />
+      <ReviewsComments comments={sortCommentsByDate(comments).slice(0, REVIEW_OFFER.MAX_COMMENTS_COUNT)} />
       {statusAuthorization === AuthorizationStatus.Auth && <ReviewsForm />}
+
+
     </section>
   );
 }

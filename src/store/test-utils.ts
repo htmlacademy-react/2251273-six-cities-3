@@ -1,6 +1,6 @@
 import { configureStore, Dispatch, AnyAction, Middleware } from '@reduxjs/toolkit';
 import { createAPI } from '../services/api';
-import { rootReducer } from '../store/rootReducer';
+import { rootReducer } from './root-reducer';
 
 export const createTestStoreWithHistory = (axiosInstance = createAPI()) => {
   const actionHistory: AnyAction[] = [];

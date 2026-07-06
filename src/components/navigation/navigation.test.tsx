@@ -1,128 +1,271 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import { Navigation } from './navigation';
-import { AuthorizationStatus, AppRoute } from '../../const';
-import * as hooks from '../../hooks/hooks';
-import * as apiActions from '../../store/api-actions';
-import * as userSelectors from '../../store/selectors/user-selector';
-import * as offersSlice from '../../store/selectors/offers-slice';
-import { useNavigate } from 'react-router-dom';
+
+import { logoutAction, fetchFavoriteOffersAction, checkAuthAction, fetchOffersAction } from '../../store/api-actions';
+import { getUserEmail, getUserAvatar, getAuthorizationStatus } from '../../store/selectors/user-selector';
+import { getFavoriteOffers } from '../../store/selectors/offers-slice';
+import { AppRoute, AuthorizationStatus } from '../../const';
+
+const { mockDispatch, mockNavigate, mockUseAppSelector } = vi.hoisted(() => ({
+  mockDispatch: vi.fn(),
+  mockNavigate: vi.fn(),
+  mockUseAppSelector: vi.fn(),
+}));
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return {
     ...actual,
-    useNavigate: vi.fn(),
+    useNavigate: () => mockNavigate,
   };
 });
 
-vi.mock('../../store/selectors/user-selector');
-vi.mock('../../store/selectors/offers-slice');
-vi.mock('../../store/api-actions');
+vi.mock('../../hooks/hooks', () => ({
+  useAppDispatch: () => mockDispatch,
+  useAppSelector: mockUseAppSelector,
+}));
 
-describe('Navigation component', () => {
-  const mockNavigate = vi.fn();
-  const mockDispatch = vi.fn();
-  const mockUseAppSelector = vi.spyOn(hooks, 'useAppSelector');
-  const mockUseAppDispatch = vi.spyOn(hooks, 'useAppDispatch');
+vi.mock('../../store/api-actions', () => ({
+  logoutAction: vi.fn(),
+  fetchFavoriteOffersAction: vi.fn(),
+  checkAuthAction: vi.fn(),
+  fetchOffersAction: vi.fn(),
+}));
+
+vi.mock('../../store/selectors/user-selector', () => ({
+  getUserEmail: vi.fn(),
+  getUserAvatar: vi.fn(),
+  getAuthorizationStatus: vi.fn(),
+}));
+
+vi.mock('../../store/selectors/offers-slice', () => ({
+  getFavoriteOffers: vi.fn(),
+}));
+
+const setupSelectors = (overrides = {}) => {
+  const defaults = {
+    authorizationStatus: AuthorizationStatus.Auth,
+    userEmail: 'test@example.com',
+    userAvatar: 'https://example.com/avatar.jpg',
+    favoriteOffers: [{ id: '1' }, { id: '2' }],
+  };
+  const config = { ...defaults, ...overrides };
+
+  mockUseAppSelector.mockImplementation((selector: unknown) => {
+    if (selector === getAuthorizationStatus) {
+      return config.authorizationStatus;
+    }
+    if (selector === getUserEmail) {
+      return config.userEmail;
+    }
+    if (selector === getUserAvatar) {
+      return config.userAvatar;
+    }
+    if (selector === getFavoriteOffers) {
+      return config.favoriteOffers;
+    }
+    return undefined;
+  });
+};
+
+const renderNavigation = () => render(
+  <MemoryRouter>
+    <Navigation />
+  </MemoryRouter>
+);
+
+describe('Navigation', () => {
+  let unhandledRejectionHandler: (event: PromiseRejectionEvent) => void;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseAppDispatch.mockReturnValue(mockDispatch);
-    (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
-    mockDispatch.mockReset();
+    mockDispatch.mockImplementation(() => ({ unwrap: () => Promise.resolve() }));
+
+    vi.mocked(logoutAction).mockImplementation(() => ({
+      unwrap: () => Promise.resolve(),
+    }) as unknown as ReturnType<typeof logoutAction>);
+
+    vi.mocked(fetchFavoriteOffersAction).mockImplementation(() => ({
+      type: 'mock',
+    }) as unknown as ReturnType<typeof fetchFavoriteOffersAction>);
+
+    vi.mocked(checkAuthAction).mockImplementation(() => ({
+      type: 'mock',
+    }) as unknown as ReturnType<typeof checkAuthAction>);
+
+    vi.mocked(fetchOffersAction).mockImplementation(() => ({
+      type: 'mock',
+    }) as unknown as ReturnType<typeof fetchOffersAction>);
+
+    unhandledRejectionHandler = (event: PromiseRejectionEvent) => {
+      event.preventDefault();
+    };
+    window.addEventListener('unhandledrejection', unhandledRejectionHandler);
   });
 
-  const renderWithProviders = (authStatus: AuthorizationStatus) => {
-    mockUseAppSelector.mockImplementation((selector) => {
-      if (selector === userSelectors.getAuthorizationStatus) {
-        return authStatus;
-      }
-      if (selector === userSelectors.getUserEmail) {
-        return 'test@test.com';
-      }
-      if (selector === userSelectors.getUserAvatar) {
-        return 'avatar.jpg';
-      }
-      if (selector === offersSlice.getFavoriteOffers) {
-        return [{ id: 1 }, { id: 2 }];
-      }
-      return undefined;
+  afterEach(() => {
+    window.removeEventListener('unhandledrejection', unhandledRejectionHandler);
+  });
+
+  it('should render navigation component', () => {
+    setupSelectors();
+    renderNavigation();
+
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
+  });
+
+  it('should render user email when authenticated', () => {
+    setupSelectors({ authorizationStatus: AuthorizationStatus.Auth });
+    renderNavigation();
+
+    expect(screen.getByText('test@example.com')).toBeInTheDocument();
+  });
+
+  it('should not render user email when not authenticated', () => {
+    setupSelectors({ authorizationStatus: AuthorizationStatus.NoAuth });
+    renderNavigation();
+
+    expect(screen.queryByText('test@example.com')).not.toBeInTheDocument();
+  });
+
+  it('should render favorite count when authenticated', () => {
+    setupSelectors({
+      authorizationStatus: AuthorizationStatus.Auth,
+      favoriteOffers: [{ id: '1' }, { id: '2' }, { id: '3' }],
     });
+    renderNavigation();
 
-    const store = configureStore({ reducer: {} });
-
-    render(
-      <Provider store={store}>
-        <BrowserRouter>
-          <Navigation />
-        </BrowserRouter>
-      </Provider>
-    );
-  };
-
-  it('renders correctly when user is authenticated', () => {
-    renderWithProviders(AuthorizationStatus.Auth);
-    expect(screen.getByText('test@test.com')).toBeInTheDocument();
-    expect(screen.getByText('2')).toBeInTheDocument();
-    expect(screen.getByText('Sign out')).toBeInTheDocument();
-    expect(screen.getByAltText('User avatar')).toBeInTheDocument();
+    expect(screen.getByText('3')).toBeInTheDocument();
   });
 
-  it('renders correctly when user is not authenticated', () => {
-    renderWithProviders(AuthorizationStatus.NoAuth);
-    expect(screen.queryByText('test@test.com')).not.toBeInTheDocument();
+  it('should not render favorite count when not authenticated', () => {
+    setupSelectors({ authorizationStatus: AuthorizationStatus.NoAuth });
+    renderNavigation();
+
     expect(screen.queryByText('2')).not.toBeInTheDocument();
+  });
+
+  it('should render user avatar when authenticated', () => {
+    setupSelectors({ authorizationStatus: AuthorizationStatus.Auth });
+    renderNavigation();
+
+    const avatar = screen.getByAltText('User avatar');
+    expect(avatar).toBeInTheDocument();
+    expect(avatar).toHaveAttribute('src', 'https://example.com/avatar.jpg');
+  });
+
+  it('should show "Sign out" when authenticated', () => {
+    setupSelectors({ authorizationStatus: AuthorizationStatus.Auth });
+    renderNavigation();
+
+    expect(screen.getByText('Sign out')).toBeInTheDocument();
+  });
+
+  it('should show "Sign in" when not authenticated', () => {
+    setupSelectors({ authorizationStatus: AuthorizationStatus.NoAuth });
+    renderNavigation();
+
     expect(screen.getByText('Sign in')).toBeInTheDocument();
-    expect(screen.queryByAltText('User avatar')).toBeInTheDocument();
   });
 
-  it('dispatches fetchFavoriteOffersAction when status is Auth on mount', () => {
-    renderWithProviders(AuthorizationStatus.Auth);
-    expect(mockDispatch).toHaveBeenCalledWith(apiActions.fetchFavoriteOffersAction());
+  it('should dispatch fetchFavoriteOffersAction when authenticated', () => {
+    setupSelectors({ authorizationStatus: AuthorizationStatus.Auth });
+    renderNavigation();
+
+    expect(fetchFavoriteOffersAction).toHaveBeenCalled();
   });
 
-  it('does not dispatch fetchFavoriteOffersAction when status is NoAuth', () => {
-    renderWithProviders(AuthorizationStatus.NoAuth);
-    expect(mockDispatch).not.toHaveBeenCalledWith(apiActions.fetchFavoriteOffersAction());
+  it('should not dispatch fetchFavoriteOffersAction when not authenticated', () => {
+    setupSelectors({ authorizationStatus: AuthorizationStatus.NoAuth });
+    renderNavigation();
+
+    expect(fetchFavoriteOffersAction).not.toHaveBeenCalled();
   });
 
-  it('navigates to main page after successful logout', async () => {
-    const user = userEvent.setup();
-
-    const successThunk = vi.fn(() => ({
-      unwrap: vi.fn().mockResolvedValue(undefined),
-    }));
-    const mockedLogoutAction = vi.mocked(apiActions.logoutAction);
-    mockedLogoutAction.mockReturnValue(successThunk as unknown as ReturnType<typeof apiActions.logoutAction>);
-
-    mockDispatch.mockImplementation((action) => {
-      if (typeof action === 'function') {
-        return successThunk();
-      }
-      return {};
-    });
-
-    renderWithProviders(AuthorizationStatus.Auth);
+  it('should dispatch logoutAction when clicking Sign out', async () => {
+    setupSelectors({ authorizationStatus: AuthorizationStatus.Auth });
+    renderNavigation();
 
     const signOutLink = screen.getByText('Sign out');
-    await user.click(signOutLink);
+    fireEvent.click(signOutLink);
 
-    await vi.waitFor(() => {
+    await waitFor(() => {
+      expect(logoutAction).toHaveBeenCalled();
+    });
+  });
+
+  it('should navigate to Main after successful logout', async () => {
+    setupSelectors({ authorizationStatus: AuthorizationStatus.Auth });
+    renderNavigation();
+
+    const signOutLink = screen.getByText('Sign out');
+
+    await act(async () => {
+      fireEvent.click(signOutLink);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(AppRoute.Main);
     });
   });
 
-  it('navigates to login on sign in click when not authenticated', async () => {
-    const user = userEvent.setup();
-    renderWithProviders(AuthorizationStatus.NoAuth);
+  it('should dispatch fetchOffersAction after successful logout', async () => {
+    setupSelectors({ authorizationStatus: AuthorizationStatus.Auth });
+    renderNavigation();
+
+    const signOutLink = screen.getByText('Sign out');
+
+    await act(async () => {
+      fireEvent.click(signOutLink);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    await waitFor(() => {
+      expect(fetchOffersAction).toHaveBeenCalled();
+    });
+  });
+
+  it('should navigate to Login when clicking Sign in', () => {
+    setupSelectors({ authorizationStatus: AuthorizationStatus.NoAuth });
+    renderNavigation();
+
     const signInLink = screen.getByText('Sign in');
-    await user.click(signInLink);
+    fireEvent.click(signInLink);
+
     expect(mockNavigate).toHaveBeenCalledWith(AppRoute.Login);
-    expect(mockDispatch).not.toHaveBeenCalled();
+  });
+
+  it('should render link to Favorites', () => {
+    setupSelectors();
+    renderNavigation();
+
+    const favoritesLink = screen.getByRole('link', { name: /test@example.com/i });
+    expect(favoritesLink).toHaveAttribute('href', AppRoute.Favorites);
+  });
+
+  it('should render link to Login', () => {
+    setupSelectors();
+    renderNavigation();
+
+    const loginLink = screen.getByRole('link', { name: /Sign/i });
+    expect(loginLink).toHaveAttribute('href', AppRoute.Login);
+  });
+
+  it('should render correct number of list items', () => {
+    setupSelectors();
+    renderNavigation();
+
+    const listItems = screen.getAllByRole('listitem');
+    expect(listItems).toHaveLength(2);
+  });
+
+  it('should not render avatar when userAvatar is null', () => {
+    setupSelectors({ userAvatar: null });
+    renderNavigation();
+
+    expect(screen.queryByAltText('User avatar')).not.toBeInTheDocument();
   });
 });

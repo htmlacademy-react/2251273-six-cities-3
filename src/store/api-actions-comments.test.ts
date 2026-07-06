@@ -14,7 +14,7 @@ type AppThunkDispatch = ThunkDispatch<State, ReturnType<typeof createAPI>, Actio
 
 const extractActionsTypes = (actions: Action<string>[]) => actions.map(({ type }) => type);
 
-describe('Async actions: offers', () => {
+describe('Async actions: comments', () => {
   const axios = createAPI();
   const mockAxiosAdapter = new MockAdapter(axios);
   const middleware = [thunk.withExtraArgument(axios)];
@@ -59,6 +59,35 @@ describe('Async actions: offers', () => {
       ]);
     });
 
+    it('should return comments in fulfilled payload on success', async () => {
+      mockAxiosAdapter
+        .onGet(`${APIRoute.Comments}/${OFFER.id}`)
+        .reply(200, COMMENTS);
+
+      await store.dispatch(fetchCommentsOfferAction(OFFER.id));
+
+      const actions = store.getActions();
+      const fulfilledAction = actions[1] as ReturnType<typeof fetchCommentsOfferAction.fulfilled>;
+      expect(fulfilledAction.payload).toEqual(COMMENTS);
+    });
+
+    it('should dispatch pending and fulfilled with empty array', async () => {
+      mockAxiosAdapter
+        .onGet(`${APIRoute.Comments}/${OFFER.id}`)
+        .reply(200, []);
+
+      await store.dispatch(fetchCommentsOfferAction(OFFER.id));
+
+      const actions = extractActionsTypes(store.getActions());
+      expect(actions).toEqual([
+        fetchCommentsOfferAction.pending.type,
+        fetchCommentsOfferAction.fulfilled.type,
+      ]);
+
+      const fulfilledAction = store.getActions()[1] as unknown as { payload: unknown };
+      expect(fulfilledAction.payload).toEqual([]);
+    });
+
     it('should dispatch pending and rejected on failure', async () => {
       mockAxiosAdapter
         .onGet(`${APIRoute.Comments}/${OFFER.id}`)
@@ -72,40 +101,66 @@ describe('Async actions: offers', () => {
         fetchCommentsOfferAction.rejected.type,
       ]);
     });
-  });
 
-  describe('postCommentsOfferAction', () => {
-    it('should dispatch all actions in correct order on success', async () => {
-      mockAxiosAdapter
-        .onPost(`${APIRoute.Comments}/${OFFER.id}`)
-        .reply(200);
+    it('should make GET request with correct URL', async () => {
       mockAxiosAdapter
         .onGet(`${APIRoute.Comments}/${OFFER.id}`)
         .reply(200, COMMENTS);
+
+      await store.dispatch(fetchCommentsOfferAction(OFFER.id));
+
+      const getRequests = mockAxiosAdapter.history.get;
+      expect(getRequests).toHaveLength(1);
+      expect(getRequests[0].url).toBe(`${APIRoute.Comments}/${OFFER.id}`);
+    });
+  });
+
+  describe('postCommentsOfferAction', () => {
+    it('should dispatch pending and fulfilled on success', async () => {
+      mockAxiosAdapter
+        .onPost(`${APIRoute.Comments}/${OFFER.id}`)
+        .reply(200);
 
       await store.dispatch(
         postCommentsOfferAction({ offerId: OFFER.id, comment: 'test comment', rating: 5 })
       );
 
       const actions = extractActionsTypes(store.getActions());
-
       expect(actions).toEqual([
         postCommentsOfferAction.pending.type,
-        fetchCommentsOfferAction.pending.type,
-        fetchCommentsOfferAction.fulfilled.type,
         postCommentsOfferAction.fulfilled.type,
       ]);
+    });
 
-      const postRequests = mockAxiosAdapter.history.post.filter(
-        (req) => req.url === `${APIRoute.Comments}/${OFFER.id}`
+    it('should make POST request with correct URL and body', async () => {
+      mockAxiosAdapter
+        .onPost(`${APIRoute.Comments}/${OFFER.id}`)
+        .reply(200);
+
+      await store.dispatch(
+        postCommentsOfferAction({ offerId: OFFER.id, comment: 'test comment', rating: 5 })
       );
 
-      const getRequests = mockAxiosAdapter.history.get.filter(
-        (req) => req.url === `${APIRoute.Comments}/${OFFER.id}`
-      );
-
+      const postRequests = mockAxiosAdapter.history.post;
       expect(postRequests).toHaveLength(1);
-      expect(getRequests).toHaveLength(1);
+      expect(postRequests[0].url).toBe(`${APIRoute.Comments}/${OFFER.id}`);
+      expect(JSON.parse(postRequests[0].data as string)).toEqual({
+        comment: 'test comment',
+        rating: 5,
+      });
+    });
+
+    it('should not make GET request after POST', async () => {
+      mockAxiosAdapter
+        .onPost(`${APIRoute.Comments}/${OFFER.id}`)
+        .reply(200);
+
+      await store.dispatch(
+        postCommentsOfferAction({ offerId: OFFER.id, comment: 'test comment', rating: 5 })
+      );
+
+      const getRequests = mockAxiosAdapter.history.get;
+      expect(getRequests).toHaveLength(0);
     });
 
     it('should dispatch pending and rejected on POST failure', async () => {
@@ -118,21 +173,24 @@ describe('Async actions: offers', () => {
       );
 
       const actions = extractActionsTypes(store.getActions());
-
       expect(actions).toEqual([
         postCommentsOfferAction.pending.type,
         postCommentsOfferAction.rejected.type,
       ]);
+    });
 
-      const postRequests = mockAxiosAdapter.history.post.filter(
-        (req) => req.url === `${APIRoute.Comments}/${OFFER.id}`
+    it('should make POST request even when it fails', async () => {
+      mockAxiosAdapter
+        .onPost(`${APIRoute.Comments}/${OFFER.id}`)
+        .reply(400);
+
+      await store.dispatch(
+        postCommentsOfferAction({ offerId: OFFER.id, comment: 'test comment', rating: 5 })
       );
+
+      const postRequests = mockAxiosAdapter.history.post;
       expect(postRequests).toHaveLength(1);
-
-      const getRequests = mockAxiosAdapter.history.get.filter(
-        (req) => req.url === `${APIRoute.Comments}/${OFFER.id}`
-      );
-      expect(getRequests).toHaveLength(0);
+      expect(postRequests[0].url).toBe(`${APIRoute.Comments}/${OFFER.id}`);
     });
   });
 });

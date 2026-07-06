@@ -1,10 +1,10 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import { NameSpace } from '../const';
-import { offersSlice } from '../store/slices/offers-slice';
-import { citySlice } from '../store/slices/city-slice';
-import { sortingSlice } from '../store/slices/sorting-slice';
-import { userSlice } from '../store/slices/user-slice';
-import { offerSlice } from '../store/slices/offer-slice';
+import { offersSlice } from './slices/offers-slice';
+import { citySlice } from './slices/city-slice';
+import { sortingSlice } from './slices/sorting-slice';
+import { userSlice } from './slices/user-slice';
+import { offerSlice } from './slices/offer-slice';
 import { errorSlice } from './slices/error-slice';
 
 export const rootReducer = combineReducers({

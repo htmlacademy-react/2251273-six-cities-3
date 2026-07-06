@@ -4,6 +4,10 @@ import { Logo } from '../logo/logo';
 import { Navigation } from '../navigation/navigation';
 import { Footer } from '../footer/footer';
 import { AppRoute } from '../../const';
+import { getErrorType } from '../../store/selectors/error-slice';
+import { useAppSelector } from '../../hooks/hooks';
+import { clsx } from 'clsx';
+import { TYPE_OF_ERROR } from '../../const';
 
 type LayoutState = {
   classNamePage: string;
@@ -64,9 +68,10 @@ const getLayoutState = (pathname: AppRoute): LayoutState => {
 function Layout(): JSX.Element {
   const { pathname } = useLocation();
   const { classNamePage, navigationState, logoState, footerState, titlePage } = getLayoutState(pathname as AppRoute);
+  const errorType = useAppSelector(getErrorType);
 
   return (
-    <div className={classNamePage}>
+    <div className={`${classNamePage} ${clsx({ 'page--favorites-empty': errorType === TYPE_OF_ERROR.ERROR_EMPTY_OFFERS })}`} >
       <Helmet>
         <title>{titlePage}</title>
       </Helmet>
