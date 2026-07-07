@@ -1,14 +1,16 @@
-import { useState, Fragment, useRef } from 'react';
-import { REVIEW_OFFER, RATING_OFFER } from '../../const';
-import { postCommentsOfferAction } from '../../store/api-actions';
+import { useState, Fragment } from 'react';
+import { REVIEW_OFFER, RATING_OFFER, TYPE_OF_ERROR } from '../../const';
+import { fetchCommentsOfferAction, postCommentsOfferAction } from '../../store/api-actions';
 import { useAppDispatch } from '../../hooks/hooks';
 import { useParams } from 'react-router-dom';
-import { switchButton } from '../../utils';
+import { setErrorType } from '../../store/action';
 
 function ReviewsForm(): JSX.Element {
   const dispatch = useAppDispatch();
   const offerId: string = useParams().offerId || '';
-  const formSubmitButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [reviewsOffer, setReviewsOffer] = useState({
     rating: 0,
     comment: '',
@@ -22,28 +24,34 @@ function ReviewsForm(): JSX.Element {
   }
 
   function checkButtonDisabled() {
-    if (reviewsOffer.comment.length >= REVIEW_OFFER.MIN_COMMENT_LENGTH && reviewsOffer.comment.length <= REVIEW_OFFER.MAX_COMMENT_LENGTH && reviewsOffer.rating !== 0) {
-      return false;
-    }
-    return true;
+    const isCommentValid = reviewsOffer.comment.length >= REVIEW_OFFER.MIN_COMMENT_LENGTH &&
+      reviewsOffer.comment.length <= REVIEW_OFFER.MAX_COMMENT_LENGTH;
+    const isRatingValid = reviewsOffer.rating !== 0;
+
+    return !(isCommentValid && isRatingValid);
   }
 
   async function handleFormSubmit(): Promise<void> {
-    switchButton(formSubmitButtonRef.current, true);
+    setIsSubmitting(true);
+
     try {
       await dispatch(postCommentsOfferAction({
         offerId,
         comment: reviewsOffer.comment,
         rating: reviewsOffer.rating,
       })).unwrap();
+
       setReviewsOffer({
         rating: 0,
         comment: '',
       });
+      dispatch(setErrorType(null));
+      dispatch(fetchCommentsOfferAction(offerId));
     } catch {
-      throw new Error('Error postReviewAction');
+      dispatch(setErrorType(TYPE_OF_ERROR.ERROR_ADD_COMMENT));
+      throw new Error('Error');
     } finally {
-      switchButton(formSubmitButtonRef.current, false);
+      setIsSubmitting(false);
     }
   }
 
@@ -55,34 +63,34 @@ function ReviewsForm(): JSX.Element {
   return (
     <form className='reviews__form form' action='#' method='post' onSubmit={onFormSubmit}>
       <label className='reviews__label form__label' htmlFor='review'>Your review</label>
+
       <div className='reviews__rating-form form__rating'>
         {RATING_OFFER.map(({ value, label }) => (
-          (
-            <Fragment key={value}>
-              <input
-                className='form__rating-input visually-hidden'
-                name='rating'
-                value={value}
-                id={`star-${value}`}
-                type='radio'
-                onChange={(event) => handleReviewsOfferChange('rating', Number(event.target.value))}
-                checked={value === reviewsOffer.rating}
-                data-testid={`rating-${value}`}
-              />
-              <label
-                className='reviews__rating-label form__rating-label'
-                htmlFor={`star-${value}`}
-                title={label}
-              >
-                <svg className='form__star-image' width='37' height='33'>
-                  <use xlinkHref='#icon-star'></use>
-                </svg>
-              </label>
-            </Fragment>
-
-          )
+          <Fragment key={value}>
+            <input
+              className='form__rating-input visually-hidden'
+              name='rating'
+              value={value}
+              id={`${value}-star${value > 1 ? 's' : ''}`}
+              type='radio'
+              onChange={(event) => handleReviewsOfferChange('rating', Number(event.target.value))}
+              checked={value === reviewsOffer.rating}
+              disabled={isSubmitting}
+              data-testid={`rating-${value}`}
+            />
+            <label
+              className='reviews__rating-label form__rating-label'
+              htmlFor={`${value}-star${value > 1 ? 's' : ''}`}
+              title={label}
+            >
+              <svg className='form__star-image' width='37' height='33'>
+                <use xlinkHref='#icon-star'></use>
+              </svg>
+            </label>
+          </Fragment>
         ))}
       </div>
+
       <textarea
         className='reviews__textarea form__textarea'
         id='review'
@@ -90,9 +98,11 @@ function ReviewsForm(): JSX.Element {
         placeholder='Tell how was your stay, what you like and what can be improved'
         onChange={(event) => handleReviewsOfferChange('comment', event.target.value)}
         value={reviewsOffer.comment}
-      >
-      </textarea>
+        disabled={isSubmitting}
+      />
+
       <div className='reviews__button-wrapper'>
+
         <p className='reviews__help'>
           To submit review please make sure to set
           <span className='reviews__star'>rating</span>
@@ -100,14 +110,17 @@ function ReviewsForm(): JSX.Element {
           <b className='reviews__text-amount'>{REVIEW_OFFER.MIN_COMMENT_LENGTH} characters</b>.
         </p>
         <button
-          ref={formSubmitButtonRef}
           className='reviews__submit form__submit button'
           type='submit'
-          disabled={checkButtonDisabled()}
-        >Submit
+          disabled={isSubmitting || checkButtonDisabled()}
+        >
+          {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>
       </div>
+
     </form>
+
+
   );
 }
 

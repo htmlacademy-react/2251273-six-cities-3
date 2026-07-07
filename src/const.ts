@@ -55,14 +55,10 @@ const REVIEW_OFFER = {
 
 const MAP_MARKER_DEFAULT: leaflet.IconOptions = {
   iconUrl: 'img/pin.svg',
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
 };
 
 const MAP_MARKER_ACTIVE: leaflet.IconOptions = {
   iconUrl: 'img/pin-active.svg',
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
 };
 
 const CONFIGURATION_API = {
@@ -88,6 +84,7 @@ const TYPE_OF_ERROR = {
   ERROR_LOGIN: 'ERROR_LOGIN',
   ERROR_LOGIN_EMAIL: 'ERROR_LOGIN_EMAIL',
   ERROR_LOGIN_PASSWORD: 'ERROR_LOGIN_PASSWORD',
+  ERROR_ADD_COMMENT: 'ERROR_ADD_COMMENT',
 };
 
 const SYSTEM_MESSAGE = {
@@ -98,11 +95,12 @@ const SYSTEM_MESSAGE = {
   ERROR_LOGIN: 'Error login, please try again',
   ERROR_LOGIN_EMAIL: 'Enter a valid email address, please try again;  example: 0u7YI@example.com',
   ERROR_LOGIN_PASSWORD: 'Enter a valid password, please try again; example: Password123456',
+  ERROR_ADD_COMMENT: 'Error add comment, please try again',
 };
 
 const EMAIL_REGEXP = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-const PASSWORD_REGEXP = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+const PASSWORD_REGEXP = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{2,}$/;
 
 export enum AppRoute {
   Main = '/',

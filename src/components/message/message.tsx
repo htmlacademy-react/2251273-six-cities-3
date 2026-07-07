@@ -31,6 +31,9 @@ function Message(): JSX.Element {
       case TYPE_OF_ERROR.ERROR_LOGIN_PASSWORD:
         return SYSTEM_MESSAGE.ERROR_LOGIN_PASSWORD;
 
+      case TYPE_OF_ERROR.ERROR_ADD_COMMENT:
+        return SYSTEM_MESSAGE.ERROR_ADD_COMMENT;
+
       default:
         return '';
     }

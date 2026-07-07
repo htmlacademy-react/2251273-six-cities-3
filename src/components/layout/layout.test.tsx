@@ -1,116 +1,174 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { HelmetProvider } from 'react-helmet-async';
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import { Layout } from './layout';
-import { AppRoute } from '../../const';
+
+import { getErrorType } from '../../store/selectors/error-slice';
+import { AppRoute, TYPE_OF_ERROR } from '../../const';
+
+const { mockUseAppSelector } = vi.hoisted(() => ({
+  mockUseAppSelector: vi.fn(),
+}));
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return {
+    ...actual,
+    useLocation: vi.fn(),
+  };
+});
+
+vi.mock('../../hooks/hooks', () => ({
+  useAppSelector: mockUseAppSelector,
+}));
+
+vi.mock('../../store/selectors/error-slice', () => ({
+  getErrorType: vi.fn(),
+}));
 
 vi.mock('../logo/logo', () => ({
-  Logo: vi.fn(({ logoState }) => (
-    <div data-testid="logo" data-logo-state={String(logoState)}>
-      Logo
-    </div>
-  )),
+  Logo: ({ logoState }: { logoState: boolean }) => (
+    <div data-testid="logo">{logoState ? 'Logo Visible' : 'Logo Hidden'}</div>
+  ),
 }));
 
 vi.mock('../navigation/navigation', () => ({
-  Navigation: vi.fn(() => <div data-testid="navigation">Navigation</div>),
+  Navigation: () => <div data-testid="navigation">Navigation</div>,
 }));
 
 vi.mock('../footer/footer', () => ({
-  Footer: vi.fn(() => <div data-testid="footer">Footer</div>),
+  Footer: () => <div data-testid="footer">Footer</div>,
 }));
 
-const renderWithRouter = (path: string, outletContent: string = 'Outlet Content') => {
-  let routePath = path;
-  if (path.startsWith(AppRoute.Offer)) {
-    routePath = `${AppRoute.Offer}/:id`;
-  }
+vi.mock('react-helmet-async', () => ({
+  Helmet: ({ children }: { children: React.ReactNode }) => <div data-testid="helmet">{children}</div>,
+}));
+
+import { useLocation } from 'react-router-dom';
+
+const renderLayout = (pathname: string) => {
+  vi.mocked(useLocation).mockReturnValue({
+    pathname,
+    search: '',
+    hash: '',
+    state: null,
+    key: 'default',
+  });
 
   return render(
-    <HelmetProvider>
-      <MemoryRouter initialEntries={[path]}>
-        <Routes>
-          <Route path={routePath} element={<Layout />}>
-            <Route index element={<div data-testid="outlet">{outletContent}</div>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
-    </HelmetProvider>
+    <MemoryRouter>
+      <Layout />
+    </MemoryRouter>
   );
 };
 
+const setupSelector = (errorType: string | null = null) => {
+  mockUseAppSelector.mockImplementation((selector) => {
+    if (selector === getErrorType) {
+      return errorType;
+    }
+    return undefined;
+  });
+};
+
+const getContainer = () => document.querySelector('.page') as HTMLElement;
+
 describe('Layout', () => {
-  it('should render Main page correctly', () => {
-    renderWithRouter(AppRoute.Main);
-    expect(screen.getByTestId('logo')).toHaveAttribute('data-logo-state', 'true');
-    expect(screen.getByTestId('navigation')).toBeInTheDocument();
-    expect(screen.queryByTestId('footer')).not.toBeInTheDocument();
-    expect(screen.getByTestId('outlet')).toBeInTheDocument();
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setupSelector();
   });
 
-  it('should render Offer page correctly', () => {
-    renderWithRouter(`${AppRoute.Offer}/123`);
-    expect(screen.getByTestId('logo')).toHaveAttribute('data-logo-state', 'false');
+  it('should render main page correctly', () => {
+    renderLayout(AppRoute.Main);
+
+    const container = getContainer();
+    expect(container).toHaveClass('page--gray');
+    expect(container).toHaveClass('page--main');
     expect(screen.getByTestId('navigation')).toBeInTheDocument();
+    expect(screen.getByTestId('logo')).toHaveTextContent('Logo Visible');
     expect(screen.queryByTestId('footer')).not.toBeInTheDocument();
   });
 
-  it('should render Login page correctly', () => {
-    renderWithRouter(AppRoute.Login);
-    expect(screen.getByTestId('logo')).toHaveAttribute('data-logo-state', 'false');
+  it('should render offer page correctly', () => {
+    renderLayout(AppRoute.Offer);
+
+    const container = getContainer();
+    expect(container).toHaveClass('page');
+    expect(container).not.toHaveClass('page--gray');
+    expect(screen.getByTestId('navigation')).toBeInTheDocument();
+    expect(screen.getByTestId('logo')).toHaveTextContent('Logo Hidden');
+    expect(screen.queryByTestId('footer')).not.toBeInTheDocument();
+  });
+
+  it('should render login page correctly', () => {
+    renderLayout(AppRoute.Login);
+
+    const container = getContainer();
+    expect(container).toHaveClass('page--gray');
+    expect(container).toHaveClass('page--login');
     expect(screen.queryByTestId('navigation')).not.toBeInTheDocument();
+    expect(screen.getByTestId('logo')).toHaveTextContent('Logo Hidden');
     expect(screen.queryByTestId('footer')).not.toBeInTheDocument();
   });
 
-  it('should render Favorites page correctly', () => {
-    renderWithRouter(AppRoute.Favorites);
-    expect(screen.getByTestId('logo')).toHaveAttribute('data-logo-state', 'false');
+  it('should render favorites page correctly', () => {
+    renderLayout(AppRoute.Favorites);
+
+    const container = getContainer();
+    expect(container).toHaveClass('page');
     expect(screen.getByTestId('navigation')).toBeInTheDocument();
+    expect(screen.getByTestId('logo')).toHaveTextContent('Logo Hidden');
     expect(screen.getByTestId('footer')).toBeInTheDocument();
   });
 
-  it('should render unknown route with default state', () => {
-    renderWithRouter('/unknown');
-    expect(screen.getByTestId('logo')).toHaveAttribute('data-logo-state', 'false');
+  it('should render default page for unknown route', () => {
+    renderLayout('/unknown');
+
+    const container = getContainer();
+    expect(container).toHaveClass('page');
     expect(screen.queryByTestId('navigation')).not.toBeInTheDocument();
+    expect(screen.getByTestId('logo')).toHaveTextContent('Logo Hidden');
     expect(screen.queryByTestId('footer')).not.toBeInTheDocument();
   });
 
-  describe('Helmet title', () => {
-    it('should set correct title for Main', async () => {
-      renderWithRouter(AppRoute.Main);
-      await waitFor(() => {
-        expect(document.title).toBe('6 cities - Main');
-      });
-    });
+  it('should add favorites-empty class when error is ERROR_EMPTY_OFFERS', () => {
+    setupSelector(TYPE_OF_ERROR.ERROR_EMPTY_OFFERS);
+    renderLayout(AppRoute.Favorites);
 
-    it('should set correct title for Offer', async () => {
-      renderWithRouter(`${AppRoute.Offer}/123`);
-      await waitFor(() => {
-        expect(document.title).toBe('6 cities - Offer');
-      });
-    });
+    const container = getContainer();
+    expect(container).toHaveClass('page--favorites-empty');
+  });
 
-    it('should set correct title for Login', async () => {
-      renderWithRouter(AppRoute.Login);
-      await waitFor(() => {
-        expect(document.title).toBe('6 cities - Sign in');
-      });
-    });
+  it('should not add favorites-empty class when error is not ERROR_EMPTY_OFFERS', () => {
+    setupSelector(TYPE_OF_ERROR.ERROR_LOADING_OFFER);
+    renderLayout(AppRoute.Favorites);
 
-    it('should set correct title for Favorites', async () => {
-      renderWithRouter(AppRoute.Favorites);
-      await waitFor(() => {
-        expect(document.title).toBe('6 cities - Favorites');
-      });
-    });
+    const container = getContainer();
+    expect(container).not.toHaveClass('page--favorites-empty');
+  });
 
-    it('should set default title for unknown route', async () => {
-      renderWithRouter('/unknown');
-      await waitFor(() => {
-        expect(document.title).toBe('6 cities');
-      });
-    });
+  it('should set correct title for main page', () => {
+    renderLayout(AppRoute.Main);
+
+    expect(screen.getByTestId('helmet')).toHaveTextContent('6 cities - Main');
+  });
+
+  it('should set correct title for offer page', () => {
+    renderLayout(AppRoute.Offer);
+
+    expect(screen.getByTestId('helmet')).toHaveTextContent('6 cities - Offer');
+  });
+
+  it('should set correct title for login page', () => {
+    renderLayout(AppRoute.Login);
+
+    expect(screen.getByTestId('helmet')).toHaveTextContent('6 cities - Sign in');
+  });
+
+  it('should set correct title for favorites page', () => {
+    renderLayout(AppRoute.Favorites);
+
+    expect(screen.getByTestId('helmet')).toHaveTextContent('6 cities - Favorites');
   });
 });

@@ -8,10 +8,11 @@ import { CommentElementType } from '../types/comments';
 import { createTestStoreWithHistory } from './test-utils';
 import { createAPI } from '../services/api';
 
-describe('fetchOffersAction', () => {
+describe('comments api-actions', () => {
   const axiosInstance = createAPI();
   const mockAxiosAdapter = new MockAdapter(axiosInstance);
   let testStore: ReturnType<typeof createTestStoreWithHistory>;
+
   beforeEach(() => {
     testStore = createTestStoreWithHistory(axiosInstance);
   });
@@ -36,7 +37,6 @@ describe('fetchOffersAction', () => {
     expect(store.getState()[NameSpace.Offer].selectedOfferComments).toEqual(mockComments);
     expect(store.getState()[NameSpace.Offer].selectedOfferCommentsLoadingStatus).toBe(true);
   });
-
 
   it('should dispatch fetchCommentsOfferAction success empty array', async () => {
     const { store, actionHistory } = testStore;
@@ -72,15 +72,16 @@ describe('fetchOffersAction', () => {
 
   it('should dispatch postCommentsOfferAction success', async () => {
     const { store, actionHistory } = testStore;
-    const mockComments: CommentElementType[] = COMMENTS;
+
     mockAxiosAdapter
       .onPost(`${APIRoute.Comments}/${OFFER.id}`)
-      .reply(200);
-    mockAxiosAdapter
-      .onGet(`${APIRoute.Comments}/${OFFER.id}`)
-      .reply(200, mockComments);
+      .reply(200, {});
 
-    await store.dispatch(postCommentsOfferAction({ offerId: OFFER.id, comment: 'test comment', rating: 4 }));
+    await store.dispatch(postCommentsOfferAction({
+      offerId: OFFER.id,
+      comment: 'test comment',
+      rating: 4
+    }));
 
     const fulfilledAction = actionHistory.find(
       (action) => action.type === postCommentsOfferAction.fulfilled.type
@@ -88,10 +89,9 @@ describe('fetchOffersAction', () => {
 
     expect(fulfilledAction).toBeDefined();
 
-    const getRequests = mockAxiosAdapter.history.get;
-
-    expect(getRequests).toHaveLength(1);
-    expect(getRequests[0].url).toBe(`${APIRoute.Comments}/${OFFER.id}`);
+    const postRequests = mockAxiosAdapter.history.post;
+    expect(postRequests).toHaveLength(1);
+    expect(postRequests[0].url).toBe(`${APIRoute.Comments}/${OFFER.id}`);
   });
 
   it('should dispatch postCommentsOfferAction error', async () => {
@@ -100,7 +100,11 @@ describe('fetchOffersAction', () => {
       .onPost(`${APIRoute.Comments}/${OFFER.id}`)
       .reply(400);
 
-    await store.dispatch(postCommentsOfferAction({ offerId: OFFER.id, comment: 'test comment', rating: 4 }));
+    await store.dispatch(postCommentsOfferAction({
+      offerId: OFFER.id,
+      comment: 'test comment',
+      rating: 4
+    }));
 
     const rejectedAction = actionHistory.find(
       (action) => action.type === postCommentsOfferAction.rejected.type

@@ -2,11 +2,11 @@ import { convertRatingToStars } from '../../utils';
 import { CommentElementType } from '../../types/comments';
 import dayjs from 'dayjs';
 
-type ReviewsListProps = {
+type ReviewsCommentsProps = {
   comments: CommentElementType[];
 };
 
-function ReviewsList({ comments }: ReviewsListProps): JSX.Element {
+function ReviewsComments({ comments }: ReviewsCommentsProps): JSX.Element {
   return (
     <ul className='reviews__list'>
       {comments.map((comment) => (
@@ -42,4 +42,4 @@ function ReviewsList({ comments }: ReviewsListProps): JSX.Element {
   );
 }
 
-export {ReviewsList};
+export {ReviewsComments};

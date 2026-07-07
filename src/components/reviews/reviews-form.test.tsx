@@ -1,122 +1,231 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
-import { MemoryRouter, useParams } from 'react-router-dom';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import { ReviewsForm } from './reviews-form';
-import { postCommentsOfferAction } from '../../store/api-actions';
-import { REVIEW_OFFER, RATING_OFFER } from '../../const';
-import { useAppDispatch } from '../../hooks/hooks';
 
-// Мокируем зависимости
+import { postCommentsOfferAction, fetchCommentsOfferAction } from '../../store/api-actions';
+import { setErrorType } from '../../store/action';
+import { REVIEW_OFFER, RATING_OFFER } from '../../const';
+
+const { mockDispatch, mockUseParams } = vi.hoisted(() => ({
+  mockDispatch: vi.fn(),
+  mockUseParams: vi.fn(() => ({ offerId: 'test-offer-id' })),
+}));
+
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return {
     ...actual,
-    useParams: vi.fn(),
+    useParams: mockUseParams,
   };
 });
 
+vi.mock('../../hooks/hooks', () => ({
+  useAppDispatch: () => mockDispatch,
+}));
+
 vi.mock('../../store/api-actions', () => ({
   postCommentsOfferAction: vi.fn(),
+  fetchCommentsOfferAction: vi.fn(),
 }));
 
-vi.mock('../../utils', () => ({
-  switchButton: vi.fn(),
+vi.mock('../../store/action', () => ({
+  setErrorType: vi.fn(),
 }));
 
-vi.mock('../../hooks/hooks', () => ({
-  useAppDispatch: vi.fn(),
-}));
+const renderReviewsForm = () => render(
+  <MemoryRouter>
+    <ReviewsForm />
+  </MemoryRouter>
+);
+
+const fillValidForm = () => {
+  fireEvent.click(screen.getByTestId('rating-5'));
+  fireEvent.change(screen.getByRole('textbox'), {
+    target: { value: 'a'.repeat(REVIEW_OFFER.MIN_COMMENT_LENGTH) },
+  });
+};
+
+const submitForm = () => {
+  const form = document.querySelector('form') as HTMLFormElement;
+  fireEvent.submit(form);
+};
 
 describe('ReviewsForm', () => {
-  const mockDispatch = vi.fn();
-  const mockOfferId = 'offer123';
-
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useParams).mockReturnValue({ offerId: mockOfferId });
-    vi.mocked(useAppDispatch).mockReturnValue(mockDispatch);
-    vi.mocked(postCommentsOfferAction).mockReturnValue({
-      unwrap: vi.fn().mockResolvedValue(undefined),
-    } as unknown as ReturnType<typeof postCommentsOfferAction>);
+    mockUseParams.mockReturnValue({ offerId: 'test-offer-id' });
+    mockDispatch.mockImplementation(() => ({ unwrap: () => Promise.resolve() }));
+
+    vi.mocked(postCommentsOfferAction).mockImplementation(() => ({
+      unwrap: () => Promise.resolve(),
+    }) as unknown as ReturnType<typeof postCommentsOfferAction>);
+
+    vi.mocked(fetchCommentsOfferAction).mockImplementation(() => ({
+      type: 'mock',
+    }) as unknown as ReturnType<typeof fetchCommentsOfferAction>);
   });
 
-  afterEach(() => {
-    vi.clearAllMocks();
+  it('should render form with textarea and submit button', () => {
+    renderReviewsForm();
+    expect(screen.getByRole('textbox')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Submit/i })).toBeInTheDocument();
   });
 
-  const renderComponent = () => {
-    const store = configureStore({
-      reducer: {},
+  it('should render all rating inputs', () => {
+    renderReviewsForm();
+    RATING_OFFER.forEach(({ value }) => {
+      expect(screen.getByTestId(`rating-${value}`)).toBeInTheDocument();
     });
-    render(
-      <Provider store={store}>
-        <MemoryRouter>
-          <ReviewsForm />
-        </MemoryRouter>
-      </Provider>
-    );
-  };
+  });
 
-  it('should render form fields and submit button', () => {
-    renderComponent();
+  it('should have submit button disabled when rating is 0', () => {
+    renderReviewsForm();
+    expect(screen.getByRole('button', { name: /Submit/i })).toBeDisabled();
+  });
 
-    const textarea = screen.getByPlaceholderText(
-      /Tell how was your stay, what you like and what can be improved/i
-    );
-    expect(textarea).toBeInTheDocument();
+  it('should enable submit button when rating and comment are valid', () => {
+    renderReviewsForm();
+    fillValidForm();
+    expect(screen.getByRole('button', { name: /Submit/i })).toBeEnabled();
+  });
+
+  it('should update rating when clicking on rating input', () => {
+    renderReviewsForm();
+    fireEvent.click(screen.getByTestId('rating-4'));
+    expect(screen.getByTestId('rating-4')).toBeChecked();
+  });
+
+  it('should update comment when typing in textarea', () => {
+    renderReviewsForm();
+    const textarea = screen.getByRole('textbox');
+    fireEvent.change(textarea, { target: { value: 'Great place!' } });
+    expect(textarea).toHaveValue('Great place!');
+  });
+
+  it('should dispatch postCommentsOfferAction on form submit', async () => {
+    renderReviewsForm();
+    fillValidForm();
+
+    await act(async () => {
+      submitForm();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(postCommentsOfferAction).toHaveBeenCalledWith({
+      offerId: 'test-offer-id',
+      comment: 'a'.repeat(REVIEW_OFFER.MIN_COMMENT_LENGTH),
+      rating: 5,
+    });
+  });
+
+  it('should reset form after successful submit', async () => {
+    renderReviewsForm();
+    fillValidForm();
+
+    await act(async () => {
+      submitForm();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('textbox')).toHaveValue('');
+    });
 
     RATING_OFFER.forEach(({ value }) => {
-      const radio = screen.getByTestId(`rating-${value}`);
-      expect(radio).toBeInTheDocument();
+      expect(screen.getByTestId(`rating-${value}`)).not.toBeChecked();
+    });
+  });
+
+  it('should dispatch setErrorType with null after successful submit', async () => {
+    renderReviewsForm();
+    fillValidForm();
+
+    await act(async () => {
+      submitForm();
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
-    const submitButton = screen.getByRole('button', { name: /Submit/i });
-    expect(submitButton).toBeDisabled();
+    await waitFor(() => {
+      expect(setErrorType).toHaveBeenCalledWith(null);
+    });
   });
 
-  it('should update rating and comment on user input', async () => {
-    const user = userEvent.setup();
-    renderComponent();
+  it('should dispatch fetchCommentsOfferAction after successful submit', async () => {
+    renderReviewsForm();
+    fillValidForm();
 
-    const textarea = screen.getByPlaceholderText(
-      /Tell how was your stay, what you like and what can be improved/i
-    );
-    const ratingRadio = screen.getByTestId('rating-5');
+    await act(async () => {
+      submitForm();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
 
-    await user.type(textarea, 'Great stay, very comfortable!');
-    expect(textarea).toHaveValue('Great stay, very comfortable!');
-
-    await user.click(ratingRadio);
-    expect(ratingRadio).toBeChecked();
+    await waitFor(() => {
+      expect(fetchCommentsOfferAction).toHaveBeenCalledWith('test-offer-id');
+    });
   });
 
-  it('should enable submit button when rating >= 1 and comment length > MIN_COMMENT_LENGTH', async () => {
-    const user = userEvent.setup();
-    renderComponent();
+  it('should disable form inputs while submitting', async () => {
+    let resolvePromise: (() => void) | undefined;
+    const promise = new Promise<void>((resolve) => {
+      resolvePromise = resolve;
+    });
 
-    const textarea = screen.getByPlaceholderText(
-      /Tell how was your stay, what you like and what can be improved/i
-    );
-    const ratingRadio = screen.getByTestId('rating-1');
-    const submitButton = screen.getByRole('button', { name: /Submit/i });
+    let callCount = 0;
+    mockDispatch.mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) {
+        return { unwrap: () => promise };
+      }
+      return { unwrap: () => Promise.resolve() };
+    });
 
-    expect(submitButton).toBeDisabled();
+    renderReviewsForm();
+    fillValidForm();
 
-    await user.type(textarea, 'a'.repeat(REVIEW_OFFER.MIN_COMMENT_LENGTH + 1));
+    await act(async () => {
+      submitForm();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
 
-    expect(submitButton).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByRole('button')).toHaveTextContent(/Submitting/i);
+    });
 
-    await user.click(ratingRadio);
+    expect(screen.getByRole('textbox')).toBeDisabled();
 
-    expect(submitButton).toBeEnabled();
+    RATING_OFFER.forEach(({ value }) => {
+      expect(screen.getByTestId(`rating-${value}`)).toBeDisabled();
+    });
+
+    resolvePromise?.();
   });
 
-  it('should use offerId from useParams', () => {
-    renderComponent();
+  it('should show "Submitting..." text while submitting', async () => {
+    let resolvePromise: (() => void) | undefined;
+    const promise = new Promise<void>((resolve) => {
+      resolvePromise = resolve;
+    });
 
-    expect(useParams).toHaveBeenCalled();
+    mockDispatch.mockReturnValueOnce({ unwrap: () => promise });
+
+    renderReviewsForm();
+    fillValidForm();
+
+    await act(async () => {
+      submitForm();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('button')).toHaveTextContent(/Submitting/i);
+    });
+
+    resolvePromise?.();
+  });
+
+  it('should display help text with min comment length', () => {
+    renderReviewsForm();
+    expect(screen.getByText(new RegExp(`${REVIEW_OFFER.MIN_COMMENT_LENGTH} characters`))).toBeInTheDocument();
   });
 });
